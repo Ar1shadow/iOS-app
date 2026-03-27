@@ -2,6 +2,8 @@
 
 - Phase: Phase 1 (MVP)
 - 模块: AppCore
+- 状态: Done
+- 最后更新: 2026-03-27
 - 依赖: 100
 - 目标: 定义清晰的依赖注入与路由边界，以及核心系统集成服务的协议层，确保各模块不直接耦合系统 API。
 - 非目标: 不在此任务内实现 EventKit/HealthKit/CloudKit 的完整功能，仅建立可替换的协议与默认实现（可为 no-op 或 mock）。
@@ -29,3 +31,18 @@
 - `$swiftui-ui-refactor`: 用于整理入口与注入点的 SwiftUI 结构，避免 DI/路由逻辑散落在多个视图里；适用于“保持行为不变的结构重排”。
 - `$xcode-simulator-debug`: 用于定位编译错误、模块导入与构建设置问题；适用于“通过 xcodebuild 还原首个错误点”。
 
+## 实施记录
+
+- 开工: 2026-03-27
+- 进展: 新增 `AppContainer`（Environment 注入）与核心系统集成服务协议（no-op 默认实现），并在 `CoupleLifeApp` 根部注入，确保 SwiftUI 不直接耦合系统 API。
+- 下一步: 进入 200，落地 SwiftData 领域模型 v1。
+
+## 验证记录
+
+- 命令: `cd ios-app/App/CoupleLife && xcodegen generate`
+- 命令: `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/CoupleLifeDerivedData110 CODE_SIGNING_ALLOWED=NO build`
+- 结果: `BUILD SUCCEEDED`
+
+## 已知风险/遗留
+
+- 当前服务均为 no-op，占位实现；真实 EventKit/HealthKit/Notifications/CloudKit 接入在后续任务（700/600/710/720）中完成。

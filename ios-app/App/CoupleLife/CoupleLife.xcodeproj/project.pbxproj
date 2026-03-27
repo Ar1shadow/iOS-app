@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		045D953A90B44F6BD392DF2F /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70B8D581D173E3557291D570 /* AppServices.swift */; };
 		1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */; };
 		12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F999C232176D9090AC8577F8 /* PlanningTab.swift */; };
 		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
@@ -17,6 +18,8 @@
 		97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */; };
 		A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9671B30789FB25A48CCF8A5F /* FitnessTab.swift */; };
 		D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91934D543367B87B0C3619D7 /* RootTabView.swift */; };
+		E79F37B3A92F84B52A0178E1 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 270E0C8D8154D41ED1CE1456 /* AppContainer.swift */; };
+		FB0C8D9D0FB834F8F8D64940 /* Routing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,10 +34,13 @@
 
 /* Begin PBXFileReference section */
 		21A32979D371B72D50224A6C /* CalendarTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTab.swift; sourceTree = "<group>"; };
+		270E0C8D8154D41ED1CE1456 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		6EECBC91790905A1DBE811D0 /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
+		70B8D581D173E3557291D570 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		79192C8E0C81DA28DDF58033 /* AppTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabTests.swift; sourceTree = "<group>"; };
 		7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeApp.swift; sourceTree = "<group>"; };
 		8336E99FE744A9F633D4E4DF /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
+		8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routing.swift; sourceTree = "<group>"; };
 		91934D543367B87B0C3619D7 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		9671B30789FB25A48CCF8A5F /* FitnessTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTab.swift; sourceTree = "<group>"; };
 		994E71278FBED4A90F1CA403 /* HomeTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTab.swift; sourceTree = "<group>"; };
@@ -49,9 +55,20 @@
 			isa = PBXGroup;
 			children = (
 				7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */,
+				321C78C005C92D07DD73BFF1 /* AppCore */,
 				89BCA0E96291778B80167B48 /* UI */,
 			);
 			path = CoupleLife;
+			sourceTree = "<group>";
+		};
+		321C78C005C92D07DD73BFF1 /* AppCore */ = {
+			isa = PBXGroup;
+			children = (
+				270E0C8D8154D41ED1CE1456 /* AppContainer.swift */,
+				70B8D581D173E3557291D570 /* AppServices.swift */,
+				8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */,
+			);
+			path = AppCore;
 			sourceTree = "<group>";
 		};
 		410351788C3C8281F15DBD6F /* Root */ = {
@@ -185,6 +202,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E79F37B3A92F84B52A0178E1 /* AppContainer.swift in Sources */,
+				045D953A90B44F6BD392DF2F /* AppServices.swift in Sources */,
 				32A4753AE4297430389420F0 /* AppTab.swift in Sources */,
 				8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */,
 				97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */,
@@ -193,6 +212,7 @@
 				12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */,
 				4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */,
 				D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */,
+				FB0C8D9D0FB834F8F8D64940 /* Routing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
