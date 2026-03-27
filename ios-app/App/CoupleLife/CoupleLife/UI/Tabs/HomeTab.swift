@@ -28,6 +28,8 @@ struct HomeTab: View {
 
                     SharedSectionHeader("状态")
 
+                    SharedTag(text: "通用标签示例", colorToken: .indigo, symbolName: "tag.fill")
+
                     SharedLoadingStateView(title: "正在同步今日摘要…")
 
                     SharedEmptyStateView(

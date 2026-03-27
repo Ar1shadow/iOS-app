@@ -36,6 +36,7 @@
 		E678817803441C39CC389797 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */; };
 		E79F37B3A92F84B52A0178E1 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 270E0C8D8154D41ED1CE1456 /* AppContainer.swift */; };
 		F807011ABFE013FAA2B77C5D /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC211CCD89BA7B038F38054 /* TaskItem.swift */; };
+		F982B8A0F9901F1284895E56 /* SharedTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */; };
 		FB0C8D9D0FB834F8F8D64940 /* Routing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */; };
 		FE1D3DFD0E8AD26B4A469A5D /* RecordTypeVisualStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1809D1FC714722D6066BE180 /* RecordTypeVisualStyle.swift */; };
 		FFEDD51FBC9EA4D6D5BBA634 /* SharedListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC993DA32C57A2066AA1EFBE /* SharedListRow.swift */; };
@@ -81,6 +82,7 @@
 		A8E360A2849A376938BFFD0F /* TaskRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepository.swift; sourceTree = "<group>"; };
 		AC993DA32C57A2066AA1EFBE /* SharedListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedListRow.swift; sourceTree = "<group>"; };
 		C01F7C5581484174DC946167 /* SharedEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEnums.swift; sourceTree = "<group>"; };
+		CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTag.swift; sourceTree = "<group>"; };
 		CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeTests.swift; sourceTree = "<group>"; };
 		E05C56B65ABE346760F15BD0 /* CoupleLife.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CoupleLife.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				18B025D1CB63DB338E0CA478 /* SharedLoadingStateView.swift */,
 				3202B7E6C5B8D68EFFEF8E06 /* SharedSectionHeader.swift */,
 				08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */,
+				CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 				AE36E49B428B064704B27827 /* SharedLoadingStateView.swift in Sources */,
 				7DEE6A3DE3BC331DC385FC1B /* SharedSectionHeader.swift in Sources */,
 				3AA17DB407BF69E45BEE95A2 /* SharedStatusBadge.swift in Sources */,
+				F982B8A0F9901F1284895E56 /* SharedTag.swift in Sources */,
 				F807011ABFE013FAA2B77C5D /* TaskItem.swift in Sources */,
 				91E1FF2A4D60D1CA56CB3539 /* TaskRepository.swift in Sources */,
 			);
