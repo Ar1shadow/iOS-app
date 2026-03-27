@@ -58,13 +58,15 @@
 - 命令: `cd ios-app/App/CoupleLife && xcodegen generate`
 - 命令: `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/CoupleLifeDerivedData CODE_SIGNING_ALLOWED=NO build`
 - 结果: `BUILD SUCCEEDED`
+- 命令: `xcodebuild -downloadPlatform iOS`
+- 备注: 若环境缺少 iOS Simulator runtime，需先安装，否则会出现 “iOS xx.x is not installed” 的 destination 错误。
 - 命令: `xcrun simctl boot 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 && xcrun simctl install 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 /tmp/CoupleLifeDerivedData/Build/Products/Debug-iphonesimulator/CoupleLife.app && xcrun simctl launch 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 com.ar1shadow.couplelife`
 - 结果: 启动成功（PID 返回）
 - 命令: `xcrun simctl io 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 screenshot /tmp/couplelife-task100.png`
 
 ## 已知风险/遗留
 
-- 当前 worktree 尚未存在 `.xcodeproj/.xcworkspace`，无法进行 scheme/destination 级别验证；需先生成工程骨架后再补齐 `xcodebuild build` 与 Simulator 手测。
+- iOS Simulator runtime 缺失会导致 `xcodebuild` 无法选择 destination（可通过 `xcodebuild -downloadPlatform iOS` 修复）。
 
 ## 执行规范
 
