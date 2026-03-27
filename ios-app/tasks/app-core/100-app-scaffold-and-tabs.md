@@ -2,7 +2,7 @@
 
 - Phase: Phase 1 (MVP)
 - 模块: AppCore
-- 状态: In Progress
+- 状态: Done
 - 最后更新: 2026-03-27
 - 依赖: 无
 - 目标: 搭建可运行的 SwiftUI 应用骨架，包含底部 Tab、基础路由与占位页面，为后续模块开发提供稳定入口。
@@ -34,19 +34,38 @@
 ## 实施记录
 
 - 开工: 2026-03-27
-- 进展: 已复现 `xcodebuild` 失败并定位首个可行动错误；完成 `xcodebuild -runFirstLaunch` 修复 Xcode 首次启动组件。
-- 下一步: 由实现 agent 创建最小 Xcode/SwiftUI 工程后，重新执行 `xcodebuild -list` 与 Simulator 构建验证。
+- 进展: 已建立独立 worktree `task/100-app-scaffold-and-tabs`。
+- 进展: 已完成 `xcodebuild -runFirstLaunch`，修复 Xcode 首次启动插件加载问题，为后续 CLI 构建做准备。
+- 进展: 已使用 XcodeGen 生成 `CoupleLife.xcodeproj`，并落地 5 个 Tab + 每个 Tab 独立 `NavigationStack` 占位页。
+- 下一步: 进入 110，补齐 DI/路由/服务协议边界（不在本任务内实现真实系统集成）。
+
+## Definition of Done
+
+- 存在可运行的 SwiftUI App 骨架，启动即进入 5 Tab 入口。
+- 每个 Tab 拥有独立导航栈和占位首页，结构可继续扩展。
+- 任务文件回填了实施记录、验证方式和已知风险。
+- 至少有一种可复现验证方式（若尚无测试，则提供明确的手测路径）。
 
 ## 验证记录
 
+- 命令: `git worktree add .worktrees/task-100-app-scaffold-and-tabs -b task/100-app-scaffold-and-tabs`
 - 命令: `xcodebuild -list`
-- 结果: 初次失败（exit 70），提示 `A required plugin failed to load` 与 `xcodebuild -runFirstLaunch`。
+- 结果: 初次失败（exit 70），提示 `A required plugin failed to load`，需执行 `xcodebuild -runFirstLaunch`。
 - 命令: `xcodebuild -runFirstLaunch`
-- 结果: 修复成功（`Install Succeeded`）。
+- 结果: 成功（`Install Succeeded`）。
 - 命令: `xcodebuild -list`
-- 结果: 当前失败点变为 `The directory ... does not contain an Xcode project, workspace or package.`（exit 66）。
+- 结果: 当前失败点为“目录不包含 Xcode project/workspace/package”（exit 66），说明需要先生成工程骨架。
+- 命令: `cd ios-app/App/CoupleLife && xcodegen generate`
+- 命令: `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/CoupleLifeDerivedData CODE_SIGNING_ALLOWED=NO build`
+- 结果: `BUILD SUCCEEDED`
+- 命令: `xcrun simctl boot 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 && xcrun simctl install 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 /tmp/CoupleLifeDerivedData/Build/Products/Debug-iphonesimulator/CoupleLife.app && xcrun simctl launch 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 com.ar1shadow.couplelife`
+- 结果: 启动成功（PID 返回）
+- 命令: `xcrun simctl io 5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6 screenshot /tmp/couplelife-task100.png`
 
 ## 已知风险/遗留
 
-- 当前仓库无 `.xcodeproj/.xcworkspace`，无法继续进行 scheme/destination 级别调试。
-- 在工程创建前，`xcodebuild` 只能做环境可用性验证，不能覆盖任务验收中的“Simulator 启动与 Tab 切换”。
+- 当前 worktree 尚未存在 `.xcodeproj/.xcworkspace`，无法进行 scheme/destination 级别验证；需先生成工程骨架后再补齐 `xcodebuild build` 与 Simulator 手测。
+
+## 执行规范
+
+- 见 `workflow.md`（任务状态流转、回填规则、最小增量原则）

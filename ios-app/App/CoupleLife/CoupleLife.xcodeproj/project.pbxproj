@@ -1,0 +1,445 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */; };
+		12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F999C232176D9090AC8577F8 /* PlanningTab.swift */; };
+		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
+		32A4753AE4297430389420F0 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8336E99FE744A9F633D4E4DF /* AppTab.swift */; };
+		4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EECBC91790905A1DBE811D0 /* ProfileTab.swift */; };
+		86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79192C8E0C81DA28DDF58033 /* AppTabTests.swift */; };
+		8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A32979D371B72D50224A6C /* CalendarTab.swift */; };
+		97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */; };
+		A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9671B30789FB25A48CCF8A5F /* FitnessTab.swift */; };
+		D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91934D543367B87B0C3619D7 /* RootTabView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D23325E4755DBACED05DF5BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B0F44CC07DEC3EBA0235E80 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88BE2CD0D2268CF4409E4EE6;
+			remoteInfo = CoupleLife;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		21A32979D371B72D50224A6C /* CalendarTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTab.swift; sourceTree = "<group>"; };
+		6EECBC91790905A1DBE811D0 /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
+		79192C8E0C81DA28DDF58033 /* AppTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabTests.swift; sourceTree = "<group>"; };
+		7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeApp.swift; sourceTree = "<group>"; };
+		8336E99FE744A9F633D4E4DF /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
+		91934D543367B87B0C3619D7 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		9671B30789FB25A48CCF8A5F /* FitnessTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTab.swift; sourceTree = "<group>"; };
+		994E71278FBED4A90F1CA403 /* HomeTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTab.swift; sourceTree = "<group>"; };
+		CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeTests.swift; sourceTree = "<group>"; };
+		E05C56B65ABE346760F15BD0 /* CoupleLife.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CoupleLife.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CoupleLifeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F999C232176D9090AC8577F8 /* PlanningTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTab.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1D8F73EDFD4011C6C92D9A99 /* CoupleLife */ = {
+			isa = PBXGroup;
+			children = (
+				7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */,
+				89BCA0E96291778B80167B48 /* UI */,
+			);
+			path = CoupleLife;
+			sourceTree = "<group>";
+		};
+		410351788C3C8281F15DBD6F /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				8336E99FE744A9F633D4E4DF /* AppTab.swift */,
+				91934D543367B87B0C3619D7 /* RootTabView.swift */,
+			);
+			path = Root;
+			sourceTree = "<group>";
+		};
+		6CD1E2235048540326704526 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E05C56B65ABE346760F15BD0 /* CoupleLife.app */,
+				E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8976AF3695DB54FD1F70A35E /* Tabs */ = {
+			isa = PBXGroup;
+			children = (
+				21A32979D371B72D50224A6C /* CalendarTab.swift */,
+				9671B30789FB25A48CCF8A5F /* FitnessTab.swift */,
+				994E71278FBED4A90F1CA403 /* HomeTab.swift */,
+				F999C232176D9090AC8577F8 /* PlanningTab.swift */,
+				6EECBC91790905A1DBE811D0 /* ProfileTab.swift */,
+			);
+			path = Tabs;
+			sourceTree = "<group>";
+		};
+		89BCA0E96291778B80167B48 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				410351788C3C8281F15DBD6F /* Root */,
+				8976AF3695DB54FD1F70A35E /* Tabs */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		A876479A2ED437063A950E5B = {
+			isa = PBXGroup;
+			children = (
+				1D8F73EDFD4011C6C92D9A99 /* CoupleLife */,
+				F0A3E68835B3A09778748A95 /* CoupleLifeTests */,
+				6CD1E2235048540326704526 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F0A3E68835B3A09778748A95 /* CoupleLifeTests */ = {
+			isa = PBXGroup;
+			children = (
+				79192C8E0C81DA28DDF58033 /* AppTabTests.swift */,
+				CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */,
+			);
+			path = CoupleLifeTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		258501C0073824AD0DD100D9 /* CoupleLifeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2386721F84BC9BAC1B79066D /* Build configuration list for PBXNativeTarget "CoupleLifeTests" */;
+			buildPhases = (
+				B2514DA57F65D825BC614D35 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				6EC1A3C7ECB868E82AB5135D /* PBXTargetDependency */,
+			);
+			name = CoupleLifeTests;
+			packageProductDependencies = (
+			);
+			productName = CoupleLifeTests;
+			productReference = E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		88BE2CD0D2268CF4409E4EE6 /* CoupleLife */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CA91C9D68A8C99F3C77D0FD4 /* Build configuration list for PBXNativeTarget "CoupleLife" */;
+			buildPhases = (
+				6965FB0C0FCCCF77E0FFF429 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoupleLife;
+			packageProductDependencies = (
+			);
+			productName = CoupleLife;
+			productReference = E05C56B65ABE346760F15BD0 /* CoupleLife.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6B0F44CC07DEC3EBA0235E80 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 00299AFFF36D91F9BB5EBF2C /* Build configuration list for PBXProject "CoupleLife" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A876479A2ED437063A950E5B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6CD1E2235048540326704526 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				88BE2CD0D2268CF4409E4EE6 /* CoupleLife */,
+				258501C0073824AD0DD100D9 /* CoupleLifeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6965FB0C0FCCCF77E0FFF429 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32A4753AE4297430389420F0 /* AppTab.swift in Sources */,
+				8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */,
+				97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */,
+				A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */,
+				1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */,
+				12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */,
+				4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */,
+				D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2514DA57F65D825BC614D35 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */,
+				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		6EC1A3C7ECB868E82AB5135D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88BE2CD0D2268CF4409E4EE6 /* CoupleLife */;
+			targetProxy = D23325E4755DBACED05DF5BF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3577EEF6641738EB75164DA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CoupleLife.app/CoupleLife";
+			};
+			name = Debug;
+		};
+		5A5F0790DF47253DE6240F49 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife;
+				PRODUCT_NAME = CoupleLife;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		70F2B4FE70F8E297A1430F2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BBF9A2CCA9C839A42700DC84 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife;
+				PRODUCT_NAME = CoupleLife;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E71E4CB19D8DD4197D7A16FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CoupleLife.app/CoupleLife";
+			};
+			name = Release;
+		};
+		E95C813DD6CFEC8EE0E79685 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		00299AFFF36D91F9BB5EBF2C /* Build configuration list for PBXProject "CoupleLife" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E95C813DD6CFEC8EE0E79685 /* Debug */,
+				70F2B4FE70F8E297A1430F2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2386721F84BC9BAC1B79066D /* Build configuration list for PBXNativeTarget "CoupleLifeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3577EEF6641738EB75164DA3 /* Debug */,
+				E71E4CB19D8DD4197D7A16FA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CA91C9D68A8C99F3C77D0FD4 /* Build configuration list for PBXNativeTarget "CoupleLife" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A5F0790DF47253DE6240F49 /* Debug */,
+				BBF9A2CCA9C839A42700DC84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6B0F44CC07DEC3EBA0235E80 /* Project object */;
+}

@@ -1,0 +1,36 @@
+name: CoupleLife
+options:
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+targets:
+  CoupleLife:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: CoupleLife
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ar1shadow.couplelife
+        PRODUCT_NAME: CoupleLife
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+    scheme:
+      testTargets:
+        - CoupleLifeTests
+  CoupleLifeTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: CoupleLifeTests
+    dependencies:
+      - target: CoupleLife
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ar1shadow.couplelife.tests
+        GENERATE_INFOPLIST_FILE: YES
