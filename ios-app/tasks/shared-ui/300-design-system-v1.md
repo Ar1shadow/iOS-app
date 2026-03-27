@@ -36,6 +36,7 @@
 - 开工: 2026-03-27
 - 进展: 新增 SharedUI token 入口（颜色/字体/间距/圆角/阴影）与通用组件（卡片、分区标题、列表行、状态徽标、空状态、加载态）。
 - 进展: 根据规格补齐通用标签组件 `SharedTag`，并将 `SharedStatusBadge` 收敛为薄封装。
+- 进展: 修正 HomeTab 为“SharedUI 静态展示占位”文案，避免伪造业务数据；优化 `SharedListRow` 在无障碍大字号时切换纵向布局。
 - 进展: 新增 `RecordType` 视觉映射目录与 `RecordType.visualStyle` 扩展，并在 HomeTab 采用 SharedUI 组件完成示例落地。
 - 进展: 采用测试先行方式新增 `RecordTypeStyleTests`，先验证失败后补齐实现并通过全量测试。
 - 下一步: 在后续业务页面继续替换重复样式为 SharedUI 组件。
@@ -51,6 +52,8 @@
 - 结果: `BUILD SUCCEEDED`。
 - 命令: `xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' test`（标签补齐后复验）
 - 结果: 通过（6 tests, 0 failures）。
+- 命令: `xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -only-testing:CoupleLifeTests/SharedUIRegressionTests test`
+- 结果: 通过（2 tests, 0 failures），覆盖 HomeTab 展示文案与 `SharedListRow` 动态字体布局策略。
 
 ## 已知风险/遗留
 
