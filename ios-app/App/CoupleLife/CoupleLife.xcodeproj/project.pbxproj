@@ -12,6 +12,8 @@
 		1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */; };
 		12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F999C232176D9090AC8577F8 /* PlanningTab.swift */; };
 		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
+		176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */; };
+		1B5AC1AEC17181C4D5DB6EB9 /* HomeDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C0FD0624418B4406670A53 /* HomeDashboardViewModel.swift */; };
 		26CE30668225110F0EA14F99 /* HealthSnapshotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0C2425B0DFD8F715BA6F /* HealthSnapshotRepository.swift */; };
 		28536A412DF9F10C8A4F5607 /* SharedEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E48EC7161E715DBBA260B5 /* SharedEmptyStateView.swift */; };
 		2AEA94EF567CFB3257C6AF17 /* SharedUIRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACFE3E29AAA12FAFA0C32C19 /* SharedUIRegressionTests.swift */; };
@@ -20,6 +22,7 @@
 		3AA17DB407BF69E45BEE95A2 /* SharedStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */; };
 		3EEF6571BB9D3549C4334A70 /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE2F19E68EA5BCBDC70CC8A /* Record.swift */; };
 		4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EECBC91790905A1DBE811D0 /* ProfileTab.swift */; };
+		417CEF36BB81D9D8BE12DD68 /* HomeDashboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8253843B61454EF7CA142E8D /* HomeDashboardService.swift */; };
 		65EE0448B7346B917EB4972B /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */; };
 		7712F4A19D90F6FEC125483C /* SharedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2741EE92C12BB96455F47425 /* SharedCard.swift */; };
 		7DEE6A3DE3BC331DC385FC1B /* SharedSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3202B7E6C5B8D68EFFEF8E06 /* SharedSectionHeader.swift */; };
@@ -65,12 +68,14 @@
 		41E48EC7161E715DBBA260B5 /* SharedEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEmptyStateView.swift; sourceTree = "<group>"; };
 		4BC211CCD89BA7B038F38054 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 		4CE2F19E68EA5BCBDC70CC8A /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
+		4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardServiceTests.swift; sourceTree = "<group>"; };
 		5068E83D006EA4CF05C06C20 /* RecordRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepository.swift; sourceTree = "<group>"; };
 		5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepositoryTests.swift; sourceTree = "<group>"; };
 		6EECBC91790905A1DBE811D0 /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
 		70B8D581D173E3557291D570 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		79192C8E0C81DA28DDF58033 /* AppTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabTests.swift; sourceTree = "<group>"; };
 		7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeApp.swift; sourceTree = "<group>"; };
+		8253843B61454EF7CA142E8D /* HomeDashboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardService.swift; sourceTree = "<group>"; };
 		8336E99FE744A9F633D4E4DF /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routing.swift; sourceTree = "<group>"; };
 		8A9F423E7436C1EC6683AD83 /* HealthMetricSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthMetricSnapshot.swift; sourceTree = "<group>"; };
@@ -84,6 +89,7 @@
 		AC993DA32C57A2066AA1EFBE /* SharedListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedListRow.swift; sourceTree = "<group>"; };
 		ACFE3E29AAA12FAFA0C32C19 /* SharedUIRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedUIRegressionTests.swift; sourceTree = "<group>"; };
 		C01F7C5581484174DC946167 /* SharedEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEnums.swift; sourceTree = "<group>"; };
+		C6C0FD0624418B4406670A53 /* HomeDashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardViewModel.swift; sourceTree = "<group>"; };
 		CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTag.swift; sourceTree = "<group>"; };
 		CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeTests.swift; sourceTree = "<group>"; };
 		E05C56B65ABE346760F15BD0 /* CoupleLife.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CoupleLife.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -93,6 +99,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		0AD70E06F4A82D1D0E3DA170 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				C6C0FD0624418B4406670A53 /* HomeDashboardViewModel.swift */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
 		1D8F73EDFD4011C6C92D9A99 /* CoupleLife */ = {
 			isa = PBXGroup;
 			children = (
@@ -100,6 +114,7 @@
 				321C78C005C92D07DD73BFF1 /* AppCore */,
 				E1140E4B803D90D89E7D6F6F /* Data */,
 				AA319ED4A21145E7B77E595F /* Domain */,
+				E8FE9265C4CF5E992354C312 /* Home */,
 				F2A5D7ABF7231726884E273B /* SharedUI */,
 				89BCA0E96291778B80167B48 /* UI */,
 			);
@@ -183,6 +198,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		7E292B02730743569F5DBECD /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
 		8976AF3695DB54FD1F70A35E /* Tabs */ = {
 			isa = PBXGroup;
 			children = (
@@ -223,6 +246,14 @@
 			);
 			sourceTree = "<group>";
 		};
+		A9EDE52D9596FF7A70264934 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				8253843B61454EF7CA142E8D /* HomeDashboardService.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
 		AA319ED4A21145E7B77E595F /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -258,12 +289,22 @@
 			path = Data;
 			sourceTree = "<group>";
 		};
+		E8FE9265C4CF5E992354C312 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				A9EDE52D9596FF7A70264934 /* Domain */,
+				0AD70E06F4A82D1D0E3DA170 /* Presentation */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
 		F0A3E68835B3A09778748A95 /* CoupleLifeTests */ = {
 			isa = PBXGroup;
 			children = (
 				79192C8E0C81DA28DDF58033 /* AppTabTests.swift */,
 				CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */,
 				C44CC93E159524023C3FE177 /* Data */,
+				7E292B02730743569F5DBECD /* Home */,
 				AE0382A5DAC85313C6FD997F /* SharedUI */,
 			);
 			path = CoupleLifeTests;
@@ -362,6 +403,8 @@
 				A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */,
 				D0B1078F8B598A16630C7BAF /* HealthMetricSnapshot.swift in Sources */,
 				26CE30668225110F0EA14F99 /* HealthSnapshotRepository.swift in Sources */,
+				417CEF36BB81D9D8BE12DD68 /* HomeDashboardService.swift in Sources */,
+				1B5AC1AEC17181C4D5DB6EB9 /* HomeDashboardViewModel.swift in Sources */,
 				1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */,
 				7F10811CA1D556D46C01E548 /* ModelContainerFactory.swift in Sources */,
 				12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */,
@@ -390,6 +433,7 @@
 			files = (
 				86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */,
 				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
+				176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */,
 				04A5707F8BDDBE26806F91B6 /* RecordRepositoryTests.swift in Sources */,
 				900154592587FD534DC5AB59 /* RecordTypeStyleTests.swift in Sources */,
 				2AEA94EF567CFB3257C6AF17 /* SharedUIRegressionTests.swift in Sources */,

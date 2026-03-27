@@ -1,0 +1,113 @@
+import XCTest
+@testable import CoupleLife
+
+final class HomeDashboardServiceTests: XCTestCase {
+    func testBuildsTodaySummaryFromRepositories() throws {
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let calendar = Calendar(identifier: .gregorian)
+        let dayStart = calendar.startOfDay(for: day)
+        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+
+        let due = calendar.date(byAdding: .hour, value: 10, to: dayStart)!
+        let oldDue = calendar.date(byAdding: .day, value: -1, to: dayStart)!
+
+        let tasks: [TaskItem] = [
+            TaskItem(title: "买菜", dueAt: due, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "倒垃圾", dueAt: due, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "旧任务", dueAt: oldDue, status: .todo, ownerUserId: "u1")
+        ]
+
+        let records: [Record] = [
+            Record(type: .water, startAt: calendar.date(byAdding: .hour, value: 8, to: dayStart)!, ownerUserId: "u1"),
+            Record(type: .water, startAt: calendar.date(byAdding: .hour, value: 11, to: dayStart)!, ownerUserId: "u1"),
+            Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 2, to: dayStart)!, ownerUserId: "u1")
+        ]
+
+        let snapshot = HealthMetricSnapshot(dayStart: dayStart, ownerUserId: "u1", steps: 6200, sleepSeconds: 7.5 * 3600)
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: tasks),
+            recordRepository: InMemoryRecordRepository(records: records),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: snapshot),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertEqual(dashboard.todayTaskTotal, 2)
+        XCTAssertEqual(dashboard.todayTaskCompleted, 1)
+        XCTAssertEqual(dashboard.todayRecordTotal, 3)
+        XCTAssertEqual(dashboard.recordTypeCounts[.water], 2)
+        XCTAssertEqual(dashboard.recordTypeCounts[.sleep], 1)
+        XCTAssertEqual(dashboard.importantTasks.map(\.title), ["买菜"])
+        XCTAssertEqual(dashboard.steps, 6200)
+        XCTAssertEqual(dashboard.sleepHours, 7.5)
+        XCTAssertEqual(dashboard.dayRange.start, dayStart)
+        XCTAssertEqual(dashboard.dayRange.end, dayEnd)
+    }
+
+    func testReturnsEmptySummaryWhenNoData() throws {
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: []),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: nil)
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertEqual(dashboard.todayTaskTotal, 0)
+        XCTAssertEqual(dashboard.todayTaskCompleted, 0)
+        XCTAssertEqual(dashboard.todayRecordTotal, 0)
+        XCTAssertTrue(dashboard.recordTypeCounts.isEmpty)
+        XCTAssertTrue(dashboard.importantTasks.isEmpty)
+        XCTAssertNil(dashboard.steps)
+        XCTAssertNil(dashboard.sleepHours)
+    }
+}
+
+private final class InMemoryTaskRepository: TaskRepository {
+    private let items: [TaskItem]
+
+    init(tasks: [TaskItem]) {
+        self.items = tasks
+    }
+
+    func create(_ task: TaskItem) throws {}
+    func delete(_ task: TaskItem) throws {}
+    func tasks(status: TaskStatus?) throws -> [TaskItem] {
+        guard let status else { return items }
+        return items.filter { $0.status == status }
+    }
+}
+
+private final class InMemoryRecordRepository: RecordRepository {
+    private let items: [Record]
+
+    init(records: [Record]) {
+        self.items = records
+    }
+
+    func create(_ record: Record) throws {}
+    func delete(_ record: Record) throws {}
+    func records(from start: Date, to end: Date) throws -> [Record] {
+        items.filter { $0.startAt >= start && $0.startAt < end }
+    }
+}
+
+private final class InMemoryHealthSnapshotRepository: HealthSnapshotRepository {
+    private let value: HealthMetricSnapshot?
+
+    init(snapshot: HealthMetricSnapshot?) {
+        self.value = snapshot
+    }
+
+    func upsert(_ snapshot: HealthMetricSnapshot) throws {}
+    func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
+        guard let value else { return nil }
+        if value.dayStart == dayStart && value.ownerUserId == ownerUserId {
+            return value
+        }
+        return nil
+    }
+}

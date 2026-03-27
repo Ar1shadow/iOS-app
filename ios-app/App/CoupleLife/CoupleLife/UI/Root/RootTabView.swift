@@ -1,9 +1,22 @@
 import SwiftUI
+import SwiftData
 
 struct RootTabView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.appContainer) private var appContainer
+
     var body: some View {
+        let taskRepository = SwiftDataTaskRepository(context: modelContext)
+        let recordRepository = SwiftDataRecordRepository(context: modelContext)
+        let healthSnapshotRepository = SwiftDataHealthSnapshotRepository(context: modelContext)
+
         TabView {
-            HomeTab()
+            HomeTab(
+                taskRepository: taskRepository,
+                recordRepository: recordRepository,
+                healthSnapshotRepository: healthSnapshotRepository,
+                healthDataService: appContainer.healthData
+            )
                 .tabItem { Label(AppTab.home.title, systemImage: AppTab.home.systemImage) }
 
             CalendarTab()
