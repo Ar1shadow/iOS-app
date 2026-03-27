@@ -9,18 +9,26 @@ final class HomeDashboardServiceTests: XCTestCase {
         let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
 
         let due = calendar.date(byAdding: .hour, value: 10, to: dayStart)!
+        let tomorrowDue = calendar.date(byAdding: .day, value: 1, to: due)!
+        let nextWeekDue = calendar.date(byAdding: .day, value: 6, to: due)!
+        let beyondWindowDue = calendar.date(byAdding: .day, value: 8, to: due)!
         let oldDue = calendar.date(byAdding: .day, value: -1, to: dayStart)!
 
         let tasks: [TaskItem] = [
             TaskItem(title: "买菜", dueAt: due, status: .todo, ownerUserId: "u1"),
             TaskItem(title: "倒垃圾", dueAt: due, status: .done, ownerUserId: "u1"),
-            TaskItem(title: "旧任务", dueAt: oldDue, status: .todo, ownerUserId: "u1")
+            TaskItem(title: "明天复诊", dueAt: tomorrowDue, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "周末体检", dueAt: nextWeekDue, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "窗口外任务", dueAt: beyondWindowDue, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "旧任务", dueAt: oldDue, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "他人任务", dueAt: due, status: .todo, ownerUserId: "u2")
         ]
 
         let records: [Record] = [
             Record(type: .water, startAt: calendar.date(byAdding: .hour, value: 8, to: dayStart)!, ownerUserId: "u1"),
             Record(type: .water, startAt: calendar.date(byAdding: .hour, value: 11, to: dayStart)!, ownerUserId: "u1"),
-            Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 2, to: dayStart)!, ownerUserId: "u1")
+            Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 2, to: dayStart)!, ownerUserId: "u1"),
+            Record(type: .activity, startAt: calendar.date(byAdding: .hour, value: 9, to: dayStart)!, ownerUserId: "u2")
         ]
 
         let snapshot = HealthMetricSnapshot(dayStart: dayStart, ownerUserId: "u1", steps: 6200, sleepSeconds: 7.5 * 3600)
@@ -39,7 +47,7 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertEqual(dashboard.todayRecordTotal, 3)
         XCTAssertEqual(dashboard.recordTypeCounts[.water], 2)
         XCTAssertEqual(dashboard.recordTypeCounts[.sleep], 1)
-        XCTAssertEqual(dashboard.importantTasks.map(\.title), ["买菜"])
+        XCTAssertEqual(dashboard.importantEvents.map(\.title), ["买菜", "明天复诊", "周末体检"])
         XCTAssertEqual(dashboard.steps, 6200)
         XCTAssertEqual(dashboard.sleepHours, 7.5)
         XCTAssertEqual(dashboard.dayRange.start, dayStart)
@@ -60,9 +68,37 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertEqual(dashboard.todayTaskCompleted, 0)
         XCTAssertEqual(dashboard.todayRecordTotal, 0)
         XCTAssertTrue(dashboard.recordTypeCounts.isEmpty)
-        XCTAssertTrue(dashboard.importantTasks.isEmpty)
+        XCTAssertTrue(dashboard.importantEvents.isEmpty)
         XCTAssertNil(dashboard.steps)
         XCTAssertNil(dashboard.sleepHours)
+    }
+
+    func testFiltersTasksAndRecordsByOwnerUserId() throws {
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let calendar = Calendar(identifier: .gregorian)
+        let dayStart = calendar.startOfDay(for: day)
+        let due = calendar.date(byAdding: .hour, value: 10, to: dayStart)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: [
+                TaskItem(title: "我的任务", dueAt: due, status: .todo, ownerUserId: "local"),
+                TaskItem(title: "他人任务", dueAt: due, status: .todo, ownerUserId: "other")
+            ]),
+            recordRepository: InMemoryRecordRepository(records: [
+                Record(type: .water, startAt: due, ownerUserId: "local"),
+                Record(type: .sleep, startAt: due, ownerUserId: "other")
+            ]),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(
+                snapshot: HealthMetricSnapshot(dayStart: dayStart, ownerUserId: "local", steps: 1000, sleepSeconds: 3600)
+            ),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "local")
+
+        XCTAssertEqual(dashboard.todayTaskTotal, 1)
+        XCTAssertEqual(dashboard.todayRecordTotal, 1)
+        XCTAssertEqual(dashboard.importantEvents.map(\.title), ["我的任务"])
     }
 }
 

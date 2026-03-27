@@ -36,11 +36,13 @@
 - 完成首页聚合服务 `DefaultHomeDashboardService`，按“今日”聚合任务、记录、健康缓存，避免在叶子 View 直接做 SwiftData 查询。
 - HomeTab 改为真实仪表盘结构（加载/空态/已加载/失败），复用 SharedUI 卡片、分区标题、标签、空态、加载态与列表行。
 - 在 RootTabView 做仓库注入，首页仅消费服务与摘要模型，保持后续模块卡片可扩展。
+- 补齐“重要事件”区块（未来 7 天内最多 3 条排期任务）并增加无事件空态；任务/记录聚合已按 `ownerUserId` 过滤，默认用户改为 `CurrentUser.id = "local"`。
 
 ## 验证记录
 
 - `cd ios-app/App/CoupleLife && xcodegen generate` 通过（2026-03-27）。
 - `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData350 CODE_SIGNING_ALLOWED=NO test` 通过（9 passed, 0 failed）。
+- 同命令复验通过（2026-03-27）：10 passed, 0 failed（新增 HomeDashboardService owner 过滤与重要事件覆盖测试）。
 
 ## 遗留风险
 

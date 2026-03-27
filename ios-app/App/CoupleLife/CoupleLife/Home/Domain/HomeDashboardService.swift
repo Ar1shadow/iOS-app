@@ -11,7 +11,7 @@ struct HomeDashboardSummary: Equatable {
     let todayTaskCompleted: Int
     let todayRecordTotal: Int
     let recordTypeCounts: [RecordType: Int]
-    let importantTasks: [HomeDashboardTaskEvent]
+    let importantEvents: [HomeDashboardTaskEvent]
     let steps: Int?
     let sleepHours: Double?
 
@@ -45,9 +45,11 @@ final class DefaultHomeDashboardService: HomeDashboardService {
     func load(for day: Date, ownerUserId: String) throws -> HomeDashboardSummary {
         let dayStart = calendar.startOfDay(for: day)
         let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
+        let eventWindowEnd = calendar.date(byAdding: .day, value: 7, to: dayStart) ?? dayEnd
 
         let allTasks = try taskRepository.tasks(status: nil)
-        let todayTasks = allTasks.filter { task in
+        let ownerTasks = allTasks.filter { $0.ownerUserId == ownerUserId }
+        let todayTasks = ownerTasks.filter { task in
             let targetDate = task.dueAt ?? task.startAt
             guard let targetDate else { return false }
             return targetDate >= dayStart && targetDate < dayEnd
@@ -55,8 +57,13 @@ final class DefaultHomeDashboardService: HomeDashboardService {
 
         let todayTaskCompleted = todayTasks.filter { $0.status == .done }.count
 
-        let importantTasks = todayTasks
+        let importantEvents = ownerTasks
             .filter { $0.status == .todo }
+            .filter { task in
+                let targetDate = task.dueAt ?? task.startAt
+                guard let targetDate else { return false }
+                return targetDate >= dayStart && targetDate < eventWindowEnd
+            }
             .sorted {
                 let lhs = $0.dueAt ?? $0.startAt ?? $0.updatedAt
                 let rhs = $1.dueAt ?? $1.startAt ?? $1.updatedAt
@@ -66,7 +73,8 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             .map { HomeDashboardTaskEvent(title: $0.title, dueAt: $0.dueAt ?? $0.startAt) }
 
         let records = try recordRepository.records(from: dayStart, to: dayEnd)
-        let recordTypeCounts = records.reduce(into: [RecordType: Int]()) { partialResult, record in
+        let ownerRecords = records.filter { $0.ownerUserId == ownerUserId }
+        let recordTypeCounts = ownerRecords.reduce(into: [RecordType: Int]()) { partialResult, record in
             partialResult[record.type, default: 0] += 1
         }
 
@@ -78,9 +86,9 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             dayRange: DateInterval(start: dayStart, end: dayEnd),
             todayTaskTotal: todayTasks.count,
             todayTaskCompleted: todayTaskCompleted,
-            todayRecordTotal: records.count,
+            todayRecordTotal: ownerRecords.count,
             recordTypeCounts: recordTypeCounts,
-            importantTasks: Array(importantTasks),
+            importantEvents: Array(importantEvents),
             steps: steps,
             sleepHours: sleepHours
         )

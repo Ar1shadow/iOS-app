@@ -19,6 +19,7 @@
 		2AEA94EF567CFB3257C6AF17 /* SharedUIRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACFE3E29AAA12FAFA0C32C19 /* SharedUIRegressionTests.swift */; };
 		2D45CE5B824486C66C7518D1 /* SharedEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01F7C5581484174DC946167 /* SharedEnums.swift */; };
 		32A4753AE4297430389420F0 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8336E99FE744A9F633D4E4DF /* AppTab.swift */; };
+		3433834A06D436D3B7B6C3C7 /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E0953AA6938FE93B936195 /* CurrentUser.swift */; };
 		3AA17DB407BF69E45BEE95A2 /* SharedStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */; };
 		3EEF6571BB9D3549C4334A70 /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE2F19E68EA5BCBDC70CC8A /* Record.swift */; };
 		4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EECBC91790905A1DBE811D0 /* ProfileTab.swift */; };
@@ -64,6 +65,7 @@
 		21A32979D371B72D50224A6C /* CalendarTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTab.swift; sourceTree = "<group>"; };
 		270E0C8D8154D41ED1CE1456 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		2741EE92C12BB96455F47425 /* SharedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedCard.swift; sourceTree = "<group>"; };
+		29E0953AA6938FE93B936195 /* CurrentUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentUser.swift; sourceTree = "<group>"; };
 		3202B7E6C5B8D68EFFEF8E06 /* SharedSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedSectionHeader.swift; sourceTree = "<group>"; };
 		41E48EC7161E715DBBA260B5 /* SharedEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEmptyStateView.swift; sourceTree = "<group>"; };
 		4BC211CCD89BA7B038F38054 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 			children = (
 				270E0C8D8154D41ED1CE1456 /* AppContainer.swift */,
 				70B8D581D173E3557291D570 /* AppServices.swift */,
+				29E0953AA6938FE93B936195 /* CurrentUser.swift */,
 				8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */,
 			);
 			path = AppCore;
@@ -399,6 +402,7 @@
 				32A4753AE4297430389420F0 /* AppTab.swift in Sources */,
 				8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */,
 				97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */,
+				3433834A06D436D3B7B6C3C7 /* CurrentUser.swift in Sources */,
 				E678817803441C39CC389797 /* DesignTokens.swift in Sources */,
 				A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */,
 				D0B1078F8B598A16630C7BAF /* HealthMetricSnapshot.swift in Sources */,

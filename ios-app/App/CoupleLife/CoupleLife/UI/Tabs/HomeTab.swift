@@ -8,7 +8,7 @@ struct HomeTab: View {
         recordRepository: any RecordRepository,
         healthSnapshotRepository: any HealthSnapshotRepository,
         healthDataService: any HealthDataService,
-        ownerUserId: String = "demo-user"
+        ownerUserId: String = CurrentUser.id
     ) {
         let service = DefaultHomeDashboardService(
             taskRepository: taskRepository,
@@ -74,18 +74,31 @@ struct HomeTab: View {
                         Text("待完成：\(summary.todayTaskTotal - summary.todayTaskCompleted)")
                             .font(AppTypography.body)
                             .foregroundStyle(AppColorToken.textPrimary.color)
+                    }
+                }
+            }
+            .homeGlassSurface()
 
-                        if !summary.importantTasks.isEmpty {
-                            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                                ForEach(summary.importantTasks, id: \.self) { item in
-                                    SharedListRow(
-                                        title: item.title,
-                                        subtitle: item.dueAt.map { "截止 \(timeLabel($0))" },
-                                        symbolName: "checklist",
-                                        colorToken: .green,
-                                        badgeText: "重要"
-                                    )
-                                }
+            SharedCard {
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
+                    SharedSectionHeader("重要事件", subtitle: "未来 7 天（最多 3 条）")
+
+                    if summary.importantEvents.isEmpty {
+                        SharedEmptyStateView(
+                            title: "暂无重要事件",
+                            message: "未来 7 天内没有已排期任务。",
+                            symbolName: "calendar.badge.exclamationmark"
+                        )
+                    } else {
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            ForEach(summary.importantEvents, id: \.self) { item in
+                                SharedListRow(
+                                    title: item.title,
+                                    subtitle: item.dueAt.map { dueLabel($0) },
+                                    symbolName: "calendar",
+                                    colorToken: .green,
+                                    badgeText: "事件"
+                                )
                             }
                         }
                     }
@@ -199,8 +212,8 @@ struct HomeTab: View {
         DateFormatter.homeDayFormatter.string(from: date)
     }
 
-    private func timeLabel(_ date: Date) -> String {
-        DateFormatter.homeTimeFormatter.string(from: date)
+    private func dueLabel(_ date: Date) -> String {
+        "截止 \(DateFormatter.homeDueFormatter.string(from: date))"
     }
 
     private func healthSubtitle(for availability: ServiceAvailability) -> String {
@@ -224,9 +237,9 @@ private extension DateFormatter {
         return formatter
     }()
 
-    static let homeTimeFormatter: DateFormatter = {
+    static let homeDueFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
+        formatter.dateFormat = "M月d日 HH:mm"
         return formatter
     }()
 }
