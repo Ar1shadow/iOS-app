@@ -16,7 +16,11 @@ struct HomeDashboardSummary: Equatable {
     let sleepHours: Double?
 
     var hasAnyData: Bool {
-        todayTaskTotal > 0 || todayRecordTotal > 0 || steps != nil || sleepHours != nil
+        todayTaskTotal > 0 ||
+            todayRecordTotal > 0 ||
+            !importantEvents.isEmpty ||
+            steps != nil ||
+            sleepHours != nil
     }
 }
 
@@ -47,23 +51,23 @@ final class DefaultHomeDashboardService: HomeDashboardService {
         let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
         let eventWindowEnd = calendar.date(byAdding: .day, value: 7, to: dayStart) ?? dayEnd
 
-        let allTasks = try taskRepository.tasks(status: nil)
-        let ownerTasks = allTasks.filter { $0.ownerUserId == ownerUserId }
-        let todayTasks = ownerTasks.filter { task in
-            let targetDate = task.dueAt ?? task.startAt
-            guard let targetDate else { return false }
-            return targetDate >= dayStart && targetDate < dayEnd
-        }
+        let todayTasks = try taskRepository.tasks(
+            scheduledFrom: dayStart,
+            to: dayEnd,
+            ownerUserId: ownerUserId,
+            status: nil
+        )
 
         let todayTaskCompleted = todayTasks.filter { $0.status == .done }.count
 
-        let importantEvents = ownerTasks
-            .filter { $0.status == .todo }
-            .filter { task in
-                let targetDate = task.dueAt ?? task.startAt
-                guard let targetDate else { return false }
-                return targetDate >= dayStart && targetDate < eventWindowEnd
-            }
+        let upcomingTasks = try taskRepository.tasks(
+            scheduledFrom: dayStart,
+            to: eventWindowEnd,
+            ownerUserId: ownerUserId,
+            status: .todo
+        )
+
+        let importantEvents = upcomingTasks
             .sorted {
                 let lhs = $0.dueAt ?? $0.startAt ?? $0.updatedAt
                 let rhs = $1.dueAt ?? $1.startAt ?? $1.updatedAt

@@ -31,6 +31,8 @@ final class HomeDashboardViewModel: ObservableObject {
         state = .loading
 
         do {
+            // Let the loading state render before synchronous repo fetch work begins.
+            await Task.yield()
             let summary = try service.load(for: nowProvider(), ownerUserId: ownerUserId)
             let availability = await healthDataService.availability()
             state = .loaded(summary, availability)

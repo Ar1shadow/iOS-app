@@ -71,6 +71,30 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertTrue(dashboard.importantEvents.isEmpty)
         XCTAssertNil(dashboard.steps)
         XCTAssertNil(dashboard.sleepHours)
+        XCTAssertFalse(dashboard.hasAnyData)
+    }
+
+    func testHasAnyDataIncludesImportantEvents() throws {
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let calendar = Calendar(identifier: .gregorian)
+        let dayStart = calendar.startOfDay(for: day)
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: [
+                TaskItem(title: "明天任务", dueAt: tomorrow, status: .todo, ownerUserId: "u1")
+            ]),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: nil),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertEqual(dashboard.todayTaskTotal, 0)
+        XCTAssertEqual(dashboard.todayRecordTotal, 0)
+        XCTAssertEqual(dashboard.importantEvents.map(\.title), ["明天任务"])
+        XCTAssertTrue(dashboard.hasAnyData)
     }
 
     func testFiltersTasksAndRecordsByOwnerUserId() throws {
@@ -114,6 +138,20 @@ private final class InMemoryTaskRepository: TaskRepository {
     func tasks(status: TaskStatus?) throws -> [TaskItem] {
         guard let status else { return items }
         return items.filter { $0.status == status }
+    }
+
+    func tasks(scheduledFrom start: Date, to end: Date, ownerUserId: String, status: TaskStatus?) throws -> [TaskItem] {
+        items
+            .filter { $0.ownerUserId == ownerUserId }
+            .filter { task in
+                guard let status else { return true }
+                return task.status == status
+            }
+            .filter { task in
+                let targetDate = task.dueAt ?? task.startAt
+                guard let targetDate else { return false }
+                return targetDate >= start && targetDate < end
+            }
     }
 }
 

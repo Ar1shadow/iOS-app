@@ -20,5 +20,31 @@ final class TaskRepositoryTests: XCTestCase {
         XCTAssertEqual(todos.count, 1)
         XCTAssertEqual(todos.first?.title, "t1")
     }
-}
 
+    func testFetchScheduledTasksByDateRangeAndOwner() throws {
+        let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        let context = ModelContext(container)
+
+        let repo = SwiftDataTaskRepository(context: context)
+
+        let calendar = Calendar(identifier: .gregorian)
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+        let dayStart = calendar.startOfDay(for: base)
+        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+        let dueInRange = calendar.date(byAdding: .hour, value: 10, to: dayStart)!
+        let dueOutOfRange = calendar.date(byAdding: .day, value: 2, to: dayStart)!
+
+        try repo.create(TaskItem(title: "in-range-todo", dueAt: dueInRange, status: .todo, ownerUserId: "u1"))
+        try repo.create(TaskItem(title: "in-range-done", dueAt: dueInRange, status: .done, ownerUserId: "u1"))
+        try repo.create(TaskItem(title: "out-of-range", dueAt: dueOutOfRange, status: .todo, ownerUserId: "u1"))
+        try repo.create(TaskItem(title: "other-owner", dueAt: dueInRange, status: .todo, ownerUserId: "u2"))
+
+        let allScheduled = try repo.tasks(scheduledFrom: dayStart, to: dayEnd, ownerUserId: "u1", status: nil)
+        XCTAssertEqual(Set(allScheduled.map(\.title)), Set(["in-range-todo", "in-range-done"]))
+
+        let scheduledTodo = try repo.tasks(scheduledFrom: dayStart, to: dayEnd, ownerUserId: "u1", status: .todo)
+        XCTAssertEqual(scheduledTodo.map(\.title), ["in-range-todo"])
+    }
+}

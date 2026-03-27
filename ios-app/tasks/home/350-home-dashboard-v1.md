@@ -37,12 +37,14 @@
 - HomeTab 改为真实仪表盘结构（加载/空态/已加载/失败），复用 SharedUI 卡片、分区标题、标签、空态、加载态与列表行。
 - 在 RootTabView 做仓库注入，首页仅消费服务与摘要模型，保持后续模块卡片可扩展。
 - 补齐“重要事件”区块（未来 7 天内最多 3 条排期任务）并增加无事件空态；任务/记录聚合已按 `ownerUserId` 过滤，默认用户改为 `CurrentUser.id = "local"`。
+- 追加质量修复：`hasAnyData` 纳入重要事件；新增 `TaskRepository.tasks(scheduledFrom:to:ownerUserId:status:)` 用于减少首页加载时的无效数据扫描（SwiftData Optional<Date> 谓词限制下采用仓库内存过滤实现）。
 
 ## 验证记录
 
 - `cd ios-app/App/CoupleLife && xcodegen generate` 通过（2026-03-27）。
 - `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData350 CODE_SIGNING_ALLOWED=NO test` 通过（9 passed, 0 failed）。
 - 同命令复验通过（2026-03-27）：10 passed, 0 failed（新增 HomeDashboardService owner 过滤与重要事件覆盖测试）。
+- 同命令再次复验通过（2026-03-27）：12 passed, 0 failed（新增 TaskRepository 时间窗查询用例与 `hasAnyData` 覆盖）。
 
 ## 遗留风险
 
