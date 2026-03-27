@@ -2,6 +2,8 @@
 
 - Phase: Phase 1 (MVP)
 - 模块: Data
+- 状态: Done
+- 最后更新: 2026-03-27
 - 依赖: 200
 - 目标: 建立本地优先的持久化能力（SwiftData 起步），并提供面向业务的仓储接口，支撑日历记录与任务功能的 CRUD 与查询。
 - 非目标: 不做 CloudKit 同步（见 720）；不做过度抽象的通用 ORM 包装。
@@ -29,3 +31,14 @@
 - `$xcode-simulator-debug`: 用于排查 SwiftData 模型/Schema/构建配置导致的编译或运行时问题；适用于“xcodebuild 复现与定位”。
 - `$ios-performance-audit`: 当列表查询或数据加载出现卡顿/内存增长时用于做测量与定位；适用于“以数据层为源头的性能问题”。
 
+## 实施记录
+
+- 开工: 2026-03-27
+- 进展: 新增 SwiftData `ModelContainerFactory`（Schema 覆盖 `Record/TaskItem/HealthMetricSnapshot`），并实现 v1 仓储接口与默认实现（SwiftData ModelContext）；补齐 in-memory XCTest 覆盖。
+- 下一步: 进入 300/350/400 等页面任务时，通过仓储层提供 CRUD/query，而不是在 View 中直接操作 SwiftData。
+
+## 验证记录
+
+- 命令: `cd ios-app/App/CoupleLife && xcodegen generate`
+- 命令: `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData210 CODE_SIGNING_ALLOWED=NO test`
+- 结果: `TEST SUCCEEDED`

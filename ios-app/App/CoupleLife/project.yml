@@ -3,7 +3,7 @@ options:
   createIntermediateGroups: true
 settings:
   base:
-    SWIFT_VERSION: 5.0
+    # Use Xcode's default toolchain Swift version (required for SwiftData macros like `#Predicate`).
 targets:
   CoupleLife:
     type: application

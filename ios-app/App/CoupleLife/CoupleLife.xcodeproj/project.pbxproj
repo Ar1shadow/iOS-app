@@ -8,17 +8,23 @@
 
 /* Begin PBXBuildFile section */
 		045D953A90B44F6BD392DF2F /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70B8D581D173E3557291D570 /* AppServices.swift */; };
+		04A5707F8BDDBE26806F91B6 /* RecordRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */; };
 		1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */; };
 		12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F999C232176D9090AC8577F8 /* PlanningTab.swift */; };
 		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
+		26CE30668225110F0EA14F99 /* HealthSnapshotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0C2425B0DFD8F715BA6F /* HealthSnapshotRepository.swift */; };
 		2D45CE5B824486C66C7518D1 /* SharedEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01F7C5581484174DC946167 /* SharedEnums.swift */; };
 		32A4753AE4297430389420F0 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8336E99FE744A9F633D4E4DF /* AppTab.swift */; };
 		3EEF6571BB9D3549C4334A70 /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE2F19E68EA5BCBDC70CC8A /* Record.swift */; };
 		4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EECBC91790905A1DBE811D0 /* ProfileTab.swift */; };
+		65EE0448B7346B917EB4972B /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */; };
+		7F10811CA1D556D46C01E548 /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */; };
 		86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79192C8E0C81DA28DDF58033 /* AppTabTests.swift */; };
 		8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A32979D371B72D50224A6C /* CalendarTab.swift */; };
+		91E1FF2A4D60D1CA56CB3539 /* TaskRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E360A2849A376938BFFD0F /* TaskRepository.swift */; };
 		97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */; };
 		A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9671B30789FB25A48CCF8A5F /* FitnessTab.swift */; };
+		B68CF4EC00E0F5EDC251B86E /* RecordRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5068E83D006EA4CF05C06C20 /* RecordRepository.swift */; };
 		D0B1078F8B598A16630C7BAF /* HealthMetricSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9F423E7436C1EC6683AD83 /* HealthMetricSnapshot.swift */; };
 		D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91934D543367B87B0C3619D7 /* RootTabView.swift */; };
 		E79F37B3A92F84B52A0178E1 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 270E0C8D8154D41ED1CE1456 /* AppContainer.swift */; };
@@ -37,10 +43,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
 		21A32979D371B72D50224A6C /* CalendarTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTab.swift; sourceTree = "<group>"; };
 		270E0C8D8154D41ED1CE1456 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		4BC211CCD89BA7B038F38054 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 		4CE2F19E68EA5BCBDC70CC8A /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
+		5068E83D006EA4CF05C06C20 /* RecordRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepository.swift; sourceTree = "<group>"; };
+		5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepositoryTests.swift; sourceTree = "<group>"; };
 		6EECBC91790905A1DBE811D0 /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
 		70B8D581D173E3557291D570 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		79192C8E0C81DA28DDF58033 /* AppTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabTests.swift; sourceTree = "<group>"; };
@@ -48,9 +57,12 @@
 		8336E99FE744A9F633D4E4DF /* AppTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTab.swift; sourceTree = "<group>"; };
 		8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routing.swift; sourceTree = "<group>"; };
 		8A9F423E7436C1EC6683AD83 /* HealthMetricSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthMetricSnapshot.swift; sourceTree = "<group>"; };
+		8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerFactory.swift; sourceTree = "<group>"; };
 		91934D543367B87B0C3619D7 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		9671B30789FB25A48CCF8A5F /* FitnessTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTab.swift; sourceTree = "<group>"; };
 		994E71278FBED4A90F1CA403 /* HomeTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTab.swift; sourceTree = "<group>"; };
+		A12D0C2425B0DFD8F715BA6F /* HealthSnapshotRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthSnapshotRepository.swift; sourceTree = "<group>"; };
+		A8E360A2849A376938BFFD0F /* TaskRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepository.swift; sourceTree = "<group>"; };
 		C01F7C5581484174DC946167 /* SharedEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEnums.swift; sourceTree = "<group>"; };
 		CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeTests.swift; sourceTree = "<group>"; };
 		E05C56B65ABE346760F15BD0 /* CoupleLife.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CoupleLife.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,6 +76,7 @@
 			children = (
 				7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */,
 				321C78C005C92D07DD73BFF1 /* AppCore */,
+				E1140E4B803D90D89E7D6F6F /* Data */,
 				AA319ED4A21145E7B77E595F /* Domain */,
 				89BCA0E96291778B80167B48 /* UI */,
 			);
@@ -98,6 +111,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		723ABB2CA5256AB94AFCC474 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
 		79D1B19ABE604C47462BC51A /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -130,6 +151,16 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		A2BBDD2D8ED7B70773887D3A /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				A12D0C2425B0DFD8F715BA6F /* HealthSnapshotRepository.swift */,
+				5068E83D006EA4CF05C06C20 /* RecordRepository.swift */,
+				A8E360A2849A376938BFFD0F /* TaskRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
 		A876479A2ED437063A950E5B = {
 			isa = PBXGroup;
 			children = (
@@ -147,11 +178,30 @@
 			path = Domain;
 			sourceTree = "<group>";
 		};
+		C44CC93E159524023C3FE177 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */,
+				0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		E1140E4B803D90D89E7D6F6F /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				723ABB2CA5256AB94AFCC474 /* Persistence */,
+				A2BBDD2D8ED7B70773887D3A /* Repositories */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
 		F0A3E68835B3A09778748A95 /* CoupleLifeTests */ = {
 			isa = PBXGroup;
 			children = (
 				79192C8E0C81DA28DDF58033 /* AppTabTests.swift */,
 				CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */,
+				C44CC93E159524023C3FE177 /* Data */,
 			);
 			path = CoupleLifeTests;
 			sourceTree = "<group>";
@@ -237,14 +287,18 @@
 				97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */,
 				A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */,
 				D0B1078F8B598A16630C7BAF /* HealthMetricSnapshot.swift in Sources */,
+				26CE30668225110F0EA14F99 /* HealthSnapshotRepository.swift in Sources */,
 				1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */,
+				7F10811CA1D556D46C01E548 /* ModelContainerFactory.swift in Sources */,
 				12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */,
 				4009B0A4DF3EA8487876B80D /* ProfileTab.swift in Sources */,
 				3EEF6571BB9D3549C4334A70 /* Record.swift in Sources */,
+				B68CF4EC00E0F5EDC251B86E /* RecordRepository.swift in Sources */,
 				D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */,
 				FB0C8D9D0FB834F8F8D64940 /* Routing.swift in Sources */,
 				2D45CE5B824486C66C7518D1 /* SharedEnums.swift in Sources */,
 				F807011ABFE013FAA2B77C5D /* TaskItem.swift in Sources */,
+				91E1FF2A4D60D1CA56CB3539 /* TaskRepository.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +308,8 @@
 			files = (
 				86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */,
 				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
+				04A5707F8BDDBE26806F91B6 /* RecordRepositoryTests.swift in Sources */,
+				65EE0448B7346B917EB4972B /* TaskRepositoryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
