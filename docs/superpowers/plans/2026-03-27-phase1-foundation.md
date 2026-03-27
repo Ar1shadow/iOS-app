@@ -68,35 +68,36 @@ Notes:
 ### Task 1: Create The Xcode SwiftUI App Skeleton (Prereq For Task 100)
 
 **Files:**
-- Create (via Xcode): `ios-app/App/CoupleLife/CoupleLife.xcodeproj` and default SwiftUI app files
-- Modify: `ios-app/App/CoupleLife/CoupleLife/CoupleLifeApp.swift`
+- Create: `ios-app/App/CoupleLife/project.yml`
+- Generate: `ios-app/App/CoupleLife/CoupleLife.xcodeproj` (via XcodeGen)
 
-- [ ] **Step 1: Create the project in Xcode (one-time, explicit UI steps)**
+- [ ] **Step 1: Generate the project via XcodeGen**
 
-In Xcode:
-1. `File` -> `New` -> `Project...`
-2. Template: `iOS` -> `App`
-3. Product Name: `CoupleLife`
-4. Interface: `SwiftUI`
-5. Language: `Swift`
-6. Use Core Data: `No`
-7. Include Tests: `Yes`
-8. Organization Identifier: `com.ar1shadow` (or your own)
-9. Save location: `<repo>/ios-app/App/` (so the folder becomes `ios-app/App/CoupleLife/`)
+Ensure `xcodegen` is installed:
+```bash
+brew install xcodegen
+```
 
-Then in the project settings:
-1. Set iOS Deployment Target to `17.0`
-2. Ensure the scheme `CoupleLife` exists and is shared if needed
+Then (from repo root):
+```bash
+cd ios-app/App/CoupleLife
+xcodegen generate
+```
 
 - [ ] **Step 2: Verify CLI build works**
 
 Run (from repo root):
 ```bash
 cd ios-app/App/CoupleLife
-xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' build
+xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/CoupleLifeDerivedData CODE_SIGNING_ALLOWED=NO build
 ```
 
 Expected: `** BUILD SUCCEEDED **`
+
+If the iOS Simulator runtime is missing, install it:
+```bash
+xcodebuild -downloadPlatform iOS
+```
 
 - [ ] **Step 3: Commit**
 
@@ -475,7 +476,6 @@ final class Record {
 
     var typeRaw: String
     var note: String?
-    var tags: [String]
 
     var startAt: Date
     var endAt: Date?
@@ -493,7 +493,6 @@ final class Record {
         id: UUID = UUID(),
         type: RecordType,
         note: String? = nil,
-        tags: [String] = [],
         startAt: Date,
         endAt: Date? = nil,
         ownerUserId: String,
@@ -507,7 +506,6 @@ final class Record {
         self.id = id
         self.typeRaw = type.rawValue
         self.note = note
-        self.tags = tags
         self.startAt = startAt
         self.endAt = endAt
         self.ownerUserId = ownerUserId
@@ -892,7 +890,11 @@ struct CoupleLifeApp: App {
     private let modelContainer: ModelContainer
 
     init() {
-        modelContainer = (try? ModelContainerFactory.make()) ?? ModelContainer(for: Schema([]))
+        do {
+            modelContainer = try ModelContainerFactory.make()
+        } catch {
+            fatalError("Failed to create SwiftData ModelContainer: \(error)")
+        }
     }
 
     var body: some Scene {
@@ -999,4 +1001,3 @@ Plan complete and saved to `docs/superpowers/plans/2026-03-27-phase1-foundation.
 
 1. Subagent-Driven (recommended) - dispatch a specialist subagent per task, review between tasks
 2. Inline Execution - execute tasks in this session using executing-plans with checkpoints
-
