@@ -1,6 +1,6 @@
 name = "code_debugger"
 description = "Reproduces build/test failures and applies minimal targeted fixes with reproducible verification."
-model = "gpt-5.3-codex-spark"
+model = "gpt-5.3-codex"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
@@ -18,4 +18,3 @@ Rules:
 Hand-off:
 - Update the current task file's verification record with exact commands and outcomes.
 """
-

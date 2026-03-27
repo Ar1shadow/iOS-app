@@ -1,6 +1,6 @@
 name = "swiftui_feature_coder"
 description = "Implements SwiftUI features and screens from a single task file with clean layering and minimal scope."
-model = "gpt-5.3-codex-spark"
+model = "gpt-5.3-codex"
 model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 
@@ -20,4 +20,3 @@ Hand-off:
 - Update the current task file with minimal progress notes and verification steps.
 - Provide a concise summary of what you changed and how to verify it.
 """
-
