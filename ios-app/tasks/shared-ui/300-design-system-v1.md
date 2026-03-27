@@ -2,6 +2,8 @@
 
 - Phase: Phase 1 (MVP)
 - 模块: SharedUI
+- 状态: Done
+- 最后更新: 2026-03-27
 - 依赖: 100
 - 目标: 建立统一的 UI 设计系统（色板/字体/间距/卡片/空状态/图标映射），让后续页面实现风格一致且易维护。
 - 非目标: 不追求一次性完成全部视觉设计；先建立可复用的最小集合。
@@ -29,3 +31,24 @@
 - `$swiftui-feature-builder`: 用于快速实现通用组件与示例用法；适用于“从规则到可复用 SwiftUI 组件”。
 - `$swiftui-ui-refactor`: 用于把重复的样式与 modifier 收敛为明确的组件/扩展；适用于“减少重复与提升可读性”。
 
+## 实施记录
+
+- 开工: 2026-03-27
+- 进展: 新增 SharedUI token 入口（颜色/字体/间距/圆角/阴影）与通用组件（卡片、分区标题、列表行、状态徽标、空状态、加载态）。
+- 进展: 新增 `RecordType` 视觉映射目录与 `RecordType.visualStyle` 扩展，并在 HomeTab 采用 SharedUI 组件完成示例落地。
+- 进展: 采用测试先行方式新增 `RecordTypeStyleTests`，先验证失败后补齐实现并通过全量测试。
+- 下一步: 在后续业务页面继续替换重复样式为 SharedUI 组件。
+
+## 验证记录
+
+- 命令: `cd ios-app/App/CoupleLife && xcodegen generate`
+- 命令: `xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -only-testing:CoupleLifeTests/RecordTypeStyleTests test`
+- 结果: 初次失败（RED），提示缺少 `RecordType.visualStyle` 与 `RecordTypeVisualCatalog`；实现后复跑通过（2 tests passed）。
+- 命令: `xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' test`
+- 结果: 通过（6 tests, 0 failures）。
+- 命令: `xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' build`
+- 结果: `BUILD SUCCEEDED`。
+
+## 已知风险/遗留
+
+- HomeTab 当前为示例性接入，Calendar/Planning/Fitness 等页面仍未迁移到 SharedUI 组件。
