@@ -2,6 +2,12 @@ import Foundation
 
 @MainActor
 final class PlanningViewModel: ObservableObject {
+    enum CalendarSyncBannerStyle: Equatable {
+        case neutral
+        case success
+        case warning
+    }
+
     enum DisplayMode: String, CaseIterable, Identifiable {
         case plan = "计划视图"
         case list = "列表视图"
@@ -77,17 +83,22 @@ final class PlanningViewModel: ObservableObject {
     @Published var customDateRangeStart: Date
     @Published var customDateRangeEnd: Date
     @Published var editor: PlanningTaskEditor?
+    @Published private(set) var calendarSyncStatus = CalendarSyncStatus(isEnabled: false, availability: .notAuthorized)
+    @Published private(set) var isUpdatingCalendarSync = false
 
     private let service: any PlanningTaskService
+    private let calendarSyncController: any CalendarSyncSettingsControlling
     private let calendar: Calendar
     private let nowProvider: () -> Date
 
     init(
         service: any PlanningTaskService,
+        calendarSyncController: any CalendarSyncSettingsControlling,
         calendar: Calendar = .current,
         nowProvider: @escaping () -> Date = Date.init
     ) {
         self.service = service
+        self.calendarSyncController = calendarSyncController
         self.calendar = calendar
         self.nowProvider = nowProvider
 
@@ -160,6 +171,36 @@ final class PlanningViewModel: ObservableObject {
         return "可切换层级、状态或日期范围筛选，或新建一条任务。"
     }
 
+    var isCalendarSyncEnabled: Bool {
+        calendarSyncStatus.isEnabled
+    }
+
+    var calendarSyncSummary: String {
+        switch (calendarSyncStatus.isEnabled, calendarSyncStatus.availability) {
+        case (true, .available):
+            return "已同步到系统日历。新建、更新、删除任务会尝试写入默认日历。"
+        case (false, .available):
+            return "已获得系统日历权限。开启后才会把任务写入默认日历。"
+        case (_, .notAuthorized):
+            return "未授权时不会写入系统日历；开启时会按需申请权限。"
+        case (_, .notSupported):
+            return "当前环境不支持系统日历同步。模拟器和真机的权限表现可能不同。"
+        case (_, .failed(let message)):
+            return message
+        }
+    }
+
+    var calendarSyncBannerStyle: CalendarSyncBannerStyle {
+        switch (calendarSyncStatus.isEnabled, calendarSyncStatus.availability) {
+        case (true, .available):
+            return .success
+        case (_, .failed), (_, .notAuthorized), (_, .notSupported):
+            return .warning
+        default:
+            return .neutral
+        }
+    }
+
     func load() {
         isLoading = true
         defer { isLoading = false }
@@ -171,6 +212,16 @@ final class PlanningViewModel: ObservableObject {
             tasks = []
             loadErrorMessage = "任务列表加载失败，请稍后重试。"
         }
+    }
+
+    func loadCalendarSyncStatus() async {
+        calendarSyncStatus = await calendarSyncController.currentStatus()
+    }
+
+    func setCalendarSyncEnabled(_ enabled: Bool) async {
+        isUpdatingCalendarSync = true
+        defer { isUpdatingCalendarSync = false }
+        calendarSyncStatus = await calendarSyncController.setSyncEnabled(enabled)
     }
 
     func startAdd() {
@@ -247,6 +298,15 @@ final class PlanningViewModel: ObservableObject {
             loadErrorMessage = validationError.errorDescription ?? "取消任务失败，请稍后重试。"
         } catch {
             loadErrorMessage = "取消任务失败，请稍后重试。"
+        }
+    }
+
+    func delete(_ task: TaskItem) {
+        do {
+            try service.deleteTask(task)
+            load()
+        } catch {
+            loadErrorMessage = "删除任务失败，请稍后重试。"
         }
     }
 

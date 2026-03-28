@@ -3,12 +3,14 @@ import SwiftUI
 
 struct AppContainer {
     let calendarSync: CalendarSyncService
+    let calendarSyncSettings: CalendarSyncSettingsStore
     let healthData: HealthDataService
     let notifications: NotificationScheduler
     let cloudSync: CloudSyncService
 
     static let `default` = AppContainer(
-        calendarSync: NoopCalendarSyncService(),
+        calendarSync: EventKitCalendarSyncService(),
+        calendarSyncSettings: UserDefaultsCalendarSyncSettingsStore(),
         healthData: NoopHealthDataService(),
         notifications: NoopNotificationScheduler(),
         cloudSync: NoopCloudSyncService()
@@ -17,7 +19,8 @@ struct AppContainer {
     @MainActor
     static func live(modelContainer: ModelContainer) -> AppContainer {
         AppContainer(
-            calendarSync: NoopCalendarSyncService(),
+            calendarSync: EventKitCalendarSyncService(),
+            calendarSyncSettings: UserDefaultsCalendarSyncSettingsStore(),
             healthData: HealthKitHealthDataService(
                 repository: SwiftDataHealthSnapshotRepository(context: modelContainer.mainContext)
             ),
