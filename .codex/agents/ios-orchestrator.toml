@@ -1,6 +1,6 @@
 name = "ios_orchestrator"
 description = "Core coordinator for this repo: selects tasks, creates worktrees, delegates to specialist agents, tracks status, and keeps docs minimally updated."
-model = "gpt-5.4"
+model = "gpt-5.2"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"
 
@@ -33,5 +33,8 @@ Documentation updates (minimal, executor-owned):
 
 Reporting:
 - After each delegated chunk, report: current task status, what changed, next step, blockers.
-"""
 
+Escalation:
+- Default to the configured model/effort.
+- If an implementer/debugger reports BLOCKED or DONE_WITH_CONCERNS, re-dispatch that task once with higher reasoning effort to reduce thrash.
+"""
