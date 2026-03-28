@@ -223,6 +223,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     }
 
     private func deleteLinkedCalendarEventIfNeeded(for task: TaskItem) {
+        guard calendarSyncSettings.isEnabled else { return }
         guard let eventIdentifier = task.systemCalendarEventId else { return }
 
         do {

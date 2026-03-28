@@ -239,6 +239,34 @@ final class PlanningTaskServiceTests: XCTestCase {
         XCTAssertEqual(repository.deletedTaskIDs, [task.id])
         XCTAssertEqual(calendarSync.operationLog, [.deleteEvent("event-123"), .deleteTask(task.id)])
     }
+
+    func testDeleteTaskDoesNotTouchCalendarWhenSyncIsDisabled() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        let settings = TestCalendarSyncSettingsStore(isEnabled: false)
+        repository.onDelete = { task in
+            calendarSync.operationLog.append(.deleteTask(task.id))
+        }
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+        let task = TaskItem(
+            title: "产检预约",
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "local",
+            systemCalendarEventId: "event-123"
+        )
+
+        try service.deleteTask(task)
+
+        XCTAssertTrue(calendarSync.deletedEventIdentifiers.isEmpty)
+        XCTAssertEqual(repository.deletedTaskIDs, [task.id])
+        XCTAssertEqual(calendarSync.operationLog, [.deleteTask(task.id)])
+    }
 }
 
 private final class InMemoryPlanningTaskRepository: TaskRepository {

@@ -42,6 +42,7 @@
   - 首屏不自动触发权限弹窗。
   - 用户在 Planning Tab 显式开启同步时，才调用 EventKit 写权限请求。
   - 未授权、受限、失败、无可写默认日历时，只降级为“不写入系统日历”，不影响任务 CRUD。
+  - 当同步开关关闭时，所有系统日历写操作都停止，包括删除任务时的系统事件删除。
 - 数据契约:
   - 继续使用 `TaskItem.systemCalendarEventId` 作为任务与系统事件的稳定映射。
   - EventKit 映射仅在 Integration 层内部完成，UI 和仓储层不依赖 `EKEvent`。
