@@ -15,6 +15,12 @@ extension PlanLevel {
     }
 }
 
+extension TaskItem {
+    var scheduledAt: Date? {
+        dueAt ?? startAt
+    }
+}
+
 extension TaskStatus {
     var title: String {
         switch self {
@@ -53,5 +59,17 @@ extension TaskStatus {
         case .cancelled:
             return .red
         }
+    }
+}
+
+extension PlanningViewModel.DisplayMode {
+    var title: String {
+        rawValue
+    }
+}
+
+extension PlanningViewModel.DateRangeFilter {
+    var title: String {
+        rawValue
     }
 }
