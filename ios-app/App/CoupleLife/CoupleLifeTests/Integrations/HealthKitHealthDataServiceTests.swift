@@ -1,3 +1,4 @@
+import HealthKit
 import SwiftData
 import XCTest
 @testable import CoupleLife
@@ -17,16 +18,33 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
         XCTAssertEqual(availability, .notAuthorized)
     }
 
-    func testAvailabilityReturnsNotAuthorizedWhenRequestStatusIsUnnecessaryButReadTypesAreDenied() async throws {
+    func testAvailabilityReturnsAvailableWhenRequestStatusIsUnnecessary() async throws {
         let service = makeService(
             client: FakeHealthKitClient(
                 isHealthDataAvailable: true,
-                requestStatus: .unnecessary,
-                hasReadAuthorization: false
+                requestStatus: .unnecessary
             )
         )
 
         let availability = await service.availability()
+
+        XCTAssertEqual(availability, .available)
+    }
+
+    func testRefreshTodaySnapshotReturnsNotAuthorizedWhenReadIsDenied() async throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let client = FakeHealthKitClient(
+            isHealthDataAvailable: true,
+            requestStatus: .unnecessary,
+            readMetricsError: NSError(
+                domain: HKErrorDomain,
+                code: HKError.Code.errorAuthorizationDenied.rawValue
+            )
+        )
+        let service = makeService(client: client, calendar: calendar, now: now)
+
+        let availability = await service.refreshTodaySnapshot(ownerUserId: "u1", asOf: now, force: true)
 
         XCTAssertEqual(availability, .notAuthorized)
     }
@@ -128,20 +146,20 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
 private final class FakeHealthKitClient: HealthKitClient {
     let isHealthDataAvailable: Bool
     var requestStatus: HealthKitAuthorizationRequestStatus
-    var hasReadAuthorization: Bool
     var metricPayloadByStartDate: [Date: HealthMetricPayload]
+    var readMetricsError: Error?
     private(set) var readMetricsCallCount = 0
 
     init(
         isHealthDataAvailable: Bool,
         requestStatus: HealthKitAuthorizationRequestStatus,
-        hasReadAuthorization: Bool = true,
         metricPayload: HealthMetricPayload = .init(steps: nil, sleepSeconds: nil, restingHeartRate: nil),
-        metricPayloadByStartDate: [Date: HealthMetricPayload] = [:]
+        metricPayloadByStartDate: [Date: HealthMetricPayload] = [:],
+        readMetricsError: Error? = nil
     ) {
         self.isHealthDataAvailable = isHealthDataAvailable
         self.requestStatus = requestStatus
-        self.hasReadAuthorization = hasReadAuthorization
+        self.readMetricsError = readMetricsError
         if metricPayloadByStartDate.isEmpty {
             self.metricPayloadByStartDate = [Date.distantPast: metricPayload]
         } else {
@@ -153,16 +171,13 @@ private final class FakeHealthKitClient: HealthKitClient {
         requestStatus
     }
 
-    func hasReadAuthorization() async -> Bool {
-        hasReadAuthorization
-    }
-
-    func requestAuthorization() async throws {
-        hasReadAuthorization = true
-    }
+    func requestAuthorization() async throws {}
 
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload {
         readMetricsCallCount += 1
+        if let readMetricsError {
+            throw readMetricsError
+        }
         return metricPayloadByStartDate[startDate] ?? metricPayloadByStartDate[Date.distantPast]!
     }
 }

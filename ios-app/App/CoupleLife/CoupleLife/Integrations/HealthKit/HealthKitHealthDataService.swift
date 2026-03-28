@@ -16,7 +16,6 @@ struct HealthMetricPayload: Equatable {
 protocol HealthKitClient {
     var isHealthDataAvailable: Bool { get }
     func requestAuthorizationStatus() async throws -> HealthKitAuthorizationRequestStatus
-    func hasReadAuthorization() async -> Bool
     func requestAuthorization() async throws
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload
 }
@@ -74,6 +73,8 @@ final class HealthKitHealthDataService: HealthDataService {
         do {
             try await refreshSnapshots(ownerUserId: ownerUserId, asOf: date)
             return .available
+        } catch let error as NSError where Self.isReadAuthorizationDenied(error) {
+            return .notAuthorized
         } catch {
             return .failed("健康数据刷新失败，请稍后重试。")
         }
@@ -89,7 +90,7 @@ final class HealthKitHealthDataService: HealthDataService {
             case .shouldRequest:
                 return .notAuthorized
             case .unnecessary:
-                return await client.hasReadAuthorization() ? .available : .notAuthorized
+                return .available
             case .unknown:
                 return .failed("健康权限状态暂不可用。")
             }
@@ -134,6 +135,10 @@ final class HealthKitHealthDataService: HealthDataService {
         case .month:
             return calendar.dateInterval(of: .month, for: date) ?? DateInterval(start: date, end: date)
         }
+    }
+
+    private static func isReadAuthorizationDenied(_ error: NSError) -> Bool {
+        error.domain == HKErrorDomain && error.code == HKError.Code.errorAuthorizationDenied.rawValue
     }
 }
 
@@ -181,10 +186,6 @@ private final class LiveHealthKitClient: HealthKitClient {
                 continuation.resume(returning: ())
             }
         }
-    }
-
-    func hasReadAuthorization() async -> Bool {
-        Self.readTypes.allSatisfy { store.authorizationStatus(for: $0) == .sharingAuthorized }
     }
 
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload {
