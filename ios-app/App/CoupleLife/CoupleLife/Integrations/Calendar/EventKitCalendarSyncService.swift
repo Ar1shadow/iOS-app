@@ -6,17 +6,31 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     private let calendar: Calendar
     private let authorizationStatusProvider: () -> EKAuthorizationStatus
     private let defaultCalendarProvider: () -> EKCalendar?
+    private let requestWriteOnlyAccessProvider: () async throws -> Bool
+    private let eventProvider: (String) -> EKEvent?
+    private let saveEvent: (EKEvent) throws -> Void
+    private let removeEvent: (EKEvent) throws -> Void
 
     init(
         eventStore: EKEventStore = EKEventStore(),
         calendar: Calendar = .current,
         authorizationStatusProvider: @escaping () -> EKAuthorizationStatus = { EKEventStore.authorizationStatus(for: .event) },
-        defaultCalendarProvider: (() -> EKCalendar?)? = nil
+        defaultCalendarProvider: (() -> EKCalendar?)? = nil,
+        requestWriteOnlyAccessProvider: (() async throws -> Bool)? = nil,
+        eventProvider: ((String) -> EKEvent?)? = nil,
+        saveEvent: ((EKEvent) throws -> Void)? = nil,
+        removeEvent: ((EKEvent) throws -> Void)? = nil
     ) {
         self.eventStore = eventStore
         self.calendar = calendar
         self.authorizationStatusProvider = authorizationStatusProvider
         self.defaultCalendarProvider = defaultCalendarProvider ?? { eventStore.defaultCalendarForNewEvents }
+        self.requestWriteOnlyAccessProvider = requestWriteOnlyAccessProvider ?? {
+            try await eventStore.requestWriteOnlyAccessToEvents()
+        }
+        self.eventProvider = eventProvider ?? { eventStore.event(withIdentifier: $0) }
+        self.saveEvent = saveEvent ?? { try eventStore.save($0, span: .thisEvent) }
+        self.removeEvent = removeEvent ?? { try eventStore.remove($0, span: .thisEvent) }
     }
 
     func availability() async -> ServiceAvailability {
@@ -26,9 +40,6 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     func currentAvailability() -> ServiceAvailability {
         switch authorizationStatus {
         case .fullAccess, .writeOnly:
-            guard defaultCalendarProvider() != nil else {
-                return .failed("未找到可写入的系统日历。")
-            }
             return .available
         case .notDetermined, .denied, .restricted:
             return .notAuthorized
@@ -49,21 +60,23 @@ final class EventKitCalendarSyncService: CalendarSyncService {
 
         do {
             // The app only needs to create and delete its own events, so write-only access is sufficient.
-            let granted = try await eventStore.requestWriteOnlyAccessToEvents()
-            return granted ? .available : .notAuthorized
+            let granted = try await requestWriteOnlyAccessProvider()
+            return granted ? currentAvailability() : .notAuthorized
         } catch {
             return .failed(error.localizedDescription)
         }
     }
 
     func upsertEvent(for task: TaskItem) throws -> String {
-        let availability = currentAvailability()
-        guard availability == .available else {
-            throw CalendarSyncError.unavailable(availability)
+        try ensureAuthorized()
+
+        let existingEvent: EKEvent? = if let identifier = task.systemCalendarEventId {
+            eventProvider(identifier)
+        } else {
+            nil
         }
 
-        let event = if let identifier = task.systemCalendarEventId,
-                       let existingEvent = eventStore.event(withIdentifier: identifier) {
+        let event = if let existingEvent {
             existingEvent
         } else {
             EKEvent(eventStore: eventStore)
@@ -82,8 +95,9 @@ final class EventKitCalendarSyncService: CalendarSyncService {
         event.endDate = dateRange.end
 
         do {
-            try eventStore.save(event, span: .thisEvent)
-            guard let eventIdentifier = event.eventIdentifier else {
+            try saveEvent(event)
+            let resolvedEventIdentifier = event.eventIdentifier ?? existingEvent?.eventIdentifier ?? task.systemCalendarEventId
+            guard let eventIdentifier = resolvedEventIdentifier else {
                 throw CalendarSyncError.operationFailed("系统日历事件标识未生成。")
             }
             return eventIdentifier
@@ -95,17 +109,14 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     }
 
     func deleteEvent(withIdentifier identifier: String) throws {
-        let availability = currentAvailability()
-        guard availability == .available else {
-            throw CalendarSyncError.unavailable(availability)
-        }
+        try ensureAuthorized()
 
-        guard let event = eventStore.event(withIdentifier: identifier) else {
+        guard let event = eventProvider(identifier) else {
             return
         }
 
         do {
-            try eventStore.remove(event, span: .thisEvent)
+            try removeEvent(event)
         } catch {
             throw CalendarSyncError.operationFailed(error.localizedDescription)
         }
@@ -113,6 +124,13 @@ final class EventKitCalendarSyncService: CalendarSyncService {
 
     private var authorizationStatus: EKAuthorizationStatus {
         authorizationStatusProvider()
+    }
+
+    private func ensureAuthorized() throws {
+        let availability = currentAvailability()
+        guard availability == .available else {
+            throw CalendarSyncError.unavailable(availability)
+        }
     }
 
     private func makeDateRange(for task: TaskItem) throws -> DateInterval {

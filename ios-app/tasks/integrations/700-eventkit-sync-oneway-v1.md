@@ -48,6 +48,7 @@
   - EventKit 映射仅在 Integration 层内部完成，UI 和仓储层不依赖 `EKEvent`。
   - 本地仓储持久化优先于系统日历写入；创建/更新后的事件标识通过后续 best-effort `taskRepository.update` 回写，删除任务则先删本地任务再 best-effort 删除系统事件。
   - 任务取消排期时，只有系统事件删除成功或事件已不存在时才清空 `systemCalendarEventId`；删除失败时保留映射以便后续重试。
+  - EventKit 可用性以授权状态为主；没有默认日历时，新建系统事件会失败，但已关联事件仍允许更新或删除。
 - 下一步:
   - 在可访问 CoreSimulator 的环境中运行 `xcodebuild test`，验证 EventKit 权限路径与测试结果。
   - 在真机上手动验证系统日历写入与删除行为。
