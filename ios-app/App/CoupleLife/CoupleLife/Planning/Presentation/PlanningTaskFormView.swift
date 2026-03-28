@@ -9,7 +9,6 @@ struct PlanningTaskFormView: View {
     @State private var title: String
     @State private var detail: String
     @State private var planLevel: PlanLevel
-    @State private var status: TaskStatus
     @State private var includesStartAt: Bool
     @State private var startAt: Date
     @State private var includesDueAt: Bool
@@ -32,7 +31,6 @@ struct PlanningTaskFormView: View {
         _title = State(initialValue: editor.draft.title)
         _detail = State(initialValue: editor.draft.detail)
         _planLevel = State(initialValue: editor.draft.planLevel)
-        _status = State(initialValue: editor.draft.status)
         _includesStartAt = State(initialValue: editor.draft.startAt != nil)
         _startAt = State(initialValue: startValue)
         _includesDueAt = State(initialValue: editor.draft.dueAt != nil)
@@ -62,10 +60,22 @@ struct PlanningTaskFormView: View {
                             Text(level.title).tag(level)
                         }
                     }
-
-                    Picker("状态", selection: $status) {
-                        ForEach(TaskStatus.allCases, id: \.self) { status in
-                            Text(status.title).tag(status)
+                    
+                    if editor.task != nil {
+                        LabeledContent("状态") {
+                            SharedStatusBadge(
+                                text: editor.draft.status.title,
+                                colorToken: editor.draft.status.colorToken,
+                                symbolName: editor.draft.status.symbolName
+                            )
+                        }
+                    } else {
+                        LabeledContent("状态") {
+                            SharedStatusBadge(
+                                text: TaskStatus.todo.title,
+                                colorToken: TaskStatus.todo.colorToken,
+                                symbolName: TaskStatus.todo.symbolName
+                            )
                         }
                     }
                 }
@@ -118,7 +128,7 @@ struct PlanningTaskFormView: View {
             title: title,
             detail: detail,
             planLevel: planLevel,
-            status: status,
+            status: editor.draft.status,
             startAt: includesStartAt ? startAt : nil,
             dueAt: includesDueAt ? dueAt : nil,
             isAllDay: (includesStartAt || includesDueAt) ? isAllDay : false

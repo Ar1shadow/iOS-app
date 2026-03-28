@@ -64,8 +64,9 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             scheduledFrom: dayStart,
             to: eventWindowEnd,
             ownerUserId: ownerUserId,
-            status: .todo
+            status: nil
         )
+            .filter { $0.status == .todo || $0.status == .postponed }
 
         let importantEvents = upcomingTasks
             .sorted {

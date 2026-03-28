@@ -12,11 +12,14 @@ struct PlanningTaskDraft: Equatable {
 
 enum PlanningTaskValidationError: LocalizedError, Equatable {
     case emptyTitle
+    case invalidStatusTransition
 
     var errorDescription: String? {
         switch self {
         case .emptyTitle:
             return "请填写任务标题。"
+        case .invalidStatusTransition:
+            return "当前任务状态不允许这样变更。"
         }
     }
 }
@@ -89,7 +92,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             startAt: normalizedDraft.startAt,
             dueAt: normalizedDraft.dueAt,
             isAllDay: normalizedDraft.isAllDay,
-            status: normalizedDraft.status,
+            status: .todo,
             planLevel: normalizedDraft.planLevel,
             ownerUserId: ownerUserId,
             createdAt: now,
@@ -101,10 +104,12 @@ final class DefaultPlanningTaskService: PlanningTaskService {
 
     func updateTask(_ task: TaskItem, from draft: PlanningTaskDraft) throws {
         let normalizedDraft = try validate(draft)
+        guard normalizedDraft.status == task.status else {
+            throw PlanningTaskValidationError.invalidStatusTransition
+        }
         task.title = normalizedDraft.title
         task.detail = normalizedDraft.detail.isEmpty ? nil : normalizedDraft.detail
         task.planLevel = normalizedDraft.planLevel
-        task.status = normalizedDraft.status
         task.startAt = normalizedDraft.startAt
         task.dueAt = normalizedDraft.dueAt
         task.isAllDay = normalizedDraft.isAllDay
@@ -112,11 +117,13 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     }
 
     func markTaskDone(_ task: TaskItem) throws {
+        try ensureMutableStatus(task.status)
         task.status = .done
         try taskRepository.update(task)
     }
 
     func postponeTask(_ task: TaskItem) throws {
+        try ensureMutableStatus(task.status)
         if let startAt = task.startAt {
             task.startAt = calendar.date(byAdding: .day, value: 1, to: startAt)
         }
@@ -128,6 +135,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     }
 
     func cancelTask(_ task: TaskItem) throws {
+        try ensureMutableStatus(task.status)
         task.status = .cancelled
         try taskRepository.update(task)
     }
@@ -170,6 +178,12 @@ final class DefaultPlanningTaskService: PlanningTaskService {
                 return lhs.createdAt > rhs.createdAt
             }
             return lhs.updatedAt > rhs.updatedAt
+        }
+    }
+
+    private func ensureMutableStatus(_ status: TaskStatus) throws {
+        guard status == .todo || status == .postponed else {
+            throw PlanningTaskValidationError.invalidStatusTransition
         }
     }
 }

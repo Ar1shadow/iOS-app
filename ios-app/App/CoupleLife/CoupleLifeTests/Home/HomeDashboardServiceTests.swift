@@ -17,7 +17,7 @@ final class HomeDashboardServiceTests: XCTestCase {
         let tasks: [TaskItem] = [
             TaskItem(title: "买菜", dueAt: due, status: .todo, ownerUserId: "u1"),
             TaskItem(title: "倒垃圾", dueAt: due, status: .done, ownerUserId: "u1"),
-            TaskItem(title: "明天复诊", dueAt: tomorrowDue, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "明天复诊", dueAt: tomorrowDue, status: .postponed, ownerUserId: "u1"),
             TaskItem(title: "周末体检", dueAt: nextWeekDue, status: .todo, ownerUserId: "u1"),
             TaskItem(title: "窗口外任务", dueAt: beyondWindowDue, status: .todo, ownerUserId: "u1"),
             TaskItem(title: "旧任务", dueAt: oldDue, status: .todo, ownerUserId: "u1"),
@@ -123,6 +123,27 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertEqual(dashboard.todayTaskTotal, 1)
         XCTAssertEqual(dashboard.todayRecordTotal, 1)
         XCTAssertEqual(dashboard.importantEvents.map(\.title), ["我的任务"])
+    }
+
+    func testIncludesPostponedTasksInImportantEvents() throws {
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let calendar = Calendar(identifier: .gregorian)
+        let dayStart = calendar.startOfDay(for: day)
+        let postponedDue = calendar.date(byAdding: .day, value: 2, to: dayStart)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: [
+                TaskItem(title: "已延期复诊", dueAt: postponedDue, status: .postponed, ownerUserId: "local")
+            ]),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: nil),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "local")
+
+        XCTAssertEqual(dashboard.importantEvents.map(\.title), ["已延期复诊"])
+        XCTAssertTrue(dashboard.hasAnyData)
     }
 }
 

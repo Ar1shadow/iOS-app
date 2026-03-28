@@ -177,14 +177,10 @@ private struct PlanningTaskRow: View {
             .buttonStyle(.plain)
             .accessibilityHint("打开任务编辑表单")
 
-            HStack(spacing: AppSpacing.sm) {
-                if task.status != .done {
+            if canTransition {
+                HStack(spacing: AppSpacing.sm) {
                     actionButton("完成", symbol: "checkmark.circle.fill", color: .green, action: onDone)
-                }
-                if task.status != .done && task.status != .cancelled {
                     actionButton("延期", symbol: "arrow.uturn.forward.circle", color: .brown, action: onPostpone)
-                }
-                if task.status != .cancelled {
                     actionButton("取消", symbol: "xmark.circle.fill", color: .red, action: onCancel)
                 }
             }
@@ -216,6 +212,10 @@ private struct PlanningTaskRow: View {
         }
 
         return targetDate.formatted(.dateTime.month().day().hour().minute())
+    }
+
+    private var canTransition: Bool {
+        task.status == .todo || task.status == .postponed
     }
 
     private func actionButton(_ title: String, symbol: String, color: AppColorToken, action: @escaping () -> Void) -> some View {

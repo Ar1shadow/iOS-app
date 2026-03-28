@@ -143,6 +143,8 @@ final class PlanningViewModel: ObservableObject {
         do {
             try service.markTaskDone(task)
             load()
+        } catch let validationError as PlanningTaskValidationError {
+            loadErrorMessage = validationError.errorDescription ?? "更新任务状态失败，请稍后重试。"
         } catch {
             loadErrorMessage = "更新任务状态失败，请稍后重试。"
         }
@@ -152,6 +154,8 @@ final class PlanningViewModel: ObservableObject {
         do {
             try service.postponeTask(task)
             load()
+        } catch let validationError as PlanningTaskValidationError {
+            loadErrorMessage = validationError.errorDescription ?? "延期任务失败，请稍后重试。"
         } catch {
             loadErrorMessage = "延期任务失败，请稍后重试。"
         }
@@ -161,6 +165,8 @@ final class PlanningViewModel: ObservableObject {
         do {
             try service.cancelTask(task)
             load()
+        } catch let validationError as PlanningTaskValidationError {
+            loadErrorMessage = validationError.errorDescription ?? "取消任务失败，请稍后重试。"
         } catch {
             loadErrorMessage = "取消任务失败，请稍后重试。"
         }
