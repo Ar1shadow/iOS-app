@@ -11,6 +11,12 @@ enum DataSource: String, Codable, CaseIterable {
     case healthKit
 }
 
+enum HealthMetricBucket: String, Codable, CaseIterable {
+    case day
+    case week
+    case month
+}
+
 enum RecordType: String, Codable, CaseIterable {
     case water
     case bowelMovement

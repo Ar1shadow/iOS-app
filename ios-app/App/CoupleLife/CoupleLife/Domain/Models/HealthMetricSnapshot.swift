@@ -6,6 +6,7 @@ final class HealthMetricSnapshot {
     @Attribute(.unique) var id: UUID
 
     var dayStart: Date
+    var bucketRaw: String
     var ownerUserId: String
     var coupleSpaceId: String?
     var visibilityRaw: String
@@ -28,6 +29,7 @@ final class HealthMetricSnapshot {
         id: UUID = UUID(),
         dayStart: Date,
         ownerUserId: String,
+        bucket: HealthMetricBucket = .day,
         coupleSpaceId: String? = nil,
         visibility: Visibility = .private,
         source: DataSource = .healthKit,
@@ -44,6 +46,7 @@ final class HealthMetricSnapshot {
     ) {
         self.id = id
         self.dayStart = dayStart
+        self.bucketRaw = bucket.rawValue
         self.ownerUserId = ownerUserId
         self.coupleSpaceId = coupleSpaceId
         self.visibilityRaw = visibility.rawValue
@@ -65,9 +68,13 @@ final class HealthMetricSnapshot {
         set { visibilityRaw = newValue.rawValue }
     }
 
+    var bucket: HealthMetricBucket {
+        get { HealthMetricBucket(rawValue: bucketRaw) ?? .day }
+        set { bucketRaw = newValue.rawValue }
+    }
+
     var source: DataSource {
         get { DataSource(rawValue: sourceRaw) ?? .healthKit }
         set { sourceRaw = newValue.rawValue }
     }
 }
-

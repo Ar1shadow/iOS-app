@@ -10,6 +10,7 @@ enum HealthKitAuthorizationRequestStatus {
 struct HealthMetricPayload: Equatable {
     let steps: Double?
     let sleepSeconds: Double?
+    let restingHeartRate: Double?
 }
 
 protocol HealthKitClient {
@@ -70,18 +71,7 @@ final class HealthKitHealthDataService: HealthDataService {
         }
 
         do {
-            let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
-            let payload = try await client.readMetrics(from: dayStart, to: dayEnd)
-            let snapshot = HealthMetricSnapshot(
-                dayStart: dayStart,
-                ownerUserId: ownerUserId,
-                source: .healthKit,
-                steps: payload.steps,
-                sleepSeconds: payload.sleepSeconds,
-                createdAt: nowProvider(),
-                updatedAt: nowProvider()
-            )
-            try repository.upsert(snapshot)
+            try await refreshSnapshots(ownerUserId: ownerUserId, asOf: date)
             return .available
         } catch {
             return .failed("健康数据刷新失败，请稍后重试。")
@@ -109,6 +99,40 @@ final class HealthKitHealthDataService: HealthDataService {
 
     private func isSnapshotFresh(_ snapshot: HealthMetricSnapshot, for dayStart: Date) -> Bool {
         snapshot.dayStart == dayStart && calendar.isDate(snapshot.updatedAt, inSameDayAs: nowProvider())
+    }
+
+    private func refreshSnapshots(ownerUserId: String, asOf date: Date) async throws {
+        for bucket in HealthMetricBucket.allCases {
+            let interval = bucketInterval(for: bucket, containing: date)
+            let payload = try await client.readMetrics(from: interval.start, to: interval.end)
+            let now = nowProvider()
+            try repository.upsert(
+                HealthMetricSnapshot(
+                    dayStart: interval.start,
+                    ownerUserId: ownerUserId,
+                    bucket: bucket,
+                    source: .healthKit,
+                    steps: payload.steps,
+                    restingHeartRate: payload.restingHeartRate,
+                    sleepSeconds: payload.sleepSeconds,
+                    createdAt: now,
+                    updatedAt: now
+                )
+            )
+        }
+    }
+
+    private func bucketInterval(for bucket: HealthMetricBucket, containing date: Date) -> DateInterval {
+        switch bucket {
+        case .day:
+            let start = calendar.startOfDay(for: date)
+            let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
+            return DateInterval(start: start, end: end)
+        case .week:
+            return calendar.dateInterval(of: .weekOfYear, for: date) ?? DateInterval(start: date, end: date)
+        case .month:
+            return calendar.dateInterval(of: .month, for: date) ?? DateInterval(start: date, end: date)
+        }
     }
 }
 
@@ -161,10 +185,12 @@ private final class LiveHealthKitClient: HealthKitClient {
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload {
         async let steps = readStepCount(from: startDate, to: endDate)
         async let sleepSeconds = readSleepDuration(from: startDate, to: endDate)
+        async let restingHeartRate = readRestingHeartRate(from: startDate, to: endDate)
 
         return try await HealthMetricPayload(
             steps: steps,
-            sleepSeconds: sleepSeconds
+            sleepSeconds: sleepSeconds,
+            restingHeartRate: restingHeartRate
         )
     }
 
@@ -227,8 +253,30 @@ private final class LiveHealthKitClient: HealthKitClient {
         }
     }
 
+    private func readRestingHeartRate(from startDate: Date, to endDate: Date) async throws -> Double? {
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            let query = HKStatisticsQuery(
+                quantityType: Self.restingHeartRateType,
+                quantitySamplePredicate: predicate,
+                options: .discreteAverage
+            ) { _, statistics, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+
+                let value = statistics?.averageQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                continuation.resume(returning: value)
+            }
+
+            store.execute(query)
+        }
+    }
+
     private static var readTypes: Set<HKObjectType> {
-        [stepCountType, sleepAnalysisType]
+        [stepCountType, sleepAnalysisType, restingHeartRateType]
     }
 
     private static var stepCountType: HKQuantityType {
@@ -237,6 +285,10 @@ private final class LiveHealthKitClient: HealthKitClient {
 
     private static var sleepAnalysisType: HKCategoryType {
         HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!
+    }
+
+    private static var restingHeartRateType: HKQuantityType {
+        HKObjectType.quantityType(forIdentifier: .restingHeartRate)!
     }
 
     private static func map(_ status: HKAuthorizationRequestStatus) -> HealthKitAuthorizationRequestStatus {

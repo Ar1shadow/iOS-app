@@ -25,6 +25,7 @@
 		2D45CE5B824486C66C7518D1 /* SharedEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = C01F7C5581484174DC946167 /* SharedEnums.swift */; };
 		32A4753AE4297430389420F0 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8336E99FE744A9F633D4E4DF /* AppTab.swift */; };
 		3433834A06D436D3B7B6C3C7 /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E0953AA6938FE93B936195 /* CurrentUser.swift */; };
+		34991AD2AEA77F2BC88FA828 /* HealthSnapshotRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBE54BAED4AE3605F3399AA /* HealthSnapshotRepositoryTests.swift */; };
 		3A9FB611456AAA5282D1AAE8 /* PlanningTaskFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ED14498A05B160C876E43A /* PlanningTaskFormView.swift */; };
 		3AA17DB407BF69E45BEE95A2 /* SharedStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */; };
 		3B88097B54BE6C973AFE3DC9 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1A703FBBDAF0008DDC8494 /* CalendarViewModel.swift */; };
@@ -142,6 +143,7 @@
 		E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CoupleLifeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F999C232176D9090AC8577F8 /* PlanningTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTab.swift; sourceTree = "<group>"; };
+		FFBE54BAED4AE3605F3399AA /* HealthSnapshotRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthSnapshotRepositoryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -418,6 +420,7 @@
 		C44CC93E159524023C3FE177 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				FFBE54BAED4AE3605F3399AA /* HealthSnapshotRepositoryTests.swift */,
 				5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */,
 				0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */,
 			);
@@ -636,6 +639,7 @@
 				1360965893AFCDE57150C555 /* CalendarViewModelTests.swift in Sources */,
 				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
 				2B4DA28681CFAD6CA7A51136 /* HealthKitHealthDataServiceTests.swift in Sources */,
+				34991AD2AEA77F2BC88FA828 /* HealthSnapshotRepositoryTests.swift in Sources */,
 				176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */,
 				5856B634FB59A9F4B9862125 /* HomeDashboardViewModelTests.swift in Sources */,
 				C7CA493E3D124EF07CEFE532 /* PlanningTaskServiceTests.swift in Sources */,

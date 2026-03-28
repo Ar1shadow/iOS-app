@@ -200,11 +200,15 @@ private final class InMemoryHealthSnapshotRepository: HealthSnapshotRepository {
     }
 
     func upsert(_ snapshot: HealthMetricSnapshot) throws {}
-    func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
+    func snapshot(bucket: HealthMetricBucket, start: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
         guard let value else { return nil }
-        if value.dayStart == dayStart && value.ownerUserId == ownerUserId {
+        if value.bucket == bucket && value.dayStart == start && value.ownerUserId == ownerUserId {
             return value
         }
         return nil
+    }
+
+    func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
+        try snapshot(bucket: .day, start: dayStart, ownerUserId: ownerUserId)
     }
 }

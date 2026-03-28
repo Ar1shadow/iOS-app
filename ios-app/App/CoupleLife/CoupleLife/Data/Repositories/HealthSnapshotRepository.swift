@@ -3,6 +3,7 @@ import SwiftData
 
 protocol HealthSnapshotRepository {
     func upsert(_ snapshot: HealthMetricSnapshot) throws
+    func snapshot(bucket: HealthMetricBucket, start: Date, ownerUserId: String) throws -> HealthMetricSnapshot?
     func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot?
 }
 
@@ -14,7 +15,9 @@ final class SwiftDataHealthSnapshotRepository: HealthSnapshotRepository {
     }
 
     func upsert(_ snapshot: HealthMetricSnapshot) throws {
-        if let existing = try self.snapshot(dayStart: snapshot.dayStart, ownerUserId: snapshot.ownerUserId) {
+        if let existing = try self.snapshot(bucket: snapshot.bucket, start: snapshot.dayStart, ownerUserId: snapshot.ownerUserId) {
+            existing.dayStart = snapshot.dayStart
+            existing.bucketRaw = snapshot.bucketRaw
             existing.visibilityRaw = snapshot.visibilityRaw
             existing.sourceRaw = snapshot.sourceRaw
 
@@ -36,10 +39,15 @@ final class SwiftDataHealthSnapshotRepository: HealthSnapshotRepository {
         try context.save()
     }
 
-    func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
-        let predicate = #Predicate<HealthMetricSnapshot> { $0.dayStart == dayStart && $0.ownerUserId == ownerUserId }
+    func snapshot(bucket: HealthMetricBucket, start: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
+        let predicate = #Predicate<HealthMetricSnapshot> {
+            $0.dayStart == start && $0.bucketRaw == bucket.rawValue && $0.ownerUserId == ownerUserId
+        }
         let descriptor = FetchDescriptor<HealthMetricSnapshot>(predicate: predicate)
         return try context.fetch(descriptor).first
     }
-}
 
+    func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
+        try snapshot(bucket: .day, start: dayStart, ownerUserId: ownerUserId)
+    }
+}
