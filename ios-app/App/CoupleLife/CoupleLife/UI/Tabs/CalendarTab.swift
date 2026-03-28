@@ -163,7 +163,10 @@ struct CalendarTab: View {
                             )
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(viewModel.fullDateLabel(for: day.date))
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(viewModel.accessibilityDateLabel(for: day.date))
+                        .accessibilityValue(viewModel.accessibilityValue(for: day.date))
+                        .accessibilityAddTraits(viewModel.isSelected(day.date) ? .isSelected : [])
                     }
                 }
             }
@@ -188,6 +191,10 @@ struct CalendarTab: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(viewModel.accessibilityDateLabel(for: date))
+                        .accessibilityValue(viewModel.accessibilityValue(for: date))
+                        .accessibilityAddTraits(viewModel.isSelected(date) ? .isSelected : [])
                     }
                 }
 

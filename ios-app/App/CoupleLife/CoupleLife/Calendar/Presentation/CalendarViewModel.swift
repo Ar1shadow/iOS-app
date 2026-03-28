@@ -20,6 +20,7 @@ final class CalendarViewModel: ObservableObject {
     private let calendar: Calendar
     private let ownerUserId: String
     private var hasLoaded = false
+    private var reloadTask: Task<Void, Never>?
     private var loadGeneration = 0
     private var anchoredDayOfMonth: Int
 
@@ -87,7 +88,8 @@ final class CalendarViewModel: ObservableObject {
 
     func reload() async {
         let range = Self.visibleRange(for: selectedDate, mode: displayMode, calendar: calendar)
-        await load(range: range)
+        scheduleLoad(range: range)
+        await reloadTask?.value
     }
 
     func setDisplayMode(_ mode: DisplayMode) {
@@ -96,7 +98,7 @@ final class CalendarViewModel: ObservableObject {
         if mode == .month {
             anchoredDayOfMonth = calendar.component(.day, from: selectedDate)
         }
-        Task { await reload() }
+        scheduleLoad(range: Self.visibleRange(for: selectedDate, mode: displayMode, calendar: calendar))
     }
 
     func selectDate(_ date: Date) {
@@ -107,7 +109,7 @@ final class CalendarViewModel: ObservableObject {
 
         let newRange = Self.visibleRange(for: normalizedDate, mode: displayMode, calendar: calendar)
         guard newRange != summary.visibleRange else { return }
-        Task { await load(range: newRange) }
+        scheduleLoad(range: newRange)
     }
 
     func shiftVisiblePeriod(by value: Int) {
@@ -122,7 +124,7 @@ final class CalendarViewModel: ObservableObject {
             guard let shiftedDate = calendar.date(byAdding: .day, value: value, to: selectedDate) else { return }
             selectedDate = calendar.startOfDay(for: shiftedDate)
         }
-        Task { await reload() }
+        scheduleLoad(range: Self.visibleRange(for: selectedDate, mode: displayMode, calendar: calendar))
     }
 
     func hasMarker(on date: Date) -> Bool {
@@ -153,29 +155,61 @@ final class CalendarViewModel: ObservableObject {
         format(date, dateFormat: "M月d日 EEEE")
     }
 
+    func accessibilityDateLabel(for date: Date) -> String {
+        format(date, dateFormat: "yyyy年M月d日 EEEE")
+    }
+
+    func accessibilityValue(for date: Date) -> String {
+        var values: [String] = []
+
+        if isSelected(date) {
+            values.append("已选中")
+        }
+
+        if isToday(date) {
+            values.append("今天")
+        }
+
+        values.append(hasMarker(on: date) ? "有记录" : "无记录")
+        return values.joined(separator: "，")
+    }
+
     func summaryBadgeText(for date: Date) -> String {
         let count = summary.records(on: date, calendar: calendar).count
         return count == 0 ? "无记录" : "\(count) 条记录"
     }
 
-    private func load(range: DateInterval) async {
+    deinit {
+        reloadTask?.cancel()
+    }
+
+    private func scheduleLoad(range: DateInterval) {
+        reloadTask?.cancel()
         loadGeneration += 1
         let currentGeneration = loadGeneration
+        reloadTask = Task { [weak self] in
+            await self?.load(range: range, generation: currentGeneration)
+        }
+    }
+
+    private func load(range: DateInterval, generation: Int) async {
+        guard generation == loadGeneration else { return }
         isLoading = true
         loadErrorMessage = nil
 
         do {
             await Task.yield()
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             let loadedSummary = try service.load(range: range, ownerUserId: ownerUserId)
-            guard currentGeneration == loadGeneration else { return }
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             summary = loadedSummary
         } catch {
-            guard currentGeneration == loadGeneration else { return }
+            guard !Task.isCancelled, generation == loadGeneration else { return }
             summary = .empty(range: range)
             loadErrorMessage = "日历摘要加载失败，请稍后重试。"
         }
 
-        guard currentGeneration == loadGeneration else { return }
+        guard !Task.isCancelled, generation == loadGeneration else { return }
         isLoading = false
     }
 

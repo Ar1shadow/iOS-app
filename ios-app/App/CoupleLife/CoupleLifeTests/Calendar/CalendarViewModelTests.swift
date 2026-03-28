@@ -6,7 +6,7 @@ final class CalendarViewModelTests: XCTestCase {
     func testMonthShiftPreservesAnchoredDayAcrossShorterMonth() {
         let calendar = fixedCalendar()
         let viewModel = CalendarViewModel(
-            service: StubCalendarRecordSummaryService(),
+            service: EmptyCalendarRecordSummaryService(),
             calendar: calendar,
             ownerUserId: "local",
             nowProvider: { self.makeDate(year: 2024, month: 1, day: 31) }
@@ -17,6 +17,26 @@ final class CalendarViewModelTests: XCTestCase {
 
         viewModel.shiftVisiblePeriod(by: -1)
         XCTAssertEqual(viewModel.selectedDate, makeDate(year: 2024, month: 1, day: 31))
+    }
+
+    func testReloadFailureSetsErrorAndFallsBackToEmptySummary() async {
+        let calendar = fixedCalendar()
+        let currentDate = makeDate(year: 2024, month: 1, day: 31)
+        let viewModel = CalendarViewModel(
+            service: ThrowingCalendarRecordSummaryService(),
+            calendar: calendar,
+            ownerUserId: "local",
+            nowProvider: { currentDate }
+        )
+
+        await viewModel.reload()
+
+        let expectedRange = visibleRange(for: currentDate, calendar: calendar)
+        XCTAssertEqual(viewModel.summary.visibleRange, expectedRange)
+        XCTAssertTrue(viewModel.summary.markerDates.isEmpty)
+        XCTAssertTrue(viewModel.selectedDayRecords.isEmpty)
+        XCTAssertEqual(viewModel.loadErrorMessage, "日历摘要加载失败，请稍后重试。")
+        XCTAssertFalse(viewModel.isLoading)
     }
 
     private func fixedCalendar() -> Calendar {
@@ -37,10 +57,23 @@ final class CalendarViewModelTests: XCTestCase {
         )
         return components.date!
     }
+
+    private func visibleRange(for date: Date, calendar: Calendar) -> DateInterval {
+        let grid = CalendarMonthGridBuilder.buildMonth(containing: date, calendar: calendar)
+        let start = grid.days.first!.date
+        let end = calendar.date(byAdding: .day, value: grid.days.count, to: start)!
+        return DateInterval(start: start, end: end)
+    }
 }
 
-private struct StubCalendarRecordSummaryService: CalendarRecordSummaryService {
+private struct EmptyCalendarRecordSummaryService: CalendarRecordSummaryService {
     func load(range: DateInterval, ownerUserId: String) throws -> CalendarRecordSummary {
         .empty(range: range)
+    }
+}
+
+private struct ThrowingCalendarRecordSummaryService: CalendarRecordSummaryService {
+    func load(range: DateInterval, ownerUserId: String) throws -> CalendarRecordSummary {
+        throw NSError(domain: "CalendarViewModelTests", code: 1)
     }
 }
