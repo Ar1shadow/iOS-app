@@ -7,7 +7,12 @@ This repository is currently document-first. Keep top-level folders organized by
 - `ios-app/`: iOS planning and implementation docs (tasks live under `ios-app/tasks/`).
 - `learning/`: reference material and study assets such as PDFs, HTML guides, and diagrams.
 
-When application code is added, place it under `ios-app/App/`, tests under `ios-app/Tests/`, and assets under `ios-app/Assets/`. Avoid mixing generated files and notes with source files.
+The iOS app workspace lives under `ios-app/App/CoupleLife/`:
+
+- Xcodegen spec: `ios-app/App/CoupleLife/project.yml`
+- Generated Xcode project: `ios-app/App/CoupleLife/CoupleLife.xcodeproj` (generated; do not hand-edit)
+- App source: `ios-app/App/CoupleLife/CoupleLife/`
+- Unit tests (XCTest): `ios-app/App/CoupleLife/CoupleLifeTests/`
 
 ## Agent Quickstart
 
@@ -18,16 +23,19 @@ When application code is added, place it under `ios-app/App/`, tests under `ios-
 
 ## Build, Test, and Development Commands
 
-There is no build system configured yet. For now, use simple validation commands:
+Canonical commands (Phase 1):
 
-- `rg --files .`: list working files quickly.
-- `markdownlint AGENTS.md project.md organization.md workflow.md`: optional Markdown linting if installed.
-- `open project.md`: review the main product plan on macOS.
+- Generate the Xcode project:
+  - `cd ios-app/App/CoupleLife && xcodegen generate`
+- Run tests:
+  - `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
 
-Once the iOS app is created, document the canonical commands here, for example:
+Notes:
+- Simulator destinations can differ between machines; adjust the `-destination` string as needed.
 
-- `xcodebuild -scheme App build`
-- `xcodebuild test -scheme App -destination 'platform=iOS Simulator,name=iPhone 16'`
+Optional validations:
+- `rg --files .`: list working files quickly
+- `markdownlint AGENTS.md project.md organization.md workflow.md`: optional Markdown linting if installed
 
 ## Coding Style & Naming Conventions
 
@@ -42,13 +50,13 @@ For future Swift code:
 
 ## Testing Guidelines
 
-No test framework is present yet. When code is introduced, add automated tests alongside the app module. Prefer XCTest, with filenames such as `TaskServiceTests.swift` and methods like `testCreatesSharedTask()`.
+XCTest is set up under `ios-app/App/CoupleLife/CoupleLifeTests/`. Add tests alongside new business logic before UI polish. Prefer filenames such as `TaskServiceTests.swift` and methods like `testCreatesSharedTask()`.
 
 Add tests for new business logic before UI polish. Cover record creation, task scheduling, calendar sync mapping, and permission-gated health data reads first.
 
 ## Commit & Pull Request Guidelines
 
-Git history is not available in this directory yet, so use a consistent convention from the start:
+Use a consistent convention:
 
 - Commit format: `type: short summary`
 - Examples: `docs: refine iOS product scope`, `feat: add task entity model`
