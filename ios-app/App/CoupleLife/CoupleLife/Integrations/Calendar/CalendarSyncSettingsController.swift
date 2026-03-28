@@ -30,9 +30,16 @@ final class DefaultCalendarSyncSettingsController: CalendarSyncSettingsControlli
     }
 
     func currentStatus() async -> CalendarSyncStatus {
-        CalendarSyncStatus(
-            isEnabled: settingsStore.isEnabled,
-            availability: await calendarSyncService.availability()
+        let availability = await calendarSyncService.availability()
+        let resolvedEnabled = settingsStore.isEnabled && availability == .available
+
+        if settingsStore.isEnabled && !resolvedEnabled {
+            settingsStore.isEnabled = false
+        }
+
+        return CalendarSyncStatus(
+            isEnabled: resolvedEnabled,
+            availability: availability
         )
     }
 

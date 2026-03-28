@@ -40,6 +40,9 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     func currentAvailability() -> ServiceAvailability {
         switch authorizationStatus {
         case .fullAccess, .writeOnly:
+            guard defaultCalendarProvider() != nil else {
+                return .failed("未找到可写入的系统日历。")
+            }
             return .available
         case .notDetermined, .denied, .restricted:
             return .notAuthorized
