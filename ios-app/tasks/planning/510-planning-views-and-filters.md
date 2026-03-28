@@ -44,7 +44,8 @@
 - 已执行：`cd ios-app/App/CoupleLife && xcodegen generate`
 - 已执行：`cd ios-app/App/CoupleLife && xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData510-focused CODE_SIGNING_ALLOWED=NO test -only-testing:CoupleLifeTests/PlanningViewModelTests -only-testing:CoupleLifeTests/PlanningTaskServiceTests`
 - 已执行：`cd ios-app/App/CoupleLife && xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData510 CODE_SIGNING_ALLOWED=NO test`
-- 结果：40 个测试全部通过；新增验证覆盖计划视图日期分组、All/Today/Custom 日期范围语义、未排期任务显示规则，以及筛选状态在视图切换中的保持行为。
+- 已执行：`cd ios-app/App/CoupleLife && xcodebuild -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData510-full CODE_SIGNING_ALLOWED=NO test`
+- 结果：45 个测试全部通过；新增验证覆盖计划视图按层级周期分组、All/Today/Custom/Next 7 日期范围语义、未排期任务显示规则，以及筛选状态在视图切换中的保持行为。
 
 ## 已知风险/遗留
 
