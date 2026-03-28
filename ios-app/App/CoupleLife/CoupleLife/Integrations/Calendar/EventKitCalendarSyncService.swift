@@ -71,7 +71,7 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     }
 
     func upsertEvent(for task: TaskItem) throws -> String {
-        try ensureAuthorized()
+        try ensureWriteAccess()
 
         let existingEvent: EKEvent? = if let identifier = task.systemCalendarEventId {
             eventProvider(identifier)
@@ -112,7 +112,7 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     }
 
     func deleteEvent(withIdentifier identifier: String) throws {
-        try ensureAuthorized()
+        try ensureWriteAccess()
 
         guard let event = eventProvider(identifier) else {
             return
@@ -129,10 +129,14 @@ final class EventKitCalendarSyncService: CalendarSyncService {
         authorizationStatusProvider()
     }
 
-    private func ensureAuthorized() throws {
-        let availability = currentAvailability()
-        guard availability == .available else {
-            throw CalendarSyncError.unavailable(availability)
+    private func ensureWriteAccess() throws {
+        switch authorizationStatus {
+        case .fullAccess, .writeOnly:
+            return
+        case .notDetermined, .denied, .restricted:
+            throw CalendarSyncError.unavailable(.notAuthorized)
+        @unknown default:
+            throw CalendarSyncError.unavailable(.failed("系统日历权限状态未知。"))
         }
     }
 

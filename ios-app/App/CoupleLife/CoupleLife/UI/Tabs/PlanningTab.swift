@@ -3,6 +3,7 @@ import SwiftUI
 struct PlanningTab: View {
     @StateObject private var viewModel: PlanningViewModel
     private let calendar: Calendar
+    @Environment(\.scenePhase) private var scenePhase
 
     init(
         taskRepository: any TaskRepository,
@@ -82,6 +83,10 @@ struct PlanningTab: View {
         .task {
             viewModel.load()
             await viewModel.loadCalendarSyncStatus()
+        }
+        .onChange(of: scenePhase) { _, newValue in
+            guard newValue == .active else { return }
+            Task { await viewModel.loadCalendarSyncStatus() }
         }
     }
 

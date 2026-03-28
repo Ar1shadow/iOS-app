@@ -31,10 +31,10 @@ final class DefaultCalendarSyncSettingsController: CalendarSyncSettingsControlli
 
     func currentStatus() async -> CalendarSyncStatus {
         let availability = await calendarSyncService.availability()
-        let resolvedEnabled = settingsStore.isEnabled && availability == .available
-
-        if settingsStore.isEnabled && !resolvedEnabled {
+        var resolvedEnabled = settingsStore.isEnabled
+        if resolvedEnabled, availability == .notAuthorized || availability == .notSupported {
             settingsStore.isEnabled = false
+            resolvedEnabled = false
         }
 
         return CalendarSyncStatus(
@@ -50,7 +50,8 @@ final class DefaultCalendarSyncSettingsController: CalendarSyncSettingsControlli
         }
 
         let availability = await calendarSyncService.requestAccess()
-        let resolvedEnabled = availability == .available
+        let resolvedAvailability = calendarSyncService.currentAvailability()
+        let resolvedEnabled = resolvedAvailability != .notAuthorized && resolvedAvailability != .notSupported
         settingsStore.isEnabled = resolvedEnabled
 
         return CalendarSyncStatus(isEnabled: resolvedEnabled, availability: availability)

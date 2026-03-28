@@ -213,6 +213,76 @@ final class PlanningTaskServiceTests: XCTestCase {
         XCTAssertEqual(repository.updatedTaskIDs, [task.id])
     }
 
+    func testCreateTaskSkipsCalendarSyncWhenDefaultCalendarIsMissing() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        calendarSync.currentServiceAvailability = .failed("未找到可写入的系统日历。")
+        let settings = TestCalendarSyncSettingsStore(isEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+
+        let created = try service.createTask(
+            from: PlanningTaskDraft(
+                title: "产检预约",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: Date(timeIntervalSince1970: 1_700_000_000),
+                dueAt: Date(timeIntervalSince1970: 1_700_003_600),
+                isAllDay: false
+            )
+        )
+
+        XCTAssertTrue(calendarSync.upsertedTaskTitles.isEmpty)
+        XCTAssertNil(created.systemCalendarEventId)
+        XCTAssertNil(repository.createdTasks.first?.systemCalendarEventId)
+        XCTAssertTrue(repository.updatedTaskIDs.isEmpty)
+    }
+
+    func testUpdateTaskSyncsExistingCalendarEventWhenDefaultCalendarIsMissing() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        calendarSync.currentServiceAvailability = .failed("未找到可写入的系统日历。")
+        calendarSync.upsertedEventIdentifier = "event-123"
+        let settings = TestCalendarSyncSettingsStore(isEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+        let task = TaskItem(
+            title: "产检预约",
+            startAt: Date(timeIntervalSince1970: 1_700_000_000),
+            dueAt: Date(timeIntervalSince1970: 1_700_003_600),
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "local",
+            systemCalendarEventId: "event-123"
+        )
+
+        try service.updateTask(
+            task,
+            from: PlanningTaskDraft(
+                title: "产检预约（更新）",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: Date(timeIntervalSince1970: 1_700_000_000),
+                dueAt: Date(timeIntervalSince1970: 1_700_003_600),
+                isAllDay: false
+            )
+        )
+
+        XCTAssertEqual(calendarSync.upsertedTaskTitles, ["产检预约（更新）"])
+        XCTAssertEqual(task.systemCalendarEventId, "event-123")
+        XCTAssertEqual(repository.updatedTaskIDs, [task.id])
+    }
+
     func testCreateTaskDoesNotTouchCalendarWhenRepositoryCreateFails() {
         let repository = InMemoryPlanningTaskRepository(tasks: [])
         repository.createError = TestRepositoryError.failed

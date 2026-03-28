@@ -215,7 +215,9 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             return
         }
 
-        guard calendarSyncService.currentAvailability() == .available else { return }
+        if persistedEventIdentifier == nil && calendarSyncService.currentAvailability() != .available {
+            return
+        }
 
         do {
             let eventIdentifier = try calendarSyncService.upsertEvent(for: task)
