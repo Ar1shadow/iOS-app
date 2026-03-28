@@ -117,6 +117,8 @@ struct CalendarDayDetailView: View {
 
                 if viewModel.isLoading {
                     SharedLoadingStateView(title: "正在加载当天记录…")
+                } else if viewModel.hasLoadError {
+                    EmptyView()
                 } else if viewModel.sections.isEmpty {
                     SharedEmptyStateView(
                         title: viewModel.emptyStateTitle,
@@ -365,7 +367,8 @@ private struct CalendarRecordFormView: View {
                             startAt: startAt,
                             endAt: includesEndAt ? endAt : nil,
                             valueText: valueText,
-                            visibility: visibility
+                            visibility: visibility,
+                            source: editor.draft.source
                         )
 
                         if let errorMessage = onSave(draft) {

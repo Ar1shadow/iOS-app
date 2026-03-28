@@ -7,7 +7,7 @@ final class Record {
 
     var typeRaw: String
     var note: String?
-    var tagsRaw: String
+    var tagsRaw: String?
     var valueText: String?
 
     var startAt: Date
@@ -26,7 +26,7 @@ final class Record {
         id: UUID = UUID(),
         type: RecordType,
         note: String? = nil,
-        tagsRaw: String = "",
+        tagsRaw: String? = nil,
         startAt: Date,
         endAt: Date? = nil,
         valueText: String? = nil,
@@ -71,7 +71,7 @@ final class Record {
 
     var tags: [String] {
         get {
-            tagsRaw
+            (tagsRaw ?? "")
                 .split(separator: ",")
                 .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
@@ -81,12 +81,13 @@ final class Record {
         }
     }
 
-    private static func normalizedTagsRaw(from rawValue: String) -> String {
-        rawValue
+    private static func normalizedTagsRaw(from rawValue: String?) -> String? {
+        let normalized = (rawValue ?? "")
             .split(separator: ",")
             .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .joined(separator: ",")
+        return normalized.isEmpty ? nil : normalized
     }
 }
 

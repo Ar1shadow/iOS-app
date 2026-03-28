@@ -60,6 +60,35 @@ final class CalendarDayRecordServiceTests: XCTestCase {
         XCTAssertTrue(repository.storedRecords.isEmpty)
     }
 
+    func testUpdateRecordPreservesNonManualSourceWhenDraftCarriesOriginalSource() throws {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2026, month: 3, day: 28, hour: 9, minute: 15, calendar: calendar)
+        let repository = InMemoryRecordRepository()
+        let service = DefaultCalendarDayRecordService(
+            recordRepository: repository,
+            calendar: calendar,
+            ownerUserId: "local",
+            nowProvider: { now }
+        )
+
+        let record = Record(
+            type: .water,
+            note: "Original",
+            startAt: now,
+            ownerUserId: "local",
+            source: .healthKit
+        )
+        try repository.create(record)
+
+        var draft = service.makeDraft(for: record)
+        draft.note = "Edited note"
+
+        try service.updateRecord(record, from: draft)
+
+        XCTAssertEqual(repository.storedRecords.first?.note, "Edited note")
+        XCTAssertEqual(repository.storedRecords.first?.source, .healthKit)
+    }
+
     private func fixedCalendar() -> Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale(identifier: "en_US_POSIX")

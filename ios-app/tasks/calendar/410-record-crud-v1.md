@@ -31,12 +31,13 @@
 - 已将 Day Detail 升级为真实记录页：支持按类型分组浏览、类型筛选、空状态、点按编辑、上下文删除与快捷打卡。
 - 新增 `CalendarDayRecordService` + `CalendarDayDetailViewModel`，把 CRUD、默认时间、校验与回调刷新移出 SwiftUI `body`。
 - 扩展 `Record` 与 `RecordRepository` 以支持 `tagsRaw`/`valueText`/`update(_:)`，并补充测试覆盖标签归一化、快捷打卡时间规则、详情页状态同步。
+- 根据代码评审修正编辑路径：保留原始 `source`，并把 `tagsRaw` 调整为可空以降低 SwiftData 模式演进风险；错误态下不再叠加“空记录”提示。
 
 ## 验证记录
 
 - `cd ios-app/App/CoupleLife && xcodegen generate`
 - `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData410 CODE_SIGNING_ALLOWED=NO test`
-- 自动化结果：26 tests, 0 failures（包含记录 CRUD 数据层、快捷打卡时间规则、Day Detail ViewModel 过滤/刷新）
+- 自动化结果：28 tests, 0 failures（含 source 保留与 `tagsRaw == nil` 回归测试）
 
 ## 已知风险/遗留
 

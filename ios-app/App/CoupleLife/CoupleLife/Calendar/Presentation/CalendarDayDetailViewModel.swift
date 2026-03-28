@@ -99,6 +99,10 @@ final class CalendarDayDetailViewModel: ObservableObject {
         "可以先用快捷打卡，或通过右上角新增一条记录。"
     }
 
+    var hasLoadError: Bool {
+        loadErrorMessage != nil
+    }
+
     func load() {
         isLoading = true
         defer { isLoading = false }

@@ -104,7 +104,7 @@ final class DefaultCalendarDayRecordService: CalendarDayRecordManaging {
         CalendarDayRecordDraft(
             type: record.type,
             note: record.note ?? "",
-            tagsRaw: record.tagsRaw,
+            tagsRaw: record.tagsRaw ?? "",
             startAt: record.startAt,
             endAt: record.endAt,
             valueText: record.valueText ?? "",
