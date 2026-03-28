@@ -31,7 +31,7 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
         XCTAssertEqual(availability, .available)
     }
 
-    func testRefreshTodaySnapshotReturnsNotAuthorizedWhenReadIsDenied() async throws {
+    func testRefreshTodaySnapshotReturnsFailedWhenHealthKitReadErrors() async throws {
         let calendar = Calendar(identifier: .gregorian)
         let now = Date(timeIntervalSince1970: 1_700_000_000)
         let client = FakeHealthKitClient(
@@ -46,7 +46,7 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
 
         let availability = await service.refreshTodaySnapshot(ownerUserId: "u1", asOf: now, force: true)
 
-        XCTAssertEqual(availability, .notAuthorized)
+        XCTAssertEqual(availability, .failed("健康数据刷新失败，请稍后重试。"))
     }
 
     func testRefreshTodaySnapshotUsesFreshDayCacheWithoutQueryingHealthKit() async throws {

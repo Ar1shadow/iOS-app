@@ -73,8 +73,6 @@ final class HealthKitHealthDataService: HealthDataService {
         do {
             try await refreshSnapshots(ownerUserId: ownerUserId, asOf: date)
             return .available
-        } catch let error as NSError where Self.isReadAuthorizationDenied(error) {
-            return .notAuthorized
         } catch {
             return .failed("健康数据刷新失败，请稍后重试。")
         }
@@ -137,9 +135,6 @@ final class HealthKitHealthDataService: HealthDataService {
         }
     }
 
-    private static func isReadAuthorizationDenied(_ error: NSError) -> Bool {
-        error.domain == HKErrorDomain && error.code == HKError.Code.errorAuthorizationDenied.rawValue
-    }
 }
 
 private enum HealthKitClientError: Error {

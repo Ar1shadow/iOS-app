@@ -39,7 +39,7 @@
   - `HealthMetricSnapshot` 增加 `HealthMetricBucket`，仓储按 `(bucket, bucketStart, ownerUserId)` 查询与 upsert，避免 day/week/month 快照冲突。
   - 首期读取指标覆盖步数、睡眠、静息心率；刷新今日时同步维护 day/week/month 三个展示快照。
   - `availabilityStatus()` 仅依赖 `getRequestStatusForAuthorization` 判定是否可尝试读取，避免把 HealthKit 的 share/write 授权误当作 read 授权。
-  - 真正的读取拒绝在 `readMetrics(...)` 查询阶段识别；若 HealthKit 返回 `authorizationDenied`，`refreshTodaySnapshot` 会回落为 `.notAuthorized`，而不是误报一般失败。
+  - HealthKit 的 read 授权不可被可靠探测：读取期若发生异常统一回落 `.failed`，而“无数据/未允许读取”等情况通过 UI 文案提示用户检查系统健康权限。
   - 工程新增 `CoupleLife.entitlements`，并通过 `CODE_SIGN_ENTITLEMENTS` 接入 app target，补齐最小 HealthKit capability 配置。
   - 模拟器显式走降级路径：`LiveHealthKitClient` 在 simulator 返回不可用，避免依赖不稳定的模拟器 HealthKit 数据与 entitlement 环境。
 - 下一步:
@@ -61,7 +61,7 @@
   - `xcodebuild test -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/task-600-deriveddata`
 - 结果:
   - `build-for-testing` 通过。
-  - `HealthKitHealthDataServiceTests` 定向通过，覆盖“`.unnecessary` => `.available`”以及“读取期 `authorizationDenied` => `.notAuthorized`”路径。
+  - `HealthKitHealthDataServiceTests` 定向通过，覆盖“`.unnecessary` => `.available`”以及“读取异常 => `.failed`”路径。
   - `xcodebuild test` 全量通过：53 tests, 0 failures。
   - 额外观察：entitlement 已进入模拟器签名产物，但 HealthKit 真正授权与数据可用性仍需真机 capability / App ID 配置共同满足。
 

@@ -101,7 +101,7 @@ final class HomeDashboardViewModel: ObservableObject {
     private func message(for availability: ServiceAvailability, summary: HomeDashboardSummary) -> String? {
         switch availability {
         case .available where summary.steps == nil && summary.sleepHours == nil:
-            return "已连接健康数据。若今天刚产生新数据，可手动刷新摘要。"
+            return "已连接健康服务。若看不到数据，请在系统健康权限中确认已允许读取步数/睡眠，并可手动刷新摘要。"
         case .available:
             return nil
         case .notAuthorized:
