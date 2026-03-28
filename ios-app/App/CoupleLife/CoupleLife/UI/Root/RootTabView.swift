@@ -19,7 +19,7 @@ struct RootTabView: View {
             )
                 .tabItem { Label(AppTab.home.title, systemImage: AppTab.home.systemImage) }
 
-            CalendarTab()
+            CalendarTab(recordRepository: recordRepository)
                 .tabItem { Label(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage) }
 
             PlanningTab()
