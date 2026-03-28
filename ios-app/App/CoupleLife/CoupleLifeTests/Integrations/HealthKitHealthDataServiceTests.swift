@@ -17,6 +17,20 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
         XCTAssertEqual(availability, .notAuthorized)
     }
 
+    func testAvailabilityReturnsNotAuthorizedWhenRequestStatusIsUnnecessaryButReadTypesAreDenied() async throws {
+        let service = makeService(
+            client: FakeHealthKitClient(
+                isHealthDataAvailable: true,
+                requestStatus: .unnecessary,
+                hasReadAuthorization: false
+            )
+        )
+
+        let availability = await service.availability()
+
+        XCTAssertEqual(availability, .notAuthorized)
+    }
+
     func testRefreshTodaySnapshotUsesFreshDayCacheWithoutQueryingHealthKit() async throws {
         let calendar = Calendar(identifier: .gregorian)
         let now = Date(timeIntervalSince1970: 1_700_000_000)
@@ -114,17 +128,20 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
 private final class FakeHealthKitClient: HealthKitClient {
     let isHealthDataAvailable: Bool
     var requestStatus: HealthKitAuthorizationRequestStatus
+    var hasReadAuthorization: Bool
     var metricPayloadByStartDate: [Date: HealthMetricPayload]
     private(set) var readMetricsCallCount = 0
 
     init(
         isHealthDataAvailable: Bool,
         requestStatus: HealthKitAuthorizationRequestStatus,
+        hasReadAuthorization: Bool = true,
         metricPayload: HealthMetricPayload = .init(steps: nil, sleepSeconds: nil, restingHeartRate: nil),
         metricPayloadByStartDate: [Date: HealthMetricPayload] = [:]
     ) {
         self.isHealthDataAvailable = isHealthDataAvailable
         self.requestStatus = requestStatus
+        self.hasReadAuthorization = hasReadAuthorization
         if metricPayloadByStartDate.isEmpty {
             self.metricPayloadByStartDate = [Date.distantPast: metricPayload]
         } else {
@@ -136,7 +153,13 @@ private final class FakeHealthKitClient: HealthKitClient {
         requestStatus
     }
 
-    func requestAuthorization() async throws {}
+    func hasReadAuthorization() async -> Bool {
+        hasReadAuthorization
+    }
+
+    func requestAuthorization() async throws {
+        hasReadAuthorization = true
+    }
 
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload {
         readMetricsCallCount += 1

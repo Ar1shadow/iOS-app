@@ -105,6 +105,7 @@
 		5068E83D006EA4CF05C06C20 /* RecordRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepository.swift; sourceTree = "<group>"; };
 		57B745131C107EAAC85E4986 /* PlanningTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTaskService.swift; sourceTree = "<group>"; };
 		5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepositoryTests.swift; sourceTree = "<group>"; };
+		68F3C57B4B7B5C3C17D1DF88 /* CoupleLife.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CoupleLife.entitlements; sourceTree = "<group>"; };
 		6EECBC91790905A1DBE811D0 /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
 		70B8D581D173E3557291D570 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		70C0BE04A0EC99C84C8E30C9 /* HealthKitHealthDataServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitHealthDataServiceTests.swift; sourceTree = "<group>"; };
@@ -169,6 +170,7 @@
 		1D8F73EDFD4011C6C92D9A99 /* CoupleLife */ = {
 			isa = PBXGroup;
 			children = (
+				68F3C57B4B7B5C3C17D1DF88 /* CoupleLife.entitlements */,
 				7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */,
 				321C78C005C92D07DD73BFF1 /* AppCore */,
 				D696BDBA2683DA148BA620C9 /* Calendar */,
@@ -685,6 +687,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CoupleLife/CoupleLife.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "CoupleLife 仅会在你主动连接后读取步数与睡眠摘要，用于首页和运动页展示。";
@@ -762,6 +765,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CoupleLife/CoupleLife.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "CoupleLife 仅会在你主动连接后读取步数与睡眠摘要，用于首页和运动页展示。";

@@ -16,6 +16,7 @@ struct HealthMetricPayload: Equatable {
 protocol HealthKitClient {
     var isHealthDataAvailable: Bool { get }
     func requestAuthorizationStatus() async throws -> HealthKitAuthorizationRequestStatus
+    func hasReadAuthorization() async -> Bool
     func requestAuthorization() async throws
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload
 }
@@ -88,7 +89,7 @@ final class HealthKitHealthDataService: HealthDataService {
             case .shouldRequest:
                 return .notAuthorized
             case .unnecessary:
-                return .available
+                return await client.hasReadAuthorization() ? .available : .notAuthorized
             case .unknown:
                 return .failed("健康权限状态暂不可用。")
             }
@@ -180,6 +181,10 @@ private final class LiveHealthKitClient: HealthKitClient {
                 continuation.resume(returning: ())
             }
         }
+    }
+
+    func hasReadAuthorization() async -> Bool {
+        Self.readTypes.allSatisfy { store.authorizationStatus(for: $0) == .sharingAuthorized }
     }
 
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload {

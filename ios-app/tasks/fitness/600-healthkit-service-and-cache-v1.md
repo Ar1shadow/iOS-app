@@ -38,6 +38,8 @@
   - 首页继续只读 `HealthSnapshotRepository` 缓存；`HomeDashboardViewModel` 负责显式触发授权/刷新，不在 SwiftUI View 中直接调用 HealthKit。
   - `HealthMetricSnapshot` 增加 `HealthMetricBucket`，仓储按 `(bucket, bucketStart, ownerUserId)` 查询与 upsert，避免 day/week/month 快照冲突。
   - 首期读取指标覆盖步数、睡眠、静息心率；刷新今日时同步维护 day/week/month 三个展示快照。
+  - `availabilityStatus()` 在 `getRequestStatusForAuthorization == .unnecessary` 时继续校验必需读类型是否真实授权，避免部分授权/历史拒绝被误判为已连接。
+  - 工程新增 `CoupleLife.entitlements`，并通过 `CODE_SIGN_ENTITLEMENTS` 接入 app target，补齐最小 HealthKit capability 配置。
   - 模拟器显式走降级路径：`LiveHealthKitClient` 在 simulator 返回不可用，避免依赖不稳定的模拟器 HealthKit 数据与 entitlement 环境。
 - 下一步:
   - 真机补齐 HealthKit capability / entitlement 后验证真实授权弹窗、步数/睡眠读取与缓存刷新。
@@ -45,6 +47,7 @@
 ## 关键决策
 
 - 权限策略：不在 app launch 自动弹框；仅用户点击首页“连接健康数据”时请求步数、睡眠、静息心率读取权限。
+- 可用态判定：只有在 HealthKit 可用、系统请求状态允许，且步数/睡眠/静息心率三个读取类型都显示已授权时才返回 `.available`。
 - 缓存策略：`refreshTodaySnapshot` 默认按“同一天仅刷新一次”命中 day cache；命中失效后同次刷新内一起重建 day/week/month 三个 bucket，缓存写入仍在 Data 层仓储中完成。
 - 降级策略：未授权显示引导文案；模拟器/无能力环境显示 `notSupported`；真机 capability 缺失视为环境风险，不向 UI 泄漏 HealthKit 细节。
 
@@ -53,14 +56,16 @@
 - 命令:
   - `xcodegen generate --spec ios-app/App/CoupleLife/project.yml`
   - `xcodebuild build-for-testing -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/task-600-deriveddata`
+  - `xcodebuild test -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/task-600-deriveddata -only-testing:CoupleLifeTests/HealthKitHealthDataServiceTests`
   - `xcodebuild test -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/task-600-deriveddata`
 - 结果:
   - `build-for-testing` 通过。
-  - `xcodebuild test` 全量通过：51 tests, 0 failures。
-  - 额外观察：simulator 运行时仍会记录 `Missing com.apple.developer.healthkit entitlement` 系统日志，因此当前模拟器路径依赖显式降级；真实读取需真机 capability 支持。
+  - `HealthKitHealthDataServiceTests` 定向通过，覆盖“`.unnecessary` 但读权限未授权 => `.notAuthorized`”路径。
+  - `xcodebuild test` 全量通过：52 tests, 0 failures。
+  - 额外观察：entitlement 已进入模拟器签名产物，但 HealthKit 真正授权与数据可用性仍需真机 capability / App ID 配置共同满足。
 
 ## 已知风险/遗留
 
-- 真机仍需在 Xcode target / App ID 上启用 HealthKit capability，并确认 `com.apple.developer.healthkit` entitlement 已签入。
+- 仓库已签入 `com.apple.developer.healthkit` entitlement，但真机仍需在 Apple Developer App ID / provisioning profile 侧同步开启 HealthKit capability。
 - 当前 v1 已覆盖 day/week/month bucket 与步数、睡眠、静息心率；距离/卡路里/锻炼分钟等其余指标仍待后续任务扩展。
 - HealthKit 真机验收仍需补“已授权/拒绝后去设置开启/当天无数据”三条手测路径。
