@@ -43,6 +43,7 @@
 		91E1FF2A4D60D1CA56CB3539 /* TaskRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E360A2849A376938BFFD0F /* TaskRepository.swift */; };
 		964780E09722719D8DE812C5 /* CalendarMonthGridBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B576E8225232C8E8FA9133 /* CalendarMonthGridBuilder.swift */; };
 		97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */; };
+		A13D92796FCA3B4856453A67 /* PlanningViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472C643D4ACDEB573DFA271F /* PlanningViewModelTests.swift */; };
 		A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9671B30789FB25A48CCF8A5F /* FitnessTab.swift */; };
 		AE36E49B428B064704B27827 /* SharedLoadingStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B025D1CB63DB338E0CA478 /* SharedLoadingStateView.swift */; };
 		B0A45E73E633BEF9942107B9 /* PlanningTaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B745131C107EAAC85E4986 /* PlanningTaskService.swift */; };
@@ -92,6 +93,7 @@
 		3202B7E6C5B8D68EFFEF8E06 /* SharedSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedSectionHeader.swift; sourceTree = "<group>"; };
 		41E48EC7161E715DBBA260B5 /* SharedEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEmptyStateView.swift; sourceTree = "<group>"; };
 		44B576E8225232C8E8FA9133 /* CalendarMonthGridBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGridBuilder.swift; sourceTree = "<group>"; };
+		472C643D4ACDEB573DFA271F /* PlanningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningViewModelTests.swift; sourceTree = "<group>"; };
 		4BC211CCD89BA7B038F38054 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
 		4CE2F19E68EA5BCBDC70CC8A /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardServiceTests.swift; sourceTree = "<group>"; };
@@ -318,6 +320,7 @@
 			isa = PBXGroup;
 			children = (
 				22D2EF3871E2E598EA5D83AC /* PlanningTaskServiceTests.swift */,
+				472C643D4ACDEB573DFA271F /* PlanningViewModelTests.swift */,
 			);
 			path = Planning;
 			sourceTree = "<group>";
@@ -577,6 +580,7 @@
 				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
 				176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */,
 				C7CA493E3D124EF07CEFE532 /* PlanningTaskServiceTests.swift in Sources */,
+				A13D92796FCA3B4856453A67 /* PlanningViewModelTests.swift in Sources */,
 				04A5707F8BDDBE26806F91B6 /* RecordRepositoryTests.swift in Sources */,
 				7ABE5D5AA34EE45ECE9CA282 /* RecordTests.swift in Sources */,
 				900154592587FD534DC5AB59 /* RecordTypeStyleTests.swift in Sources */,

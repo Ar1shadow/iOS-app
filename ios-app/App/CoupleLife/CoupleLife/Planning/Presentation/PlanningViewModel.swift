@@ -2,6 +2,13 @@ import Foundation
 
 @MainActor
 final class PlanningViewModel: ObservableObject {
+    enum DisplayMode: String, CaseIterable, Identifiable {
+        case plan = "计划视图"
+        case list = "列表视图"
+
+        var id: Self { self }
+    }
+
     enum StatusFilter: String, CaseIterable, Identifiable {
         case active
         case all
@@ -30,42 +37,113 @@ final class PlanningViewModel: ObservableObject {
         }
     }
 
-    struct Section: Identifiable {
+    enum DateRangeFilter: String, CaseIterable, Identifiable {
+        case all = "全部"
+        case today = "今天"
+        case next7Days = "近 7 天"
+        case next30Days = "近 30 天"
+        case custom = "自定义"
+
+        var id: Self { self }
+    }
+
+    struct StatusSection: Identifiable {
         let status: TaskStatus
         let tasks: [TaskItem]
 
         var id: String { status.rawValue }
     }
 
+    struct PlanSection: Identifiable {
+        let date: Date?
+        let title: String
+        let tasks: [TaskItem]
+
+        var id: String {
+            if let date {
+                return "date-\(date.timeIntervalSince1970)"
+            }
+            return "unplanned"
+        }
+    }
+
     @Published private(set) var tasks: [TaskItem] = []
     @Published private(set) var isLoading = false
     @Published private(set) var loadErrorMessage: String?
+    @Published var displayMode: DisplayMode = .list
     @Published var selectedPlanLevel: PlanLevel = .day
     @Published var selectedStatusFilter: StatusFilter = .active
+    @Published var dateRangeFilter: DateRangeFilter = .all
+    @Published var customDateRangeStart: Date
+    @Published var customDateRangeEnd: Date
     @Published var editor: PlanningTaskEditor?
 
     private let service: any PlanningTaskService
+    private let calendar: Calendar
+    private let nowProvider: () -> Date
 
-    init(service: any PlanningTaskService) {
+    init(
+        service: any PlanningTaskService,
+        calendar: Calendar = .current,
+        nowProvider: @escaping () -> Date = Date.init
+    ) {
         self.service = service
+        self.calendar = calendar
+        self.nowProvider = nowProvider
+
+        let today = calendar.startOfDay(for: nowProvider())
+        _customDateRangeStart = Published(initialValue: today)
+        _customDateRangeEnd = Published(initialValue: today)
     }
 
-    var sections: [Section] {
-        let groupedTasks = Dictionary(grouping: filteredTasks, by: \.status)
+    var sections: [StatusSection] {
+        statusSections
+    }
+
+    var statusSections: [StatusSection] {
+        let visibleTasks = filteredTasks
+        let groupedTasks = Dictionary(grouping: visibleTasks, by: \.status)
         return visibleStatuses.compactMap { status in
             guard let tasks = groupedTasks[status], !tasks.isEmpty else {
                 return nil
             }
-            return Section(status: status, tasks: tasks)
+            return StatusSection(status: status, tasks: tasks)
         }
     }
 
-    var listSubtitle: String {
-        let levelTitle = selectedPlanLevel.title
-        if filteredTasks.isEmpty {
-            return "\(levelTitle)计划暂无任务"
+    var planSections: [PlanSection] {
+        let visibleTasks = filteredTasks
+        let scheduledTasks = visibleTasks.compactMap { task -> (date: Date, task: TaskItem)? in
+            guard let scheduledAt = task.scheduledAt else { return nil }
+            return (date: calendar.startOfDay(for: scheduledAt), task: task)
         }
-        return "\(levelTitle)计划 · 共 \(filteredTasks.count) 条"
+
+        let groupedTasks = Dictionary(grouping: scheduledTasks, by: \.date)
+        let scheduledSections = groupedTasks.keys.sorted().map { date in
+            let tasks = groupedTasks[date]?.map(\.task) ?? []
+            return PlanSection(date: date, title: formatSectionDate(date), tasks: tasks)
+        }
+
+        guard dateRangeFilter == .all else {
+            return scheduledSections
+        }
+
+        let unscheduledTasks = visibleTasks.filter { $0.scheduledAt == nil }
+        guard !unscheduledTasks.isEmpty else {
+            return scheduledSections
+        }
+
+        return scheduledSections + [
+            PlanSection(date: nil, title: "未排期", tasks: unscheduledTasks)
+        ]
+    }
+
+    var listSubtitle: String {
+        summarySubtitle(levelLabel: "\(selectedPlanLevel.title)计划")
+    }
+
+    var planSubtitle: String {
+        summarySubtitle(levelLabel: "\(selectedPlanLevel.title)计划")
     }
 
     var emptyStateTitle: String {
@@ -79,7 +157,7 @@ final class PlanningViewModel: ObservableObject {
         if tasks.isEmpty {
             return "先添加一条任务，开始安排日/周/月/年计划。"
         }
-        return "可切换层级或状态筛选，或新建一条任务。"
+        return "可切换层级、状态或日期范围筛选，或新建一条任务。"
     }
 
     func load() {
@@ -173,24 +251,18 @@ final class PlanningViewModel: ObservableObject {
     }
 
     private var filteredTasks: [TaskItem] {
-        tasks
-            .filter { $0.planLevel == selectedPlanLevel }
-            .filter { task in
-                switch selectedStatusFilter {
-                case .active:
-                    return task.status == .todo || task.status == .postponed
-                case .all:
-                    return true
-                case .todo:
-                    return task.status == .todo
-                case .postponed:
-                    return task.status == .postponed
-                case .done:
-                    return task.status == .done
-                case .cancelled:
-                    return task.status == .cancelled
-                }
+        let interval = dateRangeInterval
+        return tasks.filter { task in
+            guard task.planLevel == selectedPlanLevel else {
+                return false
             }
+
+            guard matchesStatus(task.status) else {
+                return false
+            }
+
+            return matchesDateRange(task, interval: interval)
+        }
     }
 
     private var visibleStatuses: [TaskStatus] {
@@ -208,6 +280,77 @@ final class PlanningViewModel: ObservableObject {
         case .cancelled:
             return [.cancelled]
         }
+    }
+
+    private var dateRangeInterval: DateInterval? {
+        switch dateRangeFilter {
+        case .all:
+            return nil
+        case .today:
+            let start = calendar.startOfDay(for: nowProvider())
+            guard let end = calendar.date(byAdding: .day, value: 1, to: start) else {
+                return nil
+            }
+            return DateInterval(start: start, end: end)
+        case .next7Days:
+            return relativeInterval(days: 7)
+        case .next30Days:
+            return relativeInterval(days: 30)
+        case .custom:
+            let start = calendar.startOfDay(for: customDateRangeStart)
+            let end = calendar.startOfDay(for: customDateRangeEnd)
+            let lowerBound = min(start, end)
+            let upperBound = calendar.date(byAdding: .day, value: 1, to: max(start, end)) ?? max(start, end)
+            return DateInterval(start: lowerBound, end: upperBound)
+        }
+    }
+
+    private func relativeInterval(days: Int) -> DateInterval? {
+        let start = calendar.startOfDay(for: nowProvider())
+        guard let end = calendar.date(byAdding: .day, value: days, to: start) else {
+            return nil
+        }
+        return DateInterval(start: start, end: end)
+    }
+
+    private func matchesStatus(_ status: TaskStatus) -> Bool {
+        switch selectedStatusFilter {
+        case .active:
+            return status == .todo || status == .postponed
+        case .all:
+            return true
+        case .todo:
+            return status == .todo
+        case .postponed:
+            return status == .postponed
+        case .done:
+            return status == .done
+        case .cancelled:
+            return status == .cancelled
+        }
+    }
+
+    private func matchesDateRange(_ task: TaskItem, interval: DateInterval?) -> Bool {
+        guard let interval else {
+            return true
+        }
+        guard let scheduledAt = task.scheduledAt else {
+            return false
+        }
+        return interval.contains(scheduledAt)
+    }
+
+    private func summarySubtitle(levelLabel: String) -> String {
+        let visibleTasks = filteredTasks
+        let filterLabel = "层级 \(levelLabel) · 状态 \(selectedStatusFilter.title) · 日期 \(dateRangeFilter.title)"
+        if visibleTasks.isEmpty {
+            return "\(filterLabel) 暂无任务"
+        }
+        return "\(filterLabel) · 共 \(visibleTasks.count) 条"
+    }
+
+    private func formatSectionDate(_ date: Date) -> String {
+        date.formatted(.dateTime.year().month().day())
     }
 }
 
