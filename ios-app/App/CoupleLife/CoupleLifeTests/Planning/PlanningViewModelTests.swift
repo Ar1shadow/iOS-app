@@ -381,13 +381,25 @@ final class PlanningViewModelTests: XCTestCase {
         calendar: Calendar,
         now: Date
     ) -> PlanningViewModel {
+        let calendarSyncService = TestCalendarSyncService()
+        let calendarSyncSettings = TestCalendarSyncSettingsStore(isEnabled: false)
         let service = DefaultPlanningTaskService(
             taskRepository: repository,
             ownerUserId: "local",
             calendar: calendar,
+            calendarSyncService: calendarSyncService,
+            calendarSyncSettings: calendarSyncSettings,
             nowProvider: { now }
         )
-        return PlanningViewModel(service: service, calendar: calendar, nowProvider: { now })
+        return PlanningViewModel(
+            service: service,
+            calendarSyncController: DefaultCalendarSyncSettingsController(
+                calendarSyncService: calendarSyncService,
+                settingsStore: calendarSyncSettings
+            ),
+            calendar: calendar,
+            nowProvider: { now }
+        )
     }
 
     private func makeTask(

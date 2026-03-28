@@ -6,6 +6,8 @@ struct PlanningTab: View {
 
     init(
         taskRepository: any TaskRepository,
+        calendarSyncService: any CalendarSyncService,
+        calendarSyncSettings: any CalendarSyncSettingsStore,
         calendar: Calendar = .current,
         ownerUserId: String = CurrentUser.id,
         nowProvider: @escaping () -> Date = Date.init
@@ -15,11 +17,18 @@ struct PlanningTab: View {
             taskRepository: taskRepository,
             ownerUserId: ownerUserId,
             calendar: calendar,
+            calendarSyncService: calendarSyncService,
+            calendarSyncSettings: calendarSyncSettings,
             nowProvider: nowProvider
+        )
+        let calendarSyncController = DefaultCalendarSyncSettingsController(
+            calendarSyncService: calendarSyncService,
+            settingsStore: calendarSyncSettings
         )
         _viewModel = StateObject(
             wrappedValue: PlanningViewModel(
                 service: service,
+                calendarSyncController: calendarSyncController,
                 calendar: calendar,
                 nowProvider: nowProvider
             )
@@ -30,6 +39,8 @@ struct PlanningTab: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.xl) {
+                    calendarSyncSection
+
                     filterSection
 
                     if let loadErrorMessage = viewModel.loadErrorMessage {
@@ -70,6 +81,42 @@ struct PlanningTab: View {
         }
         .task {
             viewModel.load()
+            await viewModel.loadCalendarSyncStatus()
+        }
+    }
+
+    private var calendarSyncSection: some View {
+        SharedCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                HStack(alignment: .center, spacing: AppSpacing.md) {
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        SharedSectionHeader("系统日历同步", subtitle: "仅在你手动开启后写入默认日历")
+                        Text(viewModel.calendarSyncSummary)
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColorToken.textSecondary.color)
+                    }
+
+                    Spacer()
+
+                    Toggle(
+                        "系统日历同步",
+                        isOn: Binding(
+                            get: { viewModel.isCalendarSyncEnabled },
+                            set: { enabled in
+                                Task { await viewModel.setCalendarSyncEnabled(enabled) }
+                            }
+                        )
+                    )
+                    .labelsHidden()
+                    .disabled(viewModel.isUpdatingCalendarSync || viewModel.calendarSyncStatus.availability == .notSupported)
+                }
+
+                SharedTag(
+                    text: calendarSyncStatusText,
+                    colorToken: calendarSyncColorToken,
+                    symbolName: calendarSyncSymbolName
+                )
+            }
         }
     }
 
@@ -253,6 +300,43 @@ struct PlanningTab: View {
                 Label(title, systemImage: menuSystemImage)
                     .font(AppTypography.body.weight(.semibold))
             }
+        }
+    }
+
+    private var calendarSyncStatusText: String {
+        switch (viewModel.isCalendarSyncEnabled, viewModel.calendarSyncStatus.availability) {
+        case (true, .available):
+            return "已开启"
+        case (false, .available):
+            return "已授权，未开启"
+        case (_, .notAuthorized):
+            return "未授权"
+        case (_, .notSupported):
+            return "当前环境不可用"
+        case (_, .failed):
+            return "同步状态异常"
+        }
+    }
+
+    private var calendarSyncColorToken: AppColorToken {
+        switch viewModel.calendarSyncBannerStyle {
+        case .neutral:
+            return .indigo
+        case .success:
+            return .green
+        case .warning:
+            return .slate
+        }
+    }
+
+    private var calendarSyncSymbolName: String {
+        switch viewModel.calendarSyncBannerStyle {
+        case .neutral:
+            return "calendar.badge.plus"
+        case .success:
+            return "checkmark.circle"
+        case .warning:
+            return "exclamationmark.triangle"
         }
     }
 }

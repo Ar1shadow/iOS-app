@@ -122,12 +122,131 @@ final class PlanningTaskServiceTests: XCTestCase {
         }
         XCTAssertTrue(repository.updatedTaskIDs.isEmpty)
     }
+
+    func testCreateTaskSyncsToCalendarWhenEnabledAndPersistsEventIdentifier() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        calendarSync.upsertedEventIdentifier = "event-123"
+        let settings = TestCalendarSyncSettingsStore(isEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+
+        let created = try service.createTask(
+            from: PlanningTaskDraft(
+                title: "产检预约",
+                detail: "门诊楼三层",
+                planLevel: .day,
+                status: .todo,
+                startAt: Date(timeIntervalSince1970: 1_700_000_000),
+                dueAt: Date(timeIntervalSince1970: 1_700_003_600),
+                isAllDay: false
+            )
+        )
+
+        XCTAssertEqual(calendarSync.upsertedTaskTitles, ["产检预约"])
+        XCTAssertEqual(created.systemCalendarEventId, "event-123")
+        XCTAssertEqual(repository.createdTasks.first?.systemCalendarEventId, "event-123")
+    }
+
+    func testUpdateTaskSkipsCalendarSyncWhenDisabled() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        let settings = TestCalendarSyncSettingsStore(isEnabled: false)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+        let task = TaskItem(title: "产检预约", status: .todo, planLevel: .day, ownerUserId: "local")
+
+        try service.updateTask(
+            task,
+            from: PlanningTaskDraft(
+                title: "产检预约（更新）",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: nil,
+                dueAt: nil,
+                isAllDay: false
+            )
+        )
+
+        XCTAssertTrue(calendarSync.upsertedTaskTitles.isEmpty)
+        XCTAssertEqual(repository.updatedTaskIDs, [task.id])
+    }
+
+    func testUpdateTaskKeepsCrudWorkingWhenCalendarSyncFails() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        calendarSync.upsertError = CalendarSyncError.operationFailed("save failed")
+        let settings = TestCalendarSyncSettingsStore(isEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+        let task = TaskItem(title: "产检预约", status: .todo, planLevel: .day, ownerUserId: "local")
+
+        try service.updateTask(
+            task,
+            from: PlanningTaskDraft(
+                title: "产检预约（更新）",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: nil,
+                dueAt: nil,
+                isAllDay: false
+            )
+        )
+
+        XCTAssertEqual(task.title, "产检预约（更新）")
+        XCTAssertNil(task.systemCalendarEventId)
+        XCTAssertEqual(repository.updatedTaskIDs, [task.id])
+    }
+
+    func testDeleteTaskDeletesLinkedCalendarEventBeforeRemovingTask() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let calendarSync = TestCalendarSyncService()
+        let settings = TestCalendarSyncSettingsStore(isEnabled: true)
+        repository.onDelete = { task in
+            calendarSync.operationLog.append(.deleteTask(task.id))
+        }
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            calendarSyncService: calendarSync,
+            calendarSyncSettings: settings
+        )
+        let task = TaskItem(
+            title: "产检预约",
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "local",
+            systemCalendarEventId: "event-123"
+        )
+
+        try service.deleteTask(task)
+
+        XCTAssertEqual(calendarSync.deletedEventIdentifiers, ["event-123"])
+        XCTAssertEqual(repository.deletedTaskIDs, [task.id])
+        XCTAssertEqual(calendarSync.operationLog, [.deleteEvent("event-123"), .deleteTask(task.id)])
+    }
 }
 
 private final class InMemoryPlanningTaskRepository: TaskRepository {
     private var items: [TaskItem]
     private(set) var updatedTaskIDs: [UUID] = []
     private(set) var createdTasks: [TaskItem] = []
+    private(set) var deletedTaskIDs: [UUID] = []
+    var onDelete: ((TaskItem) -> Void)?
 
     init(tasks: [TaskItem]) {
         self.items = tasks
@@ -143,6 +262,8 @@ private final class InMemoryPlanningTaskRepository: TaskRepository {
     }
 
     func delete(_ task: TaskItem) throws {
+        deletedTaskIDs.append(task.id)
+        onDelete?(task)
         items.removeAll { $0.id == task.id }
     }
 

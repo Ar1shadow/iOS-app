@@ -32,23 +32,30 @@ protocol PlanningTaskService {
     func markTaskDone(_ task: TaskItem) throws
     func postponeTask(_ task: TaskItem) throws
     func cancelTask(_ task: TaskItem) throws
+    func deleteTask(_ task: TaskItem) throws
 }
 
 final class DefaultPlanningTaskService: PlanningTaskService {
     private let taskRepository: any TaskRepository
     private let ownerUserId: String
     private let calendar: Calendar
+    private let calendarSyncService: any CalendarSyncService
+    private let calendarSyncSettings: any CalendarSyncSettingsStore
     private let nowProvider: () -> Date
 
     init(
         taskRepository: any TaskRepository,
         ownerUserId: String,
         calendar: Calendar = .current,
+        calendarSyncService: any CalendarSyncService = NoopCalendarSyncService(),
+        calendarSyncSettings: any CalendarSyncSettingsStore = UserDefaultsCalendarSyncSettingsStore(),
         nowProvider: @escaping () -> Date = Date.init
     ) {
         self.taskRepository = taskRepository
         self.ownerUserId = ownerUserId
         self.calendar = calendar
+        self.calendarSyncService = calendarSyncService
+        self.calendarSyncSettings = calendarSyncSettings
         self.nowProvider = nowProvider
     }
 
@@ -98,6 +105,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             createdAt: now,
             updatedAt: now
         )
+        syncTaskToCalendarIfNeeded(task)
         try taskRepository.create(task)
         return task
     }
@@ -113,12 +121,14 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.startAt = normalizedDraft.startAt
         task.dueAt = normalizedDraft.dueAt
         task.isAllDay = normalizedDraft.isAllDay
+        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
     }
 
     func markTaskDone(_ task: TaskItem) throws {
         try ensureMutableStatus(task.status)
         task.status = .done
+        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
     }
 
@@ -131,13 +141,20 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             task.dueAt = calendar.date(byAdding: .day, value: 1, to: dueAt)
         }
         task.status = .postponed
+        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
     }
 
     func cancelTask(_ task: TaskItem) throws {
         try ensureMutableStatus(task.status)
         task.status = .cancelled
+        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
+    }
+
+    func deleteTask(_ task: TaskItem) throws {
+        deleteLinkedCalendarEventIfNeeded(for: task)
+        try taskRepository.delete(task)
     }
 
     private func validate(_ draft: PlanningTaskDraft) throws -> PlanningTaskDraft {
@@ -184,6 +201,34 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     private func ensureMutableStatus(_ status: TaskStatus) throws {
         guard status == .todo || status == .postponed else {
             throw PlanningTaskValidationError.invalidStatusTransition
+        }
+    }
+
+    private func syncTaskToCalendarIfNeeded(_ task: TaskItem) {
+        guard calendarSyncSettings.isEnabled else { return }
+
+        if task.startAt == nil && task.dueAt == nil {
+            deleteLinkedCalendarEventIfNeeded(for: task)
+            task.systemCalendarEventId = nil
+            return
+        }
+
+        guard calendarSyncService.currentAvailability() == .available else { return }
+
+        do {
+            task.systemCalendarEventId = try calendarSyncService.upsertEvent(for: task)
+        } catch {
+            // Calendar sync is best-effort in MVP; task CRUD should keep working when EventKit fails.
+        }
+    }
+
+    private func deleteLinkedCalendarEventIfNeeded(for task: TaskItem) {
+        guard let eventIdentifier = task.systemCalendarEventId else { return }
+
+        do {
+            try calendarSyncService.deleteEvent(withIdentifier: eventIdentifier)
+        } catch {
+            // Deleting the task should not be blocked by a missing permission or stale event identifier.
         }
     }
 }

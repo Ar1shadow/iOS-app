@@ -17,6 +17,7 @@ targets:
         PRODUCT_NAME: CoupleLife
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription: CoupleLife 仅在你手动开启同步后，把任务写入系统日历。
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
     scheme:
