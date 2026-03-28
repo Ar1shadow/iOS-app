@@ -132,6 +132,92 @@ final class PlanningViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.planSections.first?.date, calendar.startOfDay(for: now))
     }
 
+    func testNext7DaysRangeExcludesDaySevenBoundaryAndHidesUnscheduledTasks() {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)
+        let todayStart = calendar.startOfDay(for: now)
+        let day6Start = calendar.date(byAdding: .day, value: 6, to: todayStart)!
+        let day7Start = calendar.date(byAdding: .day, value: 7, to: todayStart)!
+
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            makeTask(
+                title: "今天任务",
+                dueAt: calendar.date(byAdding: .hour, value: 10, to: todayStart),
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "第 6 天任务",
+                dueAt: calendar.date(byAdding: .hour, value: 10, to: day6Start),
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "边界任务",
+                dueAt: calendar.date(byAdding: .hour, value: 10, to: day7Start),
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "未排期",
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            )
+        ])
+        let viewModel = makeViewModel(repository: repository, calendar: calendar, now: now)
+
+        viewModel.selectedPlanLevel = .day
+        viewModel.selectedStatusFilter = .all
+        viewModel.displayMode = .plan
+        viewModel.dateRangeFilter = .next7Days
+        viewModel.load()
+
+        XCTAssertEqual(viewModel.planSections.count, 2)
+        XCTAssertEqual(viewModel.planSections.map(\.tasks).flatMap { $0.map(\.title) }, ["今天任务", "第 6 天任务"])
+        XCTAssertTrue(viewModel.planSections.allSatisfy { $0.date != nil })
+    }
+
+    func testStatusSectionsHonorDateRangeFilterInListMode() {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            makeTask(
+                title: "今天任务",
+                dueAt: makeDate(year: 2024, month: 3, day: 28, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "明天任务",
+                dueAt: makeDate(year: 2024, month: 3, day: 29, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "未排期",
+                status: .todo,
+                planLevel: .day,
+                updatedAt: now
+            )
+        ])
+        let viewModel = makeViewModel(repository: repository, calendar: calendar, now: now)
+
+        viewModel.selectedPlanLevel = .day
+        viewModel.selectedStatusFilter = .all
+        viewModel.displayMode = .list
+        viewModel.dateRangeFilter = .today
+        viewModel.load()
+
+        XCTAssertEqual(viewModel.statusSections.count, 1)
+        XCTAssertEqual(viewModel.statusSections.first?.tasks.map(\.title), ["今天任务"])
+    }
+
     func testWeekPlanViewGroupsTasksByWeekStartAndSortsWeeksAscending() {
         let calendar = fixedCalendar()
         let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)
