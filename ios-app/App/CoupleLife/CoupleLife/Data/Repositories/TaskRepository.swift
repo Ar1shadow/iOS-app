@@ -3,6 +3,7 @@ import SwiftData
 
 protocol TaskRepository {
     func create(_ task: TaskItem) throws
+    func update(_ task: TaskItem) throws
     func delete(_ task: TaskItem) throws
     func tasks(status: TaskStatus?) throws -> [TaskItem]
     func tasks(scheduledFrom start: Date, to end: Date, ownerUserId: String, status: TaskStatus?) throws -> [TaskItem]
@@ -10,13 +11,21 @@ protocol TaskRepository {
 
 final class SwiftDataTaskRepository: TaskRepository {
     private let context: ModelContext
+    private let nowProvider: () -> Date
 
-    init(context: ModelContext) {
+    init(context: ModelContext, nowProvider: @escaping () -> Date = Date.init) {
         self.context = context
+        self.nowProvider = nowProvider
     }
 
     func create(_ task: TaskItem) throws {
         context.insert(task)
+        try context.save()
+    }
+
+    func update(_ task: TaskItem) throws {
+        task.updatedAt = nowProvider()
+        task.version += 1
         try context.save()
     }
 

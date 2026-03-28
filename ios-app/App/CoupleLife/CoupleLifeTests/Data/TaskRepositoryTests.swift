@@ -47,4 +47,43 @@ final class TaskRepositoryTests: XCTestCase {
         let scheduledTodo = try repo.tasks(scheduledFrom: dayStart, to: dayEnd, ownerUserId: "u1", status: .todo)
         XCTAssertEqual(scheduledTodo.map(\.title), ["in-range-todo"])
     }
+
+    func testUpdatePersistsEditedFieldsAndBumpsVersion() throws {
+        let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        let context = ModelContext(container)
+
+        let initialDate = Date(timeIntervalSince1970: 2_000)
+        let updatedDate = initialDate.addingTimeInterval(3_600)
+        let repo = SwiftDataTaskRepository(context: context, nowProvider: { updatedDate })
+
+        let task = TaskItem(
+            title: "原任务",
+            detail: "原备注",
+            dueAt: initialDate,
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "u1",
+            createdAt: initialDate,
+            updatedAt: initialDate
+        )
+        try repo.create(task)
+
+        task.title = "已延期任务"
+        task.detail = "改为明天处理"
+        task.planLevel = .week
+        task.status = .postponed
+        task.dueAt = updatedDate
+        try repo.update(task)
+
+        let tasks = try repo.tasks(status: .postponed)
+        XCTAssertEqual(tasks.count, 1)
+        XCTAssertEqual(tasks.first?.title, "已延期任务")
+        XCTAssertEqual(tasks.first?.detail, "改为明天处理")
+        XCTAssertEqual(tasks.first?.planLevel, .week)
+        XCTAssertEqual(tasks.first?.dueAt, updatedDate)
+        XCTAssertEqual(tasks.first?.version, 2)
+        XCTAssertEqual(tasks.first?.updatedAt, updatedDate)
+    }
 }

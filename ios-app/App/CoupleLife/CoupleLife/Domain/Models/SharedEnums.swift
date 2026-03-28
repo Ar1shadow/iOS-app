@@ -21,9 +21,10 @@ enum RecordType: String, Codable, CaseIterable {
 }
 
 enum TaskStatus: String, Codable, CaseIterable {
-    case todo
-    case done
-    case cancelled
+    case todo = "todo"
+    case done = "done"
+    case postponed = "postponed"
+    case cancelled = "cancelled"
 }
 
 enum PlanLevel: String, Codable, CaseIterable {
@@ -32,4 +33,3 @@ enum PlanLevel: String, Codable, CaseIterable {
     case month
     case year
 }
-

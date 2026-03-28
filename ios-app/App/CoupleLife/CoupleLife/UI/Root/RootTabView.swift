@@ -22,7 +22,7 @@ struct RootTabView: View {
             CalendarTab(recordRepository: recordRepository)
                 .tabItem { Label(AppTab.calendar.title, systemImage: AppTab.calendar.systemImage) }
 
-            PlanningTab()
+            PlanningTab(taskRepository: taskRepository)
                 .tabItem { Label(AppTab.planning.title, systemImage: AppTab.planning.systemImage) }
 
             FitnessTab()

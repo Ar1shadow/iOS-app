@@ -134,6 +134,7 @@ private final class InMemoryTaskRepository: TaskRepository {
     }
 
     func create(_ task: TaskItem) throws {}
+    func update(_ task: TaskItem) throws {}
     func delete(_ task: TaskItem) throws {}
     func tasks(status: TaskStatus?) throws -> [TaskItem] {
         guard let status else { return items }
