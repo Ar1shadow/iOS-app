@@ -3,19 +3,28 @@ import SwiftData
 
 protocol RecordRepository {
     func create(_ record: Record) throws
+    func update(_ record: Record) throws
     func delete(_ record: Record) throws
     func records(from start: Date, to end: Date) throws -> [Record]
 }
 
 final class SwiftDataRecordRepository: RecordRepository {
     private let context: ModelContext
+    private let nowProvider: () -> Date
 
-    init(context: ModelContext) {
+    init(context: ModelContext, nowProvider: @escaping () -> Date = Date.init) {
         self.context = context
+        self.nowProvider = nowProvider
     }
 
     func create(_ record: Record) throws {
         context.insert(record)
+        try context.save()
+    }
+
+    func update(_ record: Record) throws {
+        record.updatedAt = nowProvider()
+        record.version += 1
         try context.save()
     }
 
@@ -33,4 +42,3 @@ final class SwiftDataRecordRepository: RecordRepository {
         return try context.fetch(descriptor)
     }
 }
-

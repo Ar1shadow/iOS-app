@@ -2,6 +2,10 @@ import SwiftUI
 
 struct CalendarTab: View {
     @StateObject private var viewModel: CalendarViewModel
+    private let recordRepository: any RecordRepository
+    private let calendar: Calendar
+    private let ownerUserId: String
+    private let nowProvider: () -> Date
 
     init(
         recordRepository: any RecordRepository,
@@ -9,6 +13,10 @@ struct CalendarTab: View {
         ownerUserId: String = CurrentUser.id,
         nowProvider: @escaping () -> Date = Date.init
     ) {
+        self.recordRepository = recordRepository
+        self.calendar = calendar
+        self.ownerUserId = ownerUserId
+        self.nowProvider = nowProvider
         let service = DefaultCalendarRecordSummaryService(recordRepository: recordRepository, calendar: calendar)
         _viewModel = StateObject(
             wrappedValue: CalendarViewModel(
@@ -56,8 +64,14 @@ struct CalendarTab: View {
                     NavigationLink {
                         CalendarDayDetailView(
                             date: viewModel.selectedDate,
-                            records: viewModel.selectedDayRecords,
-                            subtitle: viewModel.selectedDateSubtitle
+                            subtitle: viewModel.selectedDateSubtitle,
+                            recordRepository: recordRepository,
+                            calendar: calendar,
+                            ownerUserId: ownerUserId,
+                            nowProvider: nowProvider,
+                            onRecordsChanged: {
+                                Task { await viewModel.reload() }
+                            }
                         )
                     } label: {
                         SharedCard {
@@ -78,7 +92,7 @@ struct CalendarTab: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityHint("进入当天详情占位页")
+                    .accessibilityHint("进入当天详情并管理记录")
                 }
                 .padding(.horizontal, AppSpacing.screenHorizontal)
                 .padding(.vertical, AppSpacing.lg)
@@ -325,56 +339,5 @@ private struct WeekDayPill: View {
             RoundedRectangle(cornerRadius: AppCornerRadius.md, style: .continuous)
                 .stroke(isToday ? AppColorToken.blue.color.opacity(0.8) : AppColorToken.surfaceBorder.color.opacity(0.18), lineWidth: isToday ? 1.5 : 1)
         )
-    }
-}
-
-private struct CalendarDayDetailView: View {
-    let date: Date
-    let records: [Record]
-    let subtitle: String
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.xl) {
-                SharedCard {
-                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                        SharedSectionHeader("某天详情", subtitle: subtitle)
-                        Text("Task 410 将在这里补齐当天记录的完整内容与操作。")
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColorToken.textSecondary.color)
-                    }
-                }
-
-                SharedCard {
-                    VStack(alignment: .leading, spacing: AppSpacing.md) {
-                        SharedSectionHeader("当天摘要", subtitle: records.isEmpty ? "暂无记录" : "已加载当天记录占位摘要")
-
-                        if records.isEmpty {
-                            SharedEmptyStateView(
-                                title: "暂无当天记录",
-                                message: "后续任务会在此提供新增、编辑和更完整的时间线。",
-                                symbolName: "tray"
-                            )
-                        } else {
-                            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                                ForEach(records, id: \.id) { record in
-                                    SharedListRow(
-                                        title: record.type.visualStyle.title,
-                                        subtitle: record.note ?? record.startAt.formatted(date: .omitted, time: .shortened),
-                                        symbolName: record.type.visualStyle.symbolName,
-                                        colorToken: record.type.visualStyle.colorToken,
-                                        badgeText: "记录"
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal, AppSpacing.screenHorizontal)
-            .padding(.vertical, AppSpacing.lg)
-        }
-        .background(AppColorToken.background.color.ignoresSafeArea())
-        .navigationTitle(date.formatted(.dateTime.month().day()))
     }
 }

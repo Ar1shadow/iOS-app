@@ -163,6 +163,7 @@ private final class InMemoryRecordRepository: RecordRepository {
     }
 
     func create(_ record: Record) throws {}
+    func update(_ record: Record) throws {}
     func delete(_ record: Record) throws {}
     func records(from start: Date, to end: Date) throws -> [Record] {
         items.filter { $0.startAt >= start && $0.startAt < end }

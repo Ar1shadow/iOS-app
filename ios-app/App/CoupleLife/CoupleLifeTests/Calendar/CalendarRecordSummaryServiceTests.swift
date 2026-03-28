@@ -61,6 +61,7 @@ private final class InMemoryCalendarRecordRepository: RecordRepository {
     }
 
     func create(_ record: Record) throws {}
+    func update(_ record: Record) throws {}
     func delete(_ record: Record) throws {}
 
     func records(from start: Date, to end: Date) throws -> [Record] {
