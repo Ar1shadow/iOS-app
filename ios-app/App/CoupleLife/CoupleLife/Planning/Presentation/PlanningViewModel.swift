@@ -115,7 +115,7 @@ final class PlanningViewModel: ObservableObject {
         let visibleTasks = filteredTasks
         let scheduledTasks = visibleTasks.compactMap { task -> (date: Date, task: TaskItem)? in
             guard let scheduledAt = task.scheduledAt else { return nil }
-            return (date: calendar.startOfDay(for: scheduledAt), task: task)
+            return (date: groupingStartDate(for: scheduledAt), task: task)
         }
 
         let groupedTasks = Dictionary(grouping: scheduledTasks, by: \.date)
@@ -350,7 +350,52 @@ final class PlanningViewModel: ObservableObject {
     }
 
     private func formatSectionDate(_ date: Date) -> String {
-        date.formatted(.dateTime.year().month().day())
+        switch selectedPlanLevel {
+        case .day:
+            return format(date, dateFormat: "yyyy-MM-dd")
+        case .week:
+            guard let interval = calendar.dateInterval(of: .weekOfYear, for: date) else {
+                return format(date, dateFormat: "yyyy-MM-dd")
+            }
+            let start = calendar.startOfDay(for: interval.start)
+            let end = calendar.date(byAdding: .day, value: 6, to: start) ?? start
+            return "\(format(start, dateFormat: "yyyy-MM-dd")) ~ \(format(end, dateFormat: "yyyy-MM-dd"))"
+        case .month:
+            return format(date, dateFormat: "yyyy年M月")
+        case .year:
+            return format(date, dateFormat: "yyyy年")
+        }
+    }
+
+    private func groupingStartDate(for date: Date) -> Date {
+        switch selectedPlanLevel {
+        case .day:
+            return calendar.startOfDay(for: date)
+        case .week:
+            guard let interval = calendar.dateInterval(of: .weekOfYear, for: date) else {
+                return calendar.startOfDay(for: date)
+            }
+            return calendar.startOfDay(for: interval.start)
+        case .month:
+            guard let interval = calendar.dateInterval(of: .month, for: date) else {
+                return calendar.startOfDay(for: date)
+            }
+            return calendar.startOfDay(for: interval.start)
+        case .year:
+            guard let interval = calendar.dateInterval(of: .year, for: date) else {
+                return calendar.startOfDay(for: date)
+            }
+            return calendar.startOfDay(for: interval.start)
+        }
+    }
+
+    private func format(_ date: Date, dateFormat: String) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = calendar
+        formatter.locale = calendar.locale ?? .autoupdatingCurrent
+        formatter.timeZone = calendar.timeZone
+        formatter.dateFormat = dateFormat
+        return formatter.string(from: date)
     }
 }
 

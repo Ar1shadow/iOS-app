@@ -132,6 +132,143 @@ final class PlanningViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.planSections.first?.date, calendar.startOfDay(for: now))
     }
 
+    func testWeekPlanViewGroupsTasksByWeekStartAndSortsWeeksAscending() {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            makeTask(
+                title: "本周后半段",
+                dueAt: makeDate(year: 2024, month: 3, day: 28, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .week,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "下一周",
+                dueAt: makeDate(year: 2024, month: 4, day: 2, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .week,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "本周前半段",
+                dueAt: makeDate(year: 2024, month: 3, day: 26, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .week,
+                updatedAt: now
+            )
+        ])
+        let viewModel = makeViewModel(repository: repository, calendar: calendar, now: now)
+
+        viewModel.selectedPlanLevel = .week
+        viewModel.selectedStatusFilter = .all
+        viewModel.displayMode = .plan
+        viewModel.dateRangeFilter = .all
+        viewModel.load()
+
+        XCTAssertEqual(viewModel.planSections.map(\.title), [
+            "2024-03-25 ~ 2024-03-31",
+            "2024-04-01 ~ 2024-04-07"
+        ])
+        XCTAssertEqual(viewModel.planSections.map(\.tasks).map { $0.map(\.title) }, [
+            ["本周前半段", "本周后半段"],
+            ["下一周"]
+        ])
+        XCTAssertEqual(viewModel.planSections.map(\.date), [
+            makeDate(year: 2024, month: 3, day: 25, hour: 0, calendar: calendar),
+            makeDate(year: 2024, month: 4, day: 1, hour: 0, calendar: calendar)
+        ])
+    }
+
+    func testMonthPlanViewGroupsTasksByMonthStartAndSortsMonthsAscending() {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            makeTask(
+                title: "四月任务",
+                dueAt: makeDate(year: 2024, month: 4, day: 2, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .month,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "三月后半段",
+                dueAt: makeDate(year: 2024, month: 3, day: 28, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .month,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "三月前半段",
+                dueAt: makeDate(year: 2024, month: 3, day: 5, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .month,
+                updatedAt: now
+            )
+        ])
+        let viewModel = makeViewModel(repository: repository, calendar: calendar, now: now)
+
+        viewModel.selectedPlanLevel = .month
+        viewModel.selectedStatusFilter = .all
+        viewModel.displayMode = .plan
+        viewModel.dateRangeFilter = .all
+        viewModel.load()
+
+        XCTAssertEqual(viewModel.planSections.map(\.title), [
+            "2024年3月",
+            "2024年4月"
+        ])
+        XCTAssertEqual(viewModel.planSections.map(\.tasks).map { $0.map(\.title) }, [
+            ["三月前半段", "三月后半段"],
+            ["四月任务"]
+        ])
+        XCTAssertEqual(viewModel.planSections.map(\.date), [
+            makeDate(year: 2024, month: 3, day: 1, hour: 0, calendar: calendar),
+            makeDate(year: 2024, month: 4, day: 1, hour: 0, calendar: calendar)
+        ])
+    }
+
+    func testYearPlanViewGroupsTasksByYearStartAndSortsYearsAscending() {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            makeTask(
+                title: "2025任务",
+                dueAt: makeDate(year: 2025, month: 1, day: 3, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .year,
+                updatedAt: now
+            ),
+            makeTask(
+                title: "2024任务",
+                dueAt: makeDate(year: 2024, month: 12, day: 31, hour: 10, calendar: calendar),
+                status: .todo,
+                planLevel: .year,
+                updatedAt: now
+            )
+        ])
+        let viewModel = makeViewModel(repository: repository, calendar: calendar, now: now)
+
+        viewModel.selectedPlanLevel = .year
+        viewModel.selectedStatusFilter = .all
+        viewModel.displayMode = .plan
+        viewModel.dateRangeFilter = .all
+        viewModel.load()
+
+        XCTAssertEqual(viewModel.planSections.map(\.title), [
+            "2024年",
+            "2025年"
+        ])
+        XCTAssertEqual(viewModel.planSections.map(\.tasks).map { $0.map(\.title) }, [
+            ["2024任务"],
+            ["2025任务"]
+        ])
+        XCTAssertEqual(viewModel.planSections.map(\.date), [
+            makeDate(year: 2024, month: 1, day: 1, hour: 0, calendar: calendar),
+            makeDate(year: 2025, month: 1, day: 1, hour: 0, calendar: calendar)
+        ])
+    }
+
     func testSwitchingViewModesDoesNotResetFilters() {
         let calendar = fixedCalendar()
         let now = makeDate(year: 2024, month: 3, day: 28, hour: 9, calendar: calendar)

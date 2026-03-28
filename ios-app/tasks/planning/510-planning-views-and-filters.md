@@ -23,7 +23,7 @@
 ## 实施要点
 
 - 优先实现“过滤与分组”的清晰语义，再考虑更复杂的拖拽/排序
-- 计划视图按 `startOfDay` 分桶，递增排序；`All` 时允许显示“未排期”
+- 计划视图按 `selectedPlanLevel` 对应的周期分桶，递增排序；`All` 时允许显示“未排期”
 - 需要性能优化时，以测量驱动（见 960）
 
 ## Skills 使用
@@ -35,7 +35,7 @@
 ## 实施记录
 
 - `PlanningViewModel` 新增 `displayMode`、`dateRangeFilter` 与自定义日期起止状态，筛选顺序固定为 `planLevel -> status -> date range`，切换视图不会重置现有筛选。
-- `PlanningTab` 新增“计划视图 / 列表视图”切换、日期范围筛选与自定义日期选择；列表视图保留原有状态分组 + 行内快捷操作，计划视图改为按日期分组的读向展示。
+- `PlanningTab` 新增“计划视图 / 列表视图”切换、日期范围筛选与自定义日期选择；列表视图保留原有状态分组 + 行内快捷操作，计划视图按 `planLevel` 对应周期分组展示。
 - `PlanningDisplaySupport` 统一补充任务计划日期语义（`dueAt ?? startAt`），并保留 Planning 相关标题映射，减少视图里散落的格式化逻辑。
 - 新增 `PlanningViewModelTests` 覆盖计划视图分组、Custom 日期范围边界、Today 预设范围，以及视图切换时筛选状态保持不变。
 
