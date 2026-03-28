@@ -30,12 +30,13 @@
 - `RootTabView` 现已向 `CalendarTab` 注入 `RecordRepository`；`CalendarTab` 替换为真实月/周/日导航 UI，并接入某天详情占位页。
 - 新增纯 `CalendarMonthGridBuilder` 与 `CalendarRecordSummaryService`，分别负责月网格生成与可见范围记录标记/日摘要聚合。
 - 日历状态保持在本地 `CalendarViewModel`，覆盖选中日期、周期切换、加载失败降级与快速切换下的请求竞态保护。
+- 已修复月末跨月漂移：`CalendarViewModel` 现保留 `anchoredDayOfMonth`，月切换按目标月份可用天数稳定回落，不再出现 `1/31 -> 2/29 -> 1/29` 的回退漂移。
 
 ## 验证记录
 
 - 已执行：`cd ios-app/App/CoupleLife && xcodegen generate`
 - 已执行：`xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/CoupleLifeDerivedData400 CODE_SIGNING_ALLOWED=NO test`
-- 已验证：16 个 XCTest 全部通过；新增月网格辅助器与记录摘要服务测试通过。
+- 已验证：17 个 XCTest 全部通过；新增月导航漂移回归测试通过。
 
 ## 已知风险/遗留
 

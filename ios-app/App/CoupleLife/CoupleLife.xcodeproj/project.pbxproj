@@ -12,6 +12,7 @@
 		04A5707F8BDDBE26806F91B6 /* RecordRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */; };
 		1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */; };
 		12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F999C232176D9090AC8577F8 /* PlanningTab.swift */; };
+		1360965893AFCDE57150C555 /* CalendarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09384F51D9DB7A43F7ADF793 /* CalendarViewModelTests.swift */; };
 		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
 		176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */; };
 		1B5AC1AEC17181C4D5DB6EB9 /* HomeDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C0FD0624418B4406670A53 /* HomeDashboardViewModel.swift */; };
@@ -64,6 +65,7 @@
 
 /* Begin PBXFileReference section */
 		08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStatusBadge.swift; sourceTree = "<group>"; };
+		09384F51D9DB7A43F7ADF793 /* CalendarViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModelTests.swift; sourceTree = "<group>"; };
 		0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
 		1809D1FC714722D6066BE180 /* RecordTypeVisualStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTypeVisualStyle.swift; sourceTree = "<group>"; };
 		18B025D1CB63DB338E0CA478 /* SharedLoadingStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLoadingStateView.swift; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 			children = (
 				DCA6C673CBD0EFD4B534A0FE /* CalendarMonthGridBuilderTests.swift */,
 				CC836DA1291A40D6B03462C6 /* CalendarRecordSummaryServiceTests.swift */,
+				09384F51D9DB7A43F7ADF793 /* CalendarViewModelTests.swift */,
 			);
 			path = Calendar;
 			sourceTree = "<group>";
@@ -488,6 +491,7 @@
 				86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */,
 				6A16BC8FD1A55AF49840439F /* CalendarMonthGridBuilderTests.swift in Sources */,
 				0419F124D129CA2882AAD1DC /* CalendarRecordSummaryServiceTests.swift in Sources */,
+				1360965893AFCDE57150C555 /* CalendarViewModelTests.swift in Sources */,
 				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
 				176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */,
 				04A5707F8BDDBE26806F91B6 /* RecordRepositoryTests.swift in Sources */,

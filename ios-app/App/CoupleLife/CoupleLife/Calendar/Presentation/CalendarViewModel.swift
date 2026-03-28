@@ -21,6 +21,7 @@ final class CalendarViewModel: ObservableObject {
     private let ownerUserId: String
     private var hasLoaded = false
     private var loadGeneration = 0
+    private var anchoredDayOfMonth: Int
 
     init(
         service: any CalendarRecordSummaryService,
@@ -36,6 +37,7 @@ final class CalendarViewModel: ObservableObject {
         let initialRange = Self.visibleRange(for: today, mode: .month, calendar: calendar)
         self.selectedDate = today
         self.summary = .empty(range: initialRange)
+        self.anchoredDayOfMonth = calendar.component(.day, from: today)
     }
 
     var monthGrid: CalendarMonthGrid {
@@ -91,6 +93,9 @@ final class CalendarViewModel: ObservableObject {
     func setDisplayMode(_ mode: DisplayMode) {
         guard mode != displayMode else { return }
         displayMode = mode
+        if mode == .month {
+            anchoredDayOfMonth = calendar.component(.day, from: selectedDate)
+        }
         Task { await reload() }
     }
 
@@ -98,6 +103,7 @@ final class CalendarViewModel: ObservableObject {
         let normalizedDate = calendar.startOfDay(for: date)
         guard normalizedDate != selectedDate else { return }
         selectedDate = normalizedDate
+        anchoredDayOfMonth = calendar.component(.day, from: normalizedDate)
 
         let newRange = Self.visibleRange(for: normalizedDate, mode: displayMode, calendar: calendar)
         guard newRange != summary.visibleRange else { return }
@@ -105,26 +111,17 @@ final class CalendarViewModel: ObservableObject {
     }
 
     func shiftVisiblePeriod(by value: Int) {
-        let component: Calendar.Component
-        let amount: Int
-
         switch displayMode {
         case .month:
-            component = .month
-            amount = value
+            guard let shiftedDate = stableShiftedMonth(by: value) else { return }
+            selectedDate = shiftedDate
         case .week:
-            component = .day
-            amount = value * 7
+            guard let shiftedDate = calendar.date(byAdding: .day, value: value * 7, to: selectedDate) else { return }
+            selectedDate = calendar.startOfDay(for: shiftedDate)
         case .day:
-            component = .day
-            amount = value
+            guard let shiftedDate = calendar.date(byAdding: .day, value: value, to: selectedDate) else { return }
+            selectedDate = calendar.startOfDay(for: shiftedDate)
         }
-
-        guard let shiftedDate = calendar.date(byAdding: component, value: amount, to: selectedDate) else {
-            return
-        }
-
-        selectedDate = calendar.startOfDay(for: shiftedDate)
         Task { await reload() }
     }
 
@@ -208,5 +205,19 @@ final class CalendarViewModel: ObservableObject {
             let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
             return DateInterval(start: start, end: end)
         }
+    }
+
+    private func stableShiftedMonth(by value: Int) -> Date? {
+        guard
+            let currentMonthInterval = calendar.dateInterval(of: .month, for: selectedDate),
+            let targetMonthStart = calendar.date(byAdding: .month, value: value, to: currentMonthInterval.start),
+            let daysInTargetMonth = calendar.range(of: .day, in: .month, for: targetMonthStart)?.count
+        else {
+            return nil
+        }
+
+        var components = calendar.dateComponents([.year, .month], from: targetMonthStart)
+        components.day = min(anchoredDayOfMonth, daysInTargetMonth)
+        return calendar.date(from: components).map(calendar.startOfDay(for:))
     }
 }
