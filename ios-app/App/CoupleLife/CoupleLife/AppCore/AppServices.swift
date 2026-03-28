@@ -13,6 +13,18 @@ protocol CalendarSyncService {
 
 protocol HealthDataService {
     func availability() async -> ServiceAvailability
+    func requestAuthorization() async -> ServiceAvailability
+    func refreshTodaySnapshot(ownerUserId: String, asOf date: Date, force: Bool) async -> ServiceAvailability
+}
+
+extension HealthDataService {
+    func refreshTodaySnapshot(
+        ownerUserId: String,
+        asOf date: Date = Date(),
+        force: Bool = false
+    ) async -> ServiceAvailability {
+        await refreshTodaySnapshot(ownerUserId: ownerUserId, asOf: date, force: force)
+    }
 }
 
 protocol NotificationScheduler {
@@ -29,6 +41,8 @@ struct NoopCalendarSyncService: CalendarSyncService {
 
 struct NoopHealthDataService: HealthDataService {
     func availability() async -> ServiceAvailability { .notSupported }
+    func requestAuthorization() async -> ServiceAvailability { .notSupported }
+    func refreshTodaySnapshot(ownerUserId: String, asOf date: Date, force: Bool) async -> ServiceAvailability { .notSupported }
 }
 
 struct NoopNotificationScheduler: NotificationScheduler {
@@ -38,4 +52,3 @@ struct NoopNotificationScheduler: NotificationScheduler {
 struct NoopCloudSyncService: CloudSyncService {
     func availability() async -> ServiceAvailability { .notSupported }
 }
-

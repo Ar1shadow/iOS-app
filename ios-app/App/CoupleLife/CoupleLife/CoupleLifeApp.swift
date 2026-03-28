@@ -3,12 +3,14 @@ import SwiftData
 
 @main
 struct CoupleLifeApp: App {
-    private let container = AppContainer.default
+    private let container: AppContainer
     private let modelContainer: ModelContainer
 
+    @MainActor
     init() {
         do {
             modelContainer = try ModelContainerFactory.make()
+            container = AppContainer.live(modelContainer: modelContainer)
         } catch {
             fatalError("Failed to create SwiftData ModelContainer: \(error)")
         }

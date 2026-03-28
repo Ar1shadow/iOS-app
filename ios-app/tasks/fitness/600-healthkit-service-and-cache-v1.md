@@ -2,6 +2,8 @@
 
 - Phase: Phase 1 (MVP)
 - 模块: Fitness / Integrations
+- 状态: Done
+- 最后更新: 2026-03-28
 - 依赖: 110、200、210
 - 目标: 建立 `HealthDataService`，按需申请权限并读取首期健康指标，同时落地展示缓存 `HealthMetricSnapshot` 以减少频繁查询开销。
 - 非目标: 不做完整 Workout 体系；不一次申请过多权限；不把 HealthKit API 直接暴露给 UI。
@@ -28,3 +30,35 @@
 - `$xcode-simulator-debug`: 用于排查权限弹窗、运行时崩溃与构建问题；适用于“系统能力接入的排障”。
 - `$ios-performance-audit`: 用于验证缓存策略是否有效，以及定位读取/解码/渲染带来的卡顿；适用于“性能测量与优化”。
 
+## 实施记录
+
+- 开工: 2026-03-28
+- 进展:
+  - 扩展 `HealthDataService` 为“显式授权 + 手动刷新今日缓存”最小契约；HealthKit 访问集中在 `Integrations/HealthKit/HealthKitHealthDataService.swift`。
+  - 首页继续只读 `HealthSnapshotRepository` 缓存；`HomeDashboardViewModel` 负责显式触发授权/刷新，不在 SwiftUI View 中直接调用 HealthKit。
+  - 模拟器显式走降级路径：`LiveHealthKitClient` 在 simulator 返回不可用，避免依赖不稳定的模拟器 HealthKit 数据与 entitlement 环境。
+- 下一步:
+  - 真机补齐 HealthKit capability / entitlement 后验证真实授权弹窗、步数/睡眠读取与缓存刷新。
+
+## 关键决策
+
+- 权限策略：不在 app launch 自动弹框；仅用户点击首页“连接健康数据”时请求步数与睡眠读取权限。
+- 缓存策略：`refreshTodaySnapshot` 默认按“同一天仅刷新一次”命中缓存，强制刷新由用户显式触发；缓存写入仍在 Data 层仓储中完成。
+- 降级策略：未授权显示引导文案；模拟器/无能力环境显示 `notSupported`；真机 capability 缺失视为环境风险，不向 UI 泄漏 HealthKit 细节。
+
+## 验证记录
+
+- 命令:
+  - `xcodegen generate --spec ios-app/App/CoupleLife/project.yml`
+  - `xcodebuild build-for-testing -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/task-600-deriveddata`
+  - `xcodebuild test -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'id=5EF18BBB-1C49-45C8-BBD4-A831BDDA53B6' -derivedDataPath /tmp/task-600-deriveddata`
+- 结果:
+  - `build-for-testing` 通过。
+  - `xcodebuild test` 全量通过：50 tests, 0 failures。
+  - 额外观察：simulator 运行时仍会记录 `Missing com.apple.developer.healthkit entitlement` 系统日志，因此当前模拟器路径依赖显式降级；真实读取需真机 capability 支持。
+
+## 已知风险/遗留
+
+- 真机仍需在 Xcode target / App ID 上启用 HealthKit capability，并确认 `com.apple.developer.healthkit` entitlement 已签入。
+- 当前 v1 仅缓存 day bucket 的步数与睡眠；week/month bucket 与更多指标留待后续任务扩展。
+- HealthKit 真机验收仍需补“已授权/拒绝后去设置开启/当天无数据”三条手测路径。

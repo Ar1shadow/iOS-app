@@ -40,8 +40,8 @@ struct HomeTab: View {
                             symbolName: "exclamationmark.triangle"
                         )
                     }
-                case .loaded(let summary, let availability):
-                    dashboardContent(summary: summary, availability: availability)
+                case .loaded(let summary, let healthState):
+                    dashboardContent(summary: summary, healthState: healthState)
                 }
             }
             .background(AppColorToken.background.color.ignoresSafeArea())
@@ -53,7 +53,10 @@ struct HomeTab: View {
     }
 
     @ViewBuilder
-    private func dashboardContent(summary: HomeDashboardSummary, availability: ServiceAvailability) -> some View {
+    private func dashboardContent(
+        summary: HomeDashboardSummary,
+        healthState: HomeDashboardViewModel.HealthState
+    ) -> some View {
         dashboardContainer {
             SharedSectionHeader("今日总览", subtitle: daySubtitle(from: summary.dayRange.start))
 
@@ -132,24 +135,36 @@ struct HomeTab: View {
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
-                    SharedSectionHeader("运动摘要", subtitle: healthSubtitle(for: availability))
+                    SharedSectionHeader("运动摘要", subtitle: healthSubtitle(for: healthState.availability))
 
-                    if availability == .notSupported {
+                    if healthState.availability == .notSupported {
                         SharedEmptyStateView(
                             title: "设备不支持健康数据",
                             message: "可在后续设备或权限开放后显示今日步数与睡眠摘要。",
                             symbolName: "heart.slash"
                         )
-                    } else if let steps = summary.steps, let sleepHours = summary.sleepHours {
+                    } else if summary.steps != nil || summary.sleepHours != nil {
                         HStack(spacing: AppSpacing.lg) {
-                            metricView(title: "步数", value: "\(steps)")
-                            metricView(title: "睡眠", value: "\(String(format: "%.1f", sleepHours))h")
+                            if let steps = summary.steps {
+                                metricView(title: "步数", value: "\(steps)")
+                            }
+                            if let sleepHours = summary.sleepHours {
+                                metricView(title: "睡眠", value: "\(String(format: "%.1f", sleepHours))h")
+                            }
                         }
                     } else {
                         Text("暂无今日运动或睡眠缓存数据。")
                             .font(AppTypography.body)
                             .foregroundStyle(AppColorToken.textSecondary.color)
                     }
+
+                    if let message = healthState.message {
+                        Text(message)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColorToken.textSecondary.color)
+                    }
+
+                    healthActionButton(for: healthState)
                 }
             }
             .homeGlassSurface()
@@ -221,11 +236,37 @@ struct HomeTab: View {
         case .available:
             return "今日缓存摘要"
         case .notAuthorized:
-            return "未授权，展示本地缓存"
+            return "未授权，显示缓存与引导"
         case .notSupported:
             return "当前设备不可用"
         case .failed:
             return "服务状态异常"
+        }
+    }
+
+    @ViewBuilder
+    private func healthActionButton(for healthState: HomeDashboardViewModel.HealthState) -> some View {
+        switch healthState.availability {
+        case .available, .failed:
+            Button {
+                Task { await viewModel.refreshHealthData() }
+            } label: {
+                Label(healthState.isRefreshing ? "刷新中…" : "刷新今日摘要", systemImage: "arrow.clockwise")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.bordered)
+            .disabled(healthState.isRefreshing)
+        case .notAuthorized:
+            Button {
+                Task { await viewModel.connectHealthData() }
+            } label: {
+                Label(healthState.isRefreshing ? "连接中…" : "连接健康数据", systemImage: "heart.text.square")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(healthState.isRefreshing)
+        case .notSupported:
+            EmptyView()
         }
     }
 }

@@ -19,6 +19,10 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_NSHealthShareUsageDescription: CoupleLife 仅会在你主动连接后读取步数与睡眠摘要，用于首页和运动页展示。
+        INFOPLIST_KEY_NSHealthUpdateUsageDescription: CoupleLife 当前不会写入你的健康数据。
+    dependencies:
+      - sdk: HealthKit.framework
     scheme:
       testTargets:
         - CoupleLifeTests

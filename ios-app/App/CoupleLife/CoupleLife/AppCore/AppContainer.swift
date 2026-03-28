@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 struct AppContainer {
@@ -12,6 +13,18 @@ struct AppContainer {
         notifications: NoopNotificationScheduler(),
         cloudSync: NoopCloudSyncService()
     )
+
+    @MainActor
+    static func live(modelContainer: ModelContainer) -> AppContainer {
+        AppContainer(
+            calendarSync: NoopCalendarSyncService(),
+            healthData: HealthKitHealthDataService(
+                repository: SwiftDataHealthSnapshotRepository(context: modelContainer.mainContext)
+            ),
+            notifications: NoopNotificationScheduler(),
+            cloudSync: NoopCloudSyncService()
+        )
+    }
 }
 
 private struct AppContainerKey: EnvironmentKey {
@@ -24,4 +37,3 @@ extension EnvironmentValues {
         set { self[AppContainerKey.self] = newValue }
     }
 }
-
