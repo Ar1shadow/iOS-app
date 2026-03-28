@@ -65,6 +65,7 @@
 		F807011ABFE013FAA2B77C5D /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC211CCD89BA7B038F38054 /* TaskItem.swift */; };
 		F982B8A0F9901F1284895E56 /* SharedTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */; };
 		FB0C8D9D0FB834F8F8D64940 /* Routing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */; };
+		FCF69545C55582F0E3364F3A /* EventKitCalendarSyncServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0642F5B2C6A967D49016863D /* EventKitCalendarSyncServiceTests.swift */; };
 		FE1D3DFD0E8AD26B4A469A5D /* RecordTypeVisualStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1809D1FC714722D6066BE180 /* RecordTypeVisualStyle.swift */; };
 		FFEDD51FBC9EA4D6D5BBA634 /* SharedListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC993DA32C57A2066AA1EFBE /* SharedListRow.swift */; };
 /* End PBXBuildFile section */
@@ -81,6 +82,7 @@
 
 /* Begin PBXFileReference section */
 		01B456671BCE804C5A20D703 /* CalendarDayDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayDetailViewModelTests.swift; sourceTree = "<group>"; };
+		0642F5B2C6A967D49016863D /* EventKitCalendarSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventKitCalendarSyncServiceTests.swift; sourceTree = "<group>"; };
 		08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedStatusBadge.swift; sourceTree = "<group>"; };
 		09384F51D9DB7A43F7ADF793 /* CalendarViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModelTests.swift; sourceTree = "<group>"; };
 		0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryTests.swift; sourceTree = "<group>"; };
@@ -390,6 +392,7 @@
 			isa = PBXGroup;
 			children = (
 				3C449310356836D53472D407 /* CalendarSyncSettingsControllerTests.swift */,
+				0642F5B2C6A967D49016863D /* EventKitCalendarSyncServiceTests.swift */,
 			);
 			path = Integrations;
 			sourceTree = "<group>";
@@ -626,6 +629,7 @@
 				EBCAD398BA2EC11BE9BEFE46 /* CalendarSyncTestDoubles.swift in Sources */,
 				1360965893AFCDE57150C555 /* CalendarViewModelTests.swift in Sources */,
 				1034568F7DE9E758DE3F7614 /* CoupleLifeTests.swift in Sources */,
+				FCF69545C55582F0E3364F3A /* EventKitCalendarSyncServiceTests.swift in Sources */,
 				176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */,
 				C7CA493E3D124EF07CEFE532 /* PlanningTaskServiceTests.swift in Sources */,
 				A13D92796FCA3B4856453A67 /* PlanningViewModelTests.swift in Sources */,

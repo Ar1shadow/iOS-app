@@ -46,6 +46,8 @@
 - 数据契约:
   - 继续使用 `TaskItem.systemCalendarEventId` 作为任务与系统事件的稳定映射。
   - EventKit 映射仅在 Integration 层内部完成，UI 和仓储层不依赖 `EKEvent`。
+  - 本地仓储持久化优先于系统日历写入；创建/更新后的事件标识通过后续 best-effort `taskRepository.update` 回写，删除任务则先删本地任务再 best-effort 删除系统事件。
+  - 任务取消排期时，只有系统事件删除成功或事件已不存在时才清空 `systemCalendarEventId`；删除失败时保留映射以便后续重试。
 - 下一步:
   - 在可访问 CoreSimulator 的环境中运行 `xcodebuild test`，验证 EventKit 权限路径与测试结果。
   - 在真机上手动验证系统日历写入与删除行为。
@@ -59,7 +61,8 @@
 - 结果:
   - `xcodegen generate` 已通过。
   - 非提权的 `xcodebuild build/test` 会被当前 sandbox 限制阻断，无法作为最终验证结论。
-  - 提权后，`xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,OS=18.6,name=iPhone 16' -derivedDataPath /tmp/CoupleLife-task700-test` 已通过，`51` 个测试全部成功。
+  - 提权后，`xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,OS=18.6,name=iPhone 16' -derivedDataPath /tmp/CoupleLife-task700-test` 已通过。
+  - 提权后，`xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,OS=18.6,name=iPhone 16' -derivedDataPath /tmp/CoupleLife-task700-review-full` 已通过，`57` 个测试全部成功。
 
 ## 可复现验证步骤
 

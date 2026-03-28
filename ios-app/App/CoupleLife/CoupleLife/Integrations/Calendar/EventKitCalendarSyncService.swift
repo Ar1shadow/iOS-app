@@ -4,13 +4,19 @@ import Foundation
 final class EventKitCalendarSyncService: CalendarSyncService {
     private let eventStore: EKEventStore
     private let calendar: Calendar
+    private let authorizationStatusProvider: () -> EKAuthorizationStatus
+    private let defaultCalendarProvider: () -> EKCalendar?
 
     init(
         eventStore: EKEventStore = EKEventStore(),
-        calendar: Calendar = .current
+        calendar: Calendar = .current,
+        authorizationStatusProvider: @escaping () -> EKAuthorizationStatus = { EKEventStore.authorizationStatus(for: .event) },
+        defaultCalendarProvider: (() -> EKCalendar?)? = nil
     ) {
         self.eventStore = eventStore
         self.calendar = calendar
+        self.authorizationStatusProvider = authorizationStatusProvider
+        self.defaultCalendarProvider = defaultCalendarProvider ?? { eventStore.defaultCalendarForNewEvents }
     }
 
     func availability() async -> ServiceAvailability {
@@ -20,6 +26,9 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     func currentAvailability() -> ServiceAvailability {
         switch authorizationStatus {
         case .fullAccess, .writeOnly:
+            guard defaultCalendarProvider() != nil else {
+                return .failed("未找到可写入的系统日历。")
+            }
             return .available
         case .notDetermined, .denied, .restricted:
             return .notAuthorized
@@ -60,7 +69,7 @@ final class EventKitCalendarSyncService: CalendarSyncService {
             EKEvent(eventStore: eventStore)
         }
 
-        guard let targetCalendar = event.calendar ?? eventStore.defaultCalendarForNewEvents else {
+        guard let targetCalendar = event.calendar ?? defaultCalendarProvider() else {
             throw CalendarSyncError.operationFailed("未找到可写入的系统日历。")
         }
 
@@ -103,7 +112,7 @@ final class EventKitCalendarSyncService: CalendarSyncService {
     }
 
     private var authorizationStatus: EKAuthorizationStatus {
-        EKEventStore.authorizationStatus(for: .event)
+        authorizationStatusProvider()
     }
 
     private func makeDateRange(for task: TaskItem) throws -> DateInterval {

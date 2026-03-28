@@ -105,8 +105,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             createdAt: now,
             updatedAt: now
         )
-        syncTaskToCalendarIfNeeded(task)
         try taskRepository.create(task)
+        performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: nil)
         return task
     }
 
@@ -121,15 +121,15 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.startAt = normalizedDraft.startAt
         task.dueAt = normalizedDraft.dueAt
         task.isAllDay = normalizedDraft.isAllDay
-        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
+        performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
     }
 
     func markTaskDone(_ task: TaskItem) throws {
         try ensureMutableStatus(task.status)
         task.status = .done
-        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
+        performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
     }
 
     func postponeTask(_ task: TaskItem) throws {
@@ -141,20 +141,21 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             task.dueAt = calendar.date(byAdding: .day, value: 1, to: dueAt)
         }
         task.status = .postponed
-        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
+        performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
     }
 
     func cancelTask(_ task: TaskItem) throws {
         try ensureMutableStatus(task.status)
         task.status = .cancelled
-        syncTaskToCalendarIfNeeded(task)
         try taskRepository.update(task)
+        performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
     }
 
     func deleteTask(_ task: TaskItem) throws {
-        deleteLinkedCalendarEventIfNeeded(for: task)
+        let eventIdentifier = task.systemCalendarEventId
         try taskRepository.delete(task)
+        _ = deleteLinkedCalendarEventIfNeeded(eventIdentifier)
     }
 
     private func validate(_ draft: PlanningTaskDraft) throws -> PlanningTaskDraft {
@@ -204,32 +205,51 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         }
     }
 
-    private func syncTaskToCalendarIfNeeded(_ task: TaskItem) {
+    private func performPostPersistenceCalendarSync(for task: TaskItem, persistedEventIdentifier: String?) {
         guard calendarSyncSettings.isEnabled else { return }
 
         if task.startAt == nil && task.dueAt == nil {
-            deleteLinkedCalendarEventIfNeeded(for: task)
-            task.systemCalendarEventId = nil
+            guard persistedEventIdentifier != nil else { return }
+            guard deleteLinkedCalendarEventIfNeeded(persistedEventIdentifier) else { return }
+            persistCalendarEventIdentifier(nil, for: task, previousIdentifier: persistedEventIdentifier)
             return
         }
 
         guard calendarSyncService.currentAvailability() == .available else { return }
 
         do {
-            task.systemCalendarEventId = try calendarSyncService.upsertEvent(for: task)
+            let eventIdentifier = try calendarSyncService.upsertEvent(for: task)
+            guard eventIdentifier != persistedEventIdentifier else { return }
+            persistCalendarEventIdentifier(eventIdentifier, for: task, previousIdentifier: persistedEventIdentifier)
         } catch {
             // Calendar sync is best-effort in MVP; task CRUD should keep working when EventKit fails.
         }
     }
 
-    private func deleteLinkedCalendarEventIfNeeded(for task: TaskItem) {
-        guard calendarSyncSettings.isEnabled else { return }
-        guard let eventIdentifier = task.systemCalendarEventId else { return }
+    private func deleteLinkedCalendarEventIfNeeded(_ eventIdentifier: String?) -> Bool {
+        guard calendarSyncSettings.isEnabled else { return false }
+        guard let eventIdentifier else { return true }
 
         do {
             try calendarSyncService.deleteEvent(withIdentifier: eventIdentifier)
+            return true
         } catch {
-            // Deleting the task should not be blocked by a missing permission or stale event identifier.
+            // Calendar cleanup is best-effort; keep the persisted identifier when removal fails.
+            return false
+        }
+    }
+
+    private func persistCalendarEventIdentifier(
+        _ eventIdentifier: String?,
+        for task: TaskItem,
+        previousIdentifier: String?
+    ) {
+        task.systemCalendarEventId = eventIdentifier
+
+        do {
+            try taskRepository.update(task)
+        } catch {
+            task.systemCalendarEventId = previousIdentifier
         }
     }
 }
