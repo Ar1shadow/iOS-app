@@ -67,8 +67,12 @@
 ## Skills 使用（何时用）
 
 - 新页面/组件/流程落地：用 `$swiftui-feature-builder`
-- SwiftUI 结构整理（不改行为）：用 `$swiftui-ui-refactor`
+- SwiftUI 交互/导航/状态/Sheet/TabView 模式选型：用 `$swiftui-ui-patterns`（先查模式再写）
+- SwiftUI 单文件结构整理（拆分大 `body`、抽子视图、移出副作用）：用 `$swiftui-view-refactor`
+- SwiftUI 结构整理（不改行为、偏低风险重排）：用 `$swiftui-ui-refactor`
+- SwiftUI 性能问题（过度重渲染/列表卡顿/布局抖动）：用 `$swiftui-performance-audit`（先测量再改）
+- 通用性能问题（启动慢/主线程阻塞/内存增长/I/O）：用 `$ios-performance-audit`（先测量再改）
+- 玻璃材质风格（通用玻璃/半透明分层）：用 `$ios-liquid-glass`（只用于合适表面，并验证可读性与无障碍回退）
+- 仅当采用 iOS 26+ Liquid Glass API（`glassEffect` 等）：用 `$swiftui-liquid-glass`（注意 `#available` 与回退）
 - 构建/运行/测试/Simulator 排障：用 `$xcode-simulator-debug`
-- 卡顿/掉帧/内存增长：用 `$ios-performance-audit`（先测量再改）
-- 玻璃材质风格：用 `$ios-liquid-glass`（只用于合适表面，并验证可读性与无障碍回退）
-
+- 需要通过 XcodeBuildMCP 直接在 Simulator 运行/交互/截图/抓日志：用 `$ios-debugger-agent`
