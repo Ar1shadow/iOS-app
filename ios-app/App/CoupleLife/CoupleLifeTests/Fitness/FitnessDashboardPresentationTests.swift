@@ -28,6 +28,18 @@ final class FitnessDashboardPresentationTests: XCTestCase {
         XCTAssertEqual(FitnessMetricCard.stand.detailText(from: snapshot), "来自 Apple 健康的聚合数据")
     }
 
+    func testMetricDetailTextUsesManualCopyWhenValueExistsFromManualSource() {
+        let snapshot = HealthMetricSnapshot(
+            dayStart: .distantPast,
+            ownerUserId: "u1",
+            bucket: .day,
+            source: .manual,
+            distanceMeters: 3200
+        )
+
+        XCTAssertEqual(FitnessMetricCard.distance.detailText(from: snapshot), "手动录入")
+    }
+
     func testChartMarksKeepMissingValuesOutOfBarSeries() {
         let points = [
             FitnessTrendPoint(date: Date(timeIntervalSince1970: 1), label: "4/1", value: 3200),
@@ -67,5 +79,45 @@ final class FitnessDashboardPresentationTests: XCTestCase {
         )
 
         XCTAssertEqual(FitnessDashboardSourceMarker.text(for: snapshot, metric: .distance), "系统同步")
+    }
+
+    func testTrendSourceMarkerUsesSnapshotSourceWhenTrendHasValues() {
+        let summary = HealthMetricSnapshot(
+            dayStart: .distantPast,
+            ownerUserId: "u1",
+            bucket: .day,
+            source: .manual
+        )
+        let trendPoints = [
+            FitnessTrendPoint(date: Date(timeIntervalSince1970: 1), label: "4/1", value: nil),
+            FitnessTrendPoint(date: Date(timeIntervalSince1970: 2), label: "4/2", value: 3200)
+        ]
+
+        XCTAssertEqual(
+            FitnessDashboardSourceMarker.trendText(summary: summary, trendPoints: trendPoints),
+            "手动录入"
+        )
+    }
+
+    func testTrendSourceMarkerFallsBackToSystemSyncWhenOnlyHistoricalTrendHasValues() {
+        let trendPoints = [
+            FitnessTrendPoint(date: Date(timeIntervalSince1970: 1), label: "4/1", value: 2800)
+        ]
+
+        XCTAssertEqual(
+            FitnessDashboardSourceMarker.trendText(summary: nil, trendPoints: trendPoints),
+            "系统同步"
+        )
+    }
+
+    func testTrendSourceMarkerUsesNoDataCopyWhenTrendHasNoValues() {
+        let trendPoints = [
+            FitnessTrendPoint(date: Date(timeIntervalSince1970: 1), label: "4/1", value: nil)
+        ]
+
+        XCTAssertEqual(
+            FitnessDashboardSourceMarker.trendText(summary: nil, trendPoints: trendPoints),
+            "暂无数据"
+        )
     }
 }

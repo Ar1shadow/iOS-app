@@ -75,6 +75,30 @@ final class FitnessDashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visibleSummary?.steps, 9876)
     }
 
+    func testRefreshHealthDataDoesNotRetryAvailabilityWhenCurrentStateIsNotAuthorized() async {
+        let content = makeContent(needsBackgroundRefresh: false)
+        let refreshedContent = makeContent(needsBackgroundRefresh: false, daySteps: 4321)
+        let service = StubFitnessDashboardService(contents: [content, refreshedContent])
+        let healthService = StubFitnessHealthDataService(
+            availabilitySequence: [.notAuthorized],
+            requestAuthorizationAvailability: .available,
+            refreshAvailability: .available
+        )
+        let viewModel = FitnessDashboardViewModel(
+            service: service,
+            healthDataService: healthService,
+            ownerUserId: "u1",
+            nowProvider: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+
+        await viewModel.load()
+        await viewModel.refreshHealthData()
+
+        XCTAssertEqual(healthService.availabilityCallCount, 1)
+        XCTAssertEqual(healthService.refreshCallCount, 0)
+        XCTAssertEqual(viewModel.visibleSummary?.steps, 4321)
+    }
+
     func testLoadShowsExpandedAvailableMessageWhenAllMetricsAreMissing() async {
         let content = makeEmptyContent(needsBackgroundRefresh: false)
         let service = StubFitnessDashboardService(contents: [content])

@@ -131,7 +131,7 @@ struct FitnessDashboardView: View {
                         .foregroundStyle(AppColorToken.textSecondary.color)
                 }
                 Spacer()
-                sourceBadge(text: FitnessDashboardSourceMarker.text(for: viewModel.visibleSummary, metric: .steps))
+                sourceBadge(text: FitnessDashboardSourceMarker.trendText(summary: viewModel.visibleSummary, trendPoints: viewModel.visibleTrend))
             }
 
             if viewModel.hasAnyTrendData {
@@ -384,21 +384,21 @@ enum FitnessMetricCard: CaseIterable {
     }
 
     func detailText(from snapshot: HealthMetricSnapshot?) -> String {
-        switch self {
-        case .steps:
-            return snapshot?.steps == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
-        case .sleep:
-            return snapshot?.sleepSeconds == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
-        case .restingHeartRate:
-            return snapshot?.restingHeartRate == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
-        case .distance:
-            return snapshot?.distanceMeters == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
-        case .activeEnergy:
-            return snapshot?.activeEnergyKcal == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
-        case .exercise:
-            return snapshot?.exerciseMinutes == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
-        case .stand:
-            return snapshot?.standMinutes == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
+        guard hasValue(in: snapshot) else {
+            return "暂无缓存，请授权并刷新。"
+        }
+
+        guard let source = snapshot?.source else {
+            return "暂无缓存，请授权并刷新。"
+        }
+
+        switch source {
+        case .manual:
+            return "手动录入"
+        case .healthKit:
+            return "来自 Apple 健康的聚合数据"
+        case .systemCalendar:
+            return "来自系统同步的聚合数据"
         }
     }
 
@@ -469,6 +469,18 @@ enum FitnessDashboardSourceMarker {
         }
 
         return text(for: snapshot)
+    }
+
+    static func trendText(summary: HealthMetricSnapshot?, trendPoints: [FitnessTrendPoint]) -> String {
+        guard trendPoints.contains(where: { $0.value != nil }) else {
+            return "暂无数据"
+        }
+
+        guard let summary else {
+            return "系统同步"
+        }
+
+        return text(for: summary)
     }
 }
 

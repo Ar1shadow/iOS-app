@@ -36,12 +36,14 @@
 - Follow-up：修正文案与趋势图缺失态，卡片/权限提示改为“暂无缓存/授权并刷新”语义，缺失趋势点不再渲染为 0 柱
 - Follow-up：后台刷新判定改为检查当前 day/week/month 三个 bucket 是否齐全，空数据来源标记改为“暂无数据”
 - Follow-up：修复 `.failed` 状态下刷新前重新检查 availability，并将趋势卡/指标卡来源 badge 改为按指标值是否存在判断
+- Follow-up：趋势卡 badge 改为结合 summary 与 trend points 判断；只有历史趋势有值时默认展示“系统同步”，无值才展示“暂无数据”
+- Follow-up：指标说明文案按 snapshot.source 区分“手动录入 / 来自 Apple 健康的聚合数据 / 来自系统同步的聚合数据”，并收窄刷新按钮的 availability 重查为仅 `.failed`
 
 ## 验证记录
 
 - 已执行：`cd ios-app/App/CoupleLife && xcodegen generate`
 - 已执行：`xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
-- 已覆盖：缓存范围查询、ViewModel 的缓存优先/按需刷新/切换粒度不触发刷新；HealthKit day/week/month 快照写回新增距离/能量/运动/站立字段；文案、缺失趋势点渲染、缺桶后台刷新判定、空来源标记、`.failed` 重试与指标级来源 badge 修正；模拟器环境下全量测试 91 项通过
+- 已覆盖：缓存范围查询、ViewModel 的缓存优先/按需刷新/切换粒度不触发刷新；HealthKit day/week/month 快照写回新增距离/能量/运动/站立字段；文案、缺失趋势点渲染、缺桶后台刷新判定、空来源标记、趋势 badge 语义、`.failed` 重试与指标级来源 badge/详情文案修正；模拟器环境下全量测试 96 项通过
 - 待真机手测：HealthKit 授权弹窗、真实缓存刷新、未授权到已授权的 UI 切换
 
 ## 已知风险/遗留
