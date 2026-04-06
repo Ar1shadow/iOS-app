@@ -7,6 +7,7 @@ struct AppContainer {
     let healthData: HealthDataService
     let notifications: NotificationScheduler
     let notificationSettings: NotificationSettingsStore
+    let activeCoupleSpaceStore: ActiveCoupleSpaceStore
     let cloudSync: CloudSyncService
 
     static let `default` = AppContainer(
@@ -15,6 +16,7 @@ struct AppContainer {
         healthData: NoopHealthDataService(),
         notifications: UserNotificationScheduler(),
         notificationSettings: UserDefaultsNotificationSettingsStore(),
+        activeCoupleSpaceStore: UserDefaultsActiveCoupleSpaceStore(),
         cloudSync: NoopCloudSyncService()
     )
 
@@ -28,6 +30,7 @@ struct AppContainer {
             ),
             notifications: UserNotificationScheduler(),
             notificationSettings: UserDefaultsNotificationSettingsStore(),
+            activeCoupleSpaceStore: UserDefaultsActiveCoupleSpaceStore(),
             cloudSync: NoopCloudSyncService()
         )
     }

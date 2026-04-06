@@ -5,11 +5,12 @@ enum ModelContainerFactory {
         let schema = Schema([
             Record.self,
             TaskItem.self,
-            HealthMetricSnapshot.self
+            HealthMetricSnapshot.self,
+            CoupleSpace.self,
+            Membership.self
         ])
 
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         return try ModelContainer(for: schema, configurations: [configuration])
     }
 }
-

@@ -27,8 +27,6 @@
 			<key>WKAppBundleIdentifier</key>
 			<string>$(COUPLELIFE_HOST_BUNDLE_IDENTIFIER)</string>
 		</dict>
-		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).WidgetExtension</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.widgetkit-extension</string>
 	</dict>

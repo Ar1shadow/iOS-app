@@ -97,6 +97,10 @@ protocol NotificationSettingsStore: AnyObject {
     var isWaterReminderEnabled: Bool { get set }
 }
 
+protocol ActiveCoupleSpaceStore: AnyObject {
+    var activeCoupleSpaceId: String? { get set }
+}
+
 protocol NotificationSettingsControlling {
     func currentStatus() async -> NotificationSettingsStatus
     func setTaskRemindersEnabled(_ enabled: Bool) async -> NotificationSettingsStatus

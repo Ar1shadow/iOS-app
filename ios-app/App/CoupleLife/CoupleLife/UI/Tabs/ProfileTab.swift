@@ -5,12 +5,14 @@ struct ProfileTab: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel: ProfileSettingsViewModel
+    @StateObject private var coupleViewModel: CoupleSpaceViewModel
 
     init(
         healthDataService: any HealthDataService,
         calendarSyncService: any CalendarSyncService,
         calendarSyncSettings: any CalendarSyncSettingsStore,
         notificationScheduler: any NotificationScheduler,
+        coupleSpaceService: any CoupleSpaceService,
         cloudSyncService: any CloudSyncService
     ) {
         _viewModel = StateObject(
@@ -28,13 +30,17 @@ struct ProfileTab: View {
                 cloudSyncService: cloudSyncService
             )
         )
+        _coupleViewModel = StateObject(
+            wrappedValue: CoupleSpaceViewModel(service: coupleSpaceService)
+        )
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.xl) {
-                    if viewModel.hasLoadedOnce {
+                    if viewModel.hasLoadedOnce && coupleViewModel.hasLoadedOnce {
+                        coupleSection
                         permissionSection
                         privacySection
                         diagnosticsSection
@@ -49,12 +55,16 @@ struct ProfileTab: View {
             .navigationTitle("我的")
         }
         .task {
-            await viewModel.load()
+            await refresh()
         }
         .onChange(of: scenePhase) { _, newValue in
             guard newValue == .active else { return }
-            Task { await viewModel.load() }
+            Task { await refresh() }
         }
+    }
+
+    private var coupleSection: some View {
+        CoupleSpaceSection(viewModel: coupleViewModel)
     }
 
     private var permissionSection: some View {
@@ -137,13 +147,13 @@ struct ProfileTab: View {
     private var privacySection: some View {
         SharedCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SharedSectionHeader("共享与隐私", subtitle: "Phase 2 将补齐伴侣共享控制")
+                SharedSectionHeader("共享与隐私", subtitle: "当前只建立空间关系，不会自动扩展为数据共享")
 
-                Text("当前版本不会自动把健康数据、日历内容或通知偏好共享给伴侣。后续会在这里提供共享开关，并明确展示哪些数据会被共享、哪些数据只保留在你的设备或 iCloud。")
+                Text("当前版本不会自动把健康数据、日历内容、任务详情或通知偏好共享给伴侣。后续会在这里提供共享开关，并明确展示哪些数据会被共享、哪些数据只保留在你的设备或 iCloud。")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColorToken.textSecondary.color)
 
-                SharedTag(text: "Phase 2 占位", colorToken: .slate, symbolName: "lock.shield")
+                SharedTag(text: "默认不共享", colorToken: .slate, symbolName: "lock.shield")
             }
         }
     }
@@ -410,9 +420,15 @@ struct ProfileTab: View {
             return "wrench.and.screwdriver"
         }
     }
+
+    private func refresh() async {
+        async let settingsLoad: Void = viewModel.load()
+        async let coupleLoad: Void = coupleViewModel.load()
+        _ = await (settingsLoad, coupleLoad)
+    }
 }
 
-private struct SettingsStatusRow<Trailing: View>: View {
+struct SettingsStatusRow<Trailing: View>: View {
     private let title: String
     private let subtitle: String
     private let tagText: String
