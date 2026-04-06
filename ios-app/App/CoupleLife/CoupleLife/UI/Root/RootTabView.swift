@@ -32,7 +32,13 @@ struct RootTabView: View {
             FitnessTab()
                 .tabItem { Label(AppTab.fitness.title, systemImage: AppTab.fitness.systemImage) }
 
-            ProfileTab()
+            ProfileTab(
+                healthDataService: appContainer.healthData,
+                calendarSyncService: appContainer.calendarSync,
+                calendarSyncSettings: appContainer.calendarSyncSettings,
+                notificationScheduler: appContainer.notifications,
+                cloudSyncService: appContainer.cloudSync
+            )
                 .tabItem { Label(AppTab.profile.title, systemImage: AppTab.profile.systemImage) }
         }
     }

@@ -1,5 +1,7 @@
 # 900 设置、隐私与权限状态 v1
 
+- 状态: Done
+- 最后更新: 2026-04-06
 - Phase: Phase 1 (MVP) + Phase 2 增量
 - 模块: Profile
 - 依赖: 110（服务协议）、700/710/600（若已接入则展示状态）
@@ -28,3 +30,19 @@
 - `$swiftui-feature-builder`: 用于实现设置页的分组与状态展示；适用于“信息密集但需清晰层级的页面”。
 - `$xcode-simulator-debug`: 用于排查权限/设置跳转/构建与运行时问题；适用于“系统能力联动排障”。
 
+## 实施记录
+
+- 已用 `ProfileSettingsViewModel` 替换 Profile 占位页：集中加载 HealthKit / EventKit / 通知 / CloudKit 状态，并提供显式授权与系统设置入口。
+- 已复用 `DefaultCalendarSyncSettingsController` 处理日历同步开关，设置页文案与状态标签与现有 Planning 同步模式保持一致。
+- 已补齐 “共享与隐私” / “同步与诊断” Phase 2 占位说明，明确当前分支未接入通知与 CloudKit。
+
+## 验证记录
+
+- `cd ios-app/App/CoupleLife && xcodegen generate`
+- `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -only-testing:CoupleLifeTests/ProfileSettingsViewModelTests`
+- `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -only-testing:CoupleLifeTests`
+
+## 已知风险/遗留
+
+- 通知、伴侣共享与 CloudKit 诊断仍为占位说明，需待后续任务接入真实能力后补足交互。
+- 本次验证覆盖了 ViewModel 与现有单测；设置页 UI 本身尚未做单独快照或手动 Simulator 走查记录。
