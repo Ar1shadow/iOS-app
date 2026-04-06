@@ -2,6 +2,7 @@ import Foundation
 
 @MainActor
 final class ProfileSettingsViewModel: ObservableObject {
+    @Published private(set) var hasLoadedOnce = false
     @Published private(set) var healthAvailability: ServiceAvailability = .notSupported
     @Published private(set) var calendarSyncStatus = CalendarSyncStatus(isEnabled: false, availability: .notSupported)
     @Published private(set) var notificationAvailability: ServiceAvailability = .notSupported
@@ -35,6 +36,7 @@ final class ProfileSettingsViewModel: ObservableObject {
         calendarSyncStatus = await calendarSyncController.currentStatus()
         notificationAvailability = await notificationScheduler.availability()
         cloudSyncAvailability = await cloudSyncService.availability()
+        hasLoadedOnce = true
     }
 
     func requestHealthAuthorization() async {

@@ -30,9 +30,13 @@ struct ProfileTab: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.xl) {
-                    permissionSection
-                    privacySection
-                    diagnosticsSection
+                    if viewModel.hasLoadedOnce {
+                        permissionSection
+                        privacySection
+                        diagnosticsSection
+                    } else {
+                        SharedLoadingStateView(title: "正在检查权限与同步状态…")
+                    }
                 }
                 .padding(.horizontal, AppSpacing.screenHorizontal)
                 .padding(.vertical, AppSpacing.lg)

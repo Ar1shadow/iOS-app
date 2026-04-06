@@ -24,8 +24,11 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             cloudSyncService: cloudSync
         )
 
+        XCTAssertFalse(viewModel.hasLoadedOnce)
+
         await viewModel.load()
 
+        XCTAssertTrue(viewModel.hasLoadedOnce)
         XCTAssertEqual(viewModel.healthAvailability, .notAuthorized)
         XCTAssertEqual(
             viewModel.calendarSyncStatus,
