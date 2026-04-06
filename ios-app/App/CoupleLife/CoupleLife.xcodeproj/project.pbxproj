@@ -16,7 +16,9 @@
 		1360965893AFCDE57150C555 /* CalendarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09384F51D9DB7A43F7ADF793 /* CalendarViewModelTests.swift */; };
 		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
 		176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */; };
+		1B29592EC00160DCD8FED394 /* NotificationSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD9C39AC82CD4031931794 /* NotificationSettingsController.swift */; };
 		1B5AC1AEC17181C4D5DB6EB9 /* HomeDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C0FD0624418B4406670A53 /* HomeDashboardViewModel.swift */; };
+		2105A56E05D8826F77FA9BEA /* UserNotificationSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227864F11ACC8B1931786A2E /* UserNotificationSchedulerTests.swift */; };
 		26CE30668225110F0EA14F99 /* HealthSnapshotRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12D0C2425B0DFD8F715BA6F /* HealthSnapshotRepository.swift */; };
 		28536A412DF9F10C8A4F5607 /* SharedEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41E48EC7161E715DBBA260B5 /* SharedEmptyStateView.swift */; };
 		2AEA94EF567CFB3257C6AF17 /* SharedUIRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACFE3E29AAA12FAFA0C32C19 /* SharedUIRegressionTests.swift */; };
@@ -46,6 +48,7 @@
 		7F10811CA1D556D46C01E548 /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */; };
 		84373F0D9E51751D949A769D /* FitnessDashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8696CE051DBEA98FEB0BDACC /* FitnessDashboardViewModelTests.swift */; };
 		86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79192C8E0C81DA28DDF58033 /* AppTabTests.swift */; };
+		8B7A247B44513194F9E608D2 /* UserNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE31CF2D30B6FBD26CF21719 /* UserNotificationScheduler.swift */; };
 		8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A32979D371B72D50224A6C /* CalendarTab.swift */; };
 		8E5F6D5CC39640DF63E4141C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793EE7F7B5AFDC1ECEED0A38 /* HealthKit.framework */; };
 		900154592587FD534DC5AB59 /* RecordTypeStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974D9B5E264F3AF4269D098E /* RecordTypeStyleTests.swift */; };
@@ -58,6 +61,7 @@
 		A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9671B30789FB25A48CCF8A5F /* FitnessTab.swift */; };
 		ABCE666B7CFA7DE90E37E923 /* FitnessDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE784557B32E0060966EBFF1 /* FitnessDashboardViewModel.swift */; };
 		AE36E49B428B064704B27827 /* SharedLoadingStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B025D1CB63DB338E0CA478 /* SharedLoadingStateView.swift */; };
+		AEB5557568A0D031B5046EE4 /* NotificationTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = E04E9C045A68DFAF1E53F756 /* NotificationTestDoubles.swift */; };
 		B0A45E73E633BEF9942107B9 /* PlanningTaskService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B745131C107EAAC85E4986 /* PlanningTaskService.swift */; };
 		B2C5ECC6E6D21B2675090865 /* CalendarDayRecordServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9889844468AB63B88A42CD /* CalendarDayRecordServiceTests.swift */; };
 		B601FF896495CC9F3D633042 /* CalendarDayDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E601ADC69AF3DFE79F51D6 /* CalendarDayDetailViewModel.swift */; };
@@ -69,6 +73,7 @@
 		C7CA493E3D124EF07CEFE532 /* PlanningTaskServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D2EF3871E2E598EA5D83AC /* PlanningTaskServiceTests.swift */; };
 		D0B1078F8B598A16630C7BAF /* HealthMetricSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9F423E7436C1EC6683AD83 /* HealthMetricSnapshot.swift */; };
 		D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91934D543367B87B0C3619D7 /* RootTabView.swift */; };
+		D74A11E7DE1285FCBA45BAE9 /* NotificationSettingsControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3A2513DD5882B4E2461F22 /* NotificationSettingsControllerTests.swift */; };
 		DEB0CA0F79411159C6E104A6 /* CalendarRecordSummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297B0044927D6B2D81E4D4B4 /* CalendarRecordSummaryService.swift */; };
 		E678817803441C39CC389797 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */; };
 		E79F37B3A92F84B52A0178E1 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 270E0C8D8154D41ED1CE1456 /* AppContainer.swift */; };
@@ -104,6 +109,7 @@
 		1809D1FC714722D6066BE180 /* RecordTypeVisualStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTypeVisualStyle.swift; sourceTree = "<group>"; };
 		18B025D1CB63DB338E0CA478 /* SharedLoadingStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedLoadingStateView.swift; sourceTree = "<group>"; };
 		21A32979D371B72D50224A6C /* CalendarTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTab.swift; sourceTree = "<group>"; };
+		227864F11ACC8B1931786A2E /* UserNotificationSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationSchedulerTests.swift; sourceTree = "<group>"; };
 		22D2EF3871E2E598EA5D83AC /* PlanningTaskServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTaskServiceTests.swift; sourceTree = "<group>"; };
 		25376E6BD1B96617936E413A /* FitnessDashboardPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardPresentationTests.swift; sourceTree = "<group>"; };
 		270E0C8D8154D41ED1CE1456 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
@@ -119,6 +125,7 @@
 		44B576E8225232C8E8FA9133 /* CalendarMonthGridBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGridBuilder.swift; sourceTree = "<group>"; };
 		472C643D4ACDEB573DFA271F /* PlanningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningViewModelTests.swift; sourceTree = "<group>"; };
 		4BC211CCD89BA7B038F38054 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
+		4C3A2513DD5882B4E2461F22 /* NotificationSettingsControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsControllerTests.swift; sourceTree = "<group>"; };
 		4CE2F19E68EA5BCBDC70CC8A /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardServiceTests.swift; sourceTree = "<group>"; };
 		5068E83D006EA4CF05C06C20 /* RecordRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepository.swift; sourceTree = "<group>"; };
@@ -141,6 +148,7 @@
 		8696CE051DBEA98FEB0BDACC /* FitnessDashboardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardViewModelTests.swift; sourceTree = "<group>"; };
 		8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routing.swift; sourceTree = "<group>"; };
 		88C4739B6099C71FD1F39CCC /* FitnessDashboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardService.swift; sourceTree = "<group>"; };
+		89DD9C39AC82CD4031931794 /* NotificationSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsController.swift; sourceTree = "<group>"; };
 		8A9F423E7436C1EC6683AD83 /* HealthMetricSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthMetricSnapshot.swift; sourceTree = "<group>"; };
 		8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerFactory.swift; sourceTree = "<group>"; };
 		91222A0F8EE3CFE1C2962ABB /* HomeDashboardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardViewModelTests.swift; sourceTree = "<group>"; };
@@ -167,6 +175,8 @@
 		CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeTests.swift; sourceTree = "<group>"; };
 		DCA6C673CBD0EFD4B534A0FE /* CalendarMonthGridBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGridBuilderTests.swift; sourceTree = "<group>"; };
 		DDE07CE2F602FDF505EAF0A8 /* CalendarDayRecordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayRecordService.swift; sourceTree = "<group>"; };
+		DE31CF2D30B6FBD26CF21719 /* UserNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationScheduler.swift; sourceTree = "<group>"; };
+		E04E9C045A68DFAF1E53F756 /* NotificationTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTestDoubles.swift; sourceTree = "<group>"; };
 		E05C56B65ABE346760F15BD0 /* CoupleLife.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = CoupleLife.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CoupleLifeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -367,6 +377,7 @@
 			children = (
 				CD60ADEA03F7B12312EB4D12 /* Calendar */,
 				2CAA3E1C04BE50E7EF75D156 /* HealthKit */,
+				F8389C136540E9B968BC45CD /* Notifications */,
 			);
 			path = Integrations;
 			sourceTree = "<group>";
@@ -501,6 +512,8 @@
 				3C449310356836D53472D407 /* CalendarSyncSettingsControllerTests.swift */,
 				0642F5B2C6A967D49016863D /* EventKitCalendarSyncServiceTests.swift */,
 				70C0BE04A0EC99C84C8E30C9 /* HealthKitHealthDataServiceTests.swift */,
+				4C3A2513DD5882B4E2461F22 /* NotificationSettingsControllerTests.swift */,
+				227864F11ACC8B1931786A2E /* UserNotificationSchedulerTests.swift */,
 			);
 			path = Integrations;
 			sourceTree = "<group>";
@@ -538,6 +551,7 @@
 			isa = PBXGroup;
 			children = (
 				798B9210469AE366A516B172 /* CalendarSyncTestDoubles.swift */,
+				E04E9C045A68DFAF1E53F756 /* NotificationTestDoubles.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -612,6 +626,15 @@
 				5967A176357B9DBAC5112A92 /* Tokens */,
 			);
 			path = SharedUI;
+			sourceTree = "<group>";
+		};
+		F8389C136540E9B968BC45CD /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				89DD9C39AC82CD4031931794 /* NotificationSettingsController.swift */,
+				DE31CF2D30B6FBD26CF21719 /* UserNotificationScheduler.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		FBF89C6C30CDE77D61212CD9 /* Planning */ = {
@@ -724,6 +747,7 @@
 				1B5AC1AEC17181C4D5DB6EB9 /* HomeDashboardViewModel.swift in Sources */,
 				1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */,
 				7F10811CA1D556D46C01E548 /* ModelContainerFactory.swift in Sources */,
+				1B29592EC00160DCD8FED394 /* NotificationSettingsController.swift in Sources */,
 				EAA5E656791AE2935C32BBDE /* PlanningDisplaySupport.swift in Sources */,
 				12191B28470C8C5EE7B6BC45 /* PlanningTab.swift in Sources */,
 				3A9FB611456AAA5282D1AAE8 /* PlanningTaskFormView.swift in Sources */,
@@ -746,6 +770,7 @@
 				F982B8A0F9901F1284895E56 /* SharedTag.swift in Sources */,
 				F807011ABFE013FAA2B77C5D /* TaskItem.swift in Sources */,
 				91E1FF2A4D60D1CA56CB3539 /* TaskRepository.swift in Sources */,
+				8B7A247B44513194F9E608D2 /* UserNotificationScheduler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -771,6 +796,8 @@
 				34991AD2AEA77F2BC88FA828 /* HealthSnapshotRepositoryTests.swift in Sources */,
 				176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */,
 				5856B634FB59A9F4B9862125 /* HomeDashboardViewModelTests.swift in Sources */,
+				D74A11E7DE1285FCBA45BAE9 /* NotificationSettingsControllerTests.swift in Sources */,
+				AEB5557568A0D031B5046EE4 /* NotificationTestDoubles.swift in Sources */,
 				C7CA493E3D124EF07CEFE532 /* PlanningTaskServiceTests.swift in Sources */,
 				A13D92796FCA3B4856453A67 /* PlanningViewModelTests.swift in Sources */,
 				B90ACA3C06CD7C134064E4FB /* ProfileSettingsViewModelTests.swift in Sources */,
@@ -779,6 +806,7 @@
 				900154592587FD534DC5AB59 /* RecordTypeStyleTests.swift in Sources */,
 				2AEA94EF567CFB3257C6AF17 /* SharedUIRegressionTests.swift in Sources */,
 				65EE0448B7346B917EB4972B /* TaskRepositoryTests.swift in Sources */,
+				2105A56E05D8826F77FA9BEA /* UserNotificationSchedulerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,6 +9,8 @@ struct PlanningTab: View {
         taskRepository: any TaskRepository,
         calendarSyncService: any CalendarSyncService,
         calendarSyncSettings: any CalendarSyncSettingsStore,
+        notificationScheduler: any NotificationScheduler = NoopNotificationScheduler(),
+        notificationSettings: any NotificationSettingsStore = UserDefaultsNotificationSettingsStore(),
         calendar: Calendar = .current,
         ownerUserId: String = CurrentUser.id,
         nowProvider: @escaping () -> Date = Date.init
@@ -20,16 +22,23 @@ struct PlanningTab: View {
             calendar: calendar,
             calendarSyncService: calendarSyncService,
             calendarSyncSettings: calendarSyncSettings,
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings,
             nowProvider: nowProvider
         )
         let calendarSyncController = DefaultCalendarSyncSettingsController(
             calendarSyncService: calendarSyncService,
             settingsStore: calendarSyncSettings
         )
+        let notificationController = DefaultNotificationSettingsController(
+            notificationScheduler: notificationScheduler,
+            settingsStore: notificationSettings
+        )
         _viewModel = StateObject(
             wrappedValue: PlanningViewModel(
                 service: service,
                 calendarSyncController: calendarSyncController,
+                notificationController: notificationController,
                 calendar: calendar,
                 nowProvider: nowProvider
             )
@@ -40,6 +49,8 @@ struct PlanningTab: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.xl) {
+                    notificationSection
+
                     calendarSyncSection
 
                     filterSection
@@ -82,11 +93,61 @@ struct PlanningTab: View {
         }
         .task {
             viewModel.load()
+            await viewModel.loadNotificationSettingsStatus()
             await viewModel.loadCalendarSyncStatus()
         }
         .onChange(of: scenePhase) { _, newValue in
             guard newValue == .active else { return }
-            Task { await viewModel.loadCalendarSyncStatus() }
+            Task {
+                await viewModel.loadNotificationSettingsStatus()
+                await viewModel.loadCalendarSyncStatus()
+            }
+        }
+    }
+
+    private var notificationSection: some View {
+        SharedCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                SharedSectionHeader("本地提醒", subtitle: "任务提醒按任务时间发送；喝水提醒固定每天 10:00")
+
+                Text(viewModel.notificationSummary)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColorToken.textSecondary.color)
+
+                Toggle(
+                    "任务提醒",
+                    isOn: Binding(
+                        get: { viewModel.isTaskRemindersEnabled },
+                        set: { enabled in
+                            Task { await viewModel.setTaskRemindersEnabled(enabled) }
+                        }
+                    )
+                )
+                .disabled(
+                    viewModel.isUpdatingNotificationSettings ||
+                    viewModel.notificationSettingsStatus.availability == .notSupported
+                )
+
+                Toggle(
+                    "喝水提醒",
+                    isOn: Binding(
+                        get: { viewModel.isWaterReminderEnabled },
+                        set: { enabled in
+                            Task { await viewModel.setWaterReminderEnabled(enabled) }
+                        }
+                    )
+                )
+                .disabled(
+                    viewModel.isUpdatingNotificationSettings ||
+                    viewModel.notificationSettingsStatus.availability == .notSupported
+                )
+
+                SharedTag(
+                    text: notificationStatusText,
+                    colorToken: notificationColorToken,
+                    symbolName: notificationSymbolName
+                )
+            }
         }
     }
 
@@ -122,6 +183,48 @@ struct PlanningTab: View {
                     symbolName: calendarSyncSymbolName
                 )
             }
+        }
+    }
+
+    private var notificationStatusText: String {
+        switch viewModel.notificationSettingsStatus.availability {
+        case .available:
+            switch (viewModel.isTaskRemindersEnabled, viewModel.isWaterReminderEnabled) {
+            case (true, true):
+                return "任务与喝水提醒已开启"
+            case (true, false):
+                return "仅任务提醒已开启"
+            case (false, true):
+                return "仅喝水提醒已开启"
+            case (false, false):
+                return "已授权，未开启"
+            }
+        case .notAuthorized:
+            return "未授权"
+        case .notSupported:
+            return "当前环境不可用"
+        case .failed:
+            return "提醒状态异常"
+        }
+    }
+
+    private var notificationColorToken: AppColorToken {
+        switch viewModel.notificationSettingsStatus.availability {
+        case .available:
+            return viewModel.isTaskRemindersEnabled || viewModel.isWaterReminderEnabled ? .green : .indigo
+        case .notAuthorized, .notSupported, .failed:
+            return .slate
+        }
+    }
+
+    private var notificationSymbolName: String {
+        switch viewModel.notificationSettingsStatus.availability {
+        case .available:
+            return viewModel.isTaskRemindersEnabled || viewModel.isWaterReminderEnabled ? "bell.badge" : "bell"
+        case .notAuthorized:
+            return "bell.slash"
+        case .notSupported, .failed:
+            return "exclamationmark.triangle"
         }
     }
 

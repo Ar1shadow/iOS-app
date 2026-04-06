@@ -6,13 +6,15 @@ struct AppContainer {
     let calendarSyncSettings: CalendarSyncSettingsStore
     let healthData: HealthDataService
     let notifications: NotificationScheduler
+    let notificationSettings: NotificationSettingsStore
     let cloudSync: CloudSyncService
 
     static let `default` = AppContainer(
         calendarSync: EventKitCalendarSyncService(),
         calendarSyncSettings: UserDefaultsCalendarSyncSettingsStore(),
         healthData: NoopHealthDataService(),
-        notifications: NoopNotificationScheduler(),
+        notifications: UserNotificationScheduler(),
+        notificationSettings: UserDefaultsNotificationSettingsStore(),
         cloudSync: NoopCloudSyncService()
     )
 
@@ -24,7 +26,8 @@ struct AppContainer {
             healthData: HealthKitHealthDataService(
                 repository: SwiftDataHealthSnapshotRepository(context: modelContainer.mainContext)
             ),
-            notifications: NoopNotificationScheduler(),
+            notifications: UserNotificationScheduler(),
+            notificationSettings: UserDefaultsNotificationSettingsStore(),
             cloudSync: NoopCloudSyncService()
         )
     }

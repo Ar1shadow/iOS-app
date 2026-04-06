@@ -25,7 +25,9 @@ struct RootTabView: View {
             PlanningTab(
                 taskRepository: taskRepository,
                 calendarSyncService: appContainer.calendarSync,
-                calendarSyncSettings: appContainer.calendarSyncSettings
+                calendarSyncSettings: appContainer.calendarSyncSettings,
+                notificationScheduler: appContainer.notifications,
+                notificationSettings: appContainer.notificationSettings
             )
                 .tabItem { Label(AppTab.planning.title, systemImage: AppTab.planning.systemImage) }
 

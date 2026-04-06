@@ -85,6 +85,32 @@ final class ProfileSettingsViewModelTests: XCTestCase {
         XCTAssertTrue(calendarStore.isEnabled)
         XCTAssertFalse(viewModel.isUpdatingCalendarSync)
     }
+
+    func testRequestNotificationAuthorizationTriggersSchedulerAndUpdatesState() async {
+        let notificationScheduler = StubNotificationScheduler(
+            availability: .notAuthorized,
+            requestAuthorizationResult: .available
+        )
+        let viewModel = ProfileSettingsViewModel(
+            healthDataService: StubHealthDataService(
+                availability: .notSupported,
+                requestAuthorizationResult: .notSupported
+            ),
+            calendarSyncController: DefaultCalendarSyncSettingsController(
+                calendarSyncService: TestCalendarSyncService(),
+                settingsStore: TestCalendarSyncSettingsStore(isEnabled: false)
+            ),
+            notificationScheduler: notificationScheduler,
+            cloudSyncService: StubCloudSyncService(availability: .notSupported)
+        )
+
+        await viewModel.load()
+        await viewModel.requestNotificationAuthorization()
+
+        XCTAssertEqual(notificationScheduler.requestAuthorizationCallCount, 1)
+        XCTAssertEqual(viewModel.notificationAvailability, .available)
+        XCTAssertFalse(viewModel.isRequestingNotificationAuthorization)
+    }
 }
 
 private final class StubHealthDataService: HealthDataService {
@@ -115,16 +141,34 @@ private final class StubHealthDataService: HealthDataService {
     }
 }
 
-private struct StubNotificationScheduler: NotificationScheduler {
+private final class StubNotificationScheduler: NotificationScheduler {
     let availabilityValue: ServiceAvailability
+    let requestAuthorizationValue: ServiceAvailability
 
-    init(availability: ServiceAvailability) {
+    private(set) var requestAuthorizationCallCount = 0
+
+    init(
+        availability: ServiceAvailability,
+        requestAuthorizationResult: ServiceAvailability = .notSupported
+    ) {
         self.availabilityValue = availability
+        self.requestAuthorizationValue = requestAuthorizationResult
     }
 
     func availability() async -> ServiceAvailability {
         availabilityValue
     }
+
+    func requestAuthorization() async -> ServiceAvailability {
+        requestAuthorizationCallCount += 1
+        return requestAuthorizationValue
+    }
+
+    func scheduleTaskReminder(_ reminder: TaskReminderPayload) async {}
+    func cancelTaskReminder(id: UUID) async {}
+    func cancelAllTaskReminders() async {}
+    func scheduleWaterReminder() async {}
+    func cancelWaterReminder() async {}
 }
 
 private struct StubCloudSyncService: CloudSyncService {

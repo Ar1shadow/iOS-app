@@ -182,6 +182,136 @@ final class PlanningTaskServiceTests: XCTestCase {
         XCTAssertEqual(repository.updatedTaskIDs, [task.id])
     }
 
+    func testCreateTaskSchedulesNotificationReminderWhenEnabled() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let notificationScheduler = TestNotificationScheduler()
+        let notificationSettings = TestNotificationSettingsStore(isTaskRemindersEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings
+        )
+        let dueAt = Date(timeIntervalSince1970: 1_700_003_600)
+        let expectation = expectation(description: "schedule reminder")
+        notificationScheduler.operationExpectation = expectation
+
+        let created = try service.createTask(
+            from: PlanningTaskDraft(
+                title: "喝水提醒",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: nil,
+                dueAt: dueAt,
+                isAllDay: false
+            )
+        )
+
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(
+            notificationScheduler.scheduledTaskReminders,
+            [.init(
+                id: created.id,
+                title: "喝水提醒",
+                fireDate: dueAt,
+                kind: .personalTask
+            )]
+        )
+        XCTAssertTrue(notificationScheduler.cancelledTaskIDs.isEmpty)
+    }
+
+    func testUpdateTaskCancelsNotificationReminderWhenScheduleIsRemoved() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let notificationScheduler = TestNotificationScheduler()
+        let notificationSettings = TestNotificationSettingsStore(isTaskRemindersEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings
+        )
+        let task = TaskItem(
+            title: "产检预约",
+            startAt: Date(timeIntervalSince1970: 1_700_000_000),
+            dueAt: nil,
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "local"
+        )
+        let expectation = expectation(description: "cancel reminder")
+        notificationScheduler.operationExpectation = expectation
+
+        try service.updateTask(
+            task,
+            from: PlanningTaskDraft(
+                title: "产检预约",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: nil,
+                dueAt: nil,
+                isAllDay: false
+            )
+        )
+
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(notificationScheduler.cancelledTaskIDs, [task.id])
+        XCTAssertTrue(notificationScheduler.scheduledTaskReminders.isEmpty)
+    }
+
+    func testMarkTaskDoneCancelsNotificationReminder() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let notificationScheduler = TestNotificationScheduler()
+        let notificationSettings = TestNotificationSettingsStore(isTaskRemindersEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings
+        )
+        let task = TaskItem(
+            title: "产检预约",
+            dueAt: Date(timeIntervalSince1970: 1_700_003_600),
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "local"
+        )
+        let expectation = expectation(description: "cancel reminder")
+        notificationScheduler.operationExpectation = expectation
+
+        try service.markTaskDone(task)
+
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(notificationScheduler.cancelledTaskIDs, [task.id])
+    }
+
+    func testDeleteTaskCancelsNotificationReminder() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let notificationScheduler = TestNotificationScheduler()
+        let notificationSettings = TestNotificationSettingsStore(isTaskRemindersEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings
+        )
+        let task = TaskItem(
+            title: "产检预约",
+            dueAt: Date(timeIntervalSince1970: 1_700_003_600),
+            status: .todo,
+            planLevel: .day,
+            ownerUserId: "local"
+        )
+        let expectation = expectation(description: "cancel reminder")
+        notificationScheduler.operationExpectation = expectation
+
+        try service.deleteTask(task)
+
+        wait(for: [expectation], timeout: 1.0)
+        XCTAssertEqual(notificationScheduler.cancelledTaskIDs, [task.id])
+    }
+
     func testUpdateTaskKeepsCrudWorkingWhenCalendarSyncFails() throws {
         let repository = InMemoryPlanningTaskRepository(tasks: [])
         let calendarSync = TestCalendarSyncService()

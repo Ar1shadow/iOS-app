@@ -41,6 +41,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     private let calendar: Calendar
     private let calendarSyncService: any CalendarSyncService
     private let calendarSyncSettings: any CalendarSyncSettingsStore
+    private let notificationScheduler: any NotificationScheduler
+    private let notificationSettings: any NotificationSettingsStore
     private let nowProvider: () -> Date
 
     init(
@@ -49,6 +51,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         calendar: Calendar = .current,
         calendarSyncService: any CalendarSyncService = NoopCalendarSyncService(),
         calendarSyncSettings: any CalendarSyncSettingsStore = UserDefaultsCalendarSyncSettingsStore(),
+        notificationScheduler: any NotificationScheduler = NoopNotificationScheduler(),
+        notificationSettings: any NotificationSettingsStore = UserDefaultsNotificationSettingsStore(),
         nowProvider: @escaping () -> Date = Date.init
     ) {
         self.taskRepository = taskRepository
@@ -56,6 +60,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         self.calendar = calendar
         self.calendarSyncService = calendarSyncService
         self.calendarSyncSettings = calendarSyncSettings
+        self.notificationScheduler = notificationScheduler
+        self.notificationSettings = notificationSettings
         self.nowProvider = nowProvider
     }
 
@@ -107,6 +113,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         )
         try taskRepository.create(task)
         performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: nil)
+        performPostPersistenceNotificationSync(for: task)
         return task
     }
 
@@ -123,6 +130,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.isAllDay = normalizedDraft.isAllDay
         try taskRepository.update(task)
         performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
+        performPostPersistenceNotificationSync(for: task)
     }
 
     func markTaskDone(_ task: TaskItem) throws {
@@ -130,6 +138,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.status = .done
         try taskRepository.update(task)
         performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
+        performPostPersistenceNotificationSync(for: task)
     }
 
     func postponeTask(_ task: TaskItem) throws {
@@ -143,6 +152,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.status = .postponed
         try taskRepository.update(task)
         performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
+        performPostPersistenceNotificationSync(for: task)
     }
 
     func cancelTask(_ task: TaskItem) throws {
@@ -150,12 +160,15 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.status = .cancelled
         try taskRepository.update(task)
         performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
+        performPostPersistenceNotificationSync(for: task)
     }
 
     func deleteTask(_ task: TaskItem) throws {
         let eventIdentifier = task.systemCalendarEventId
+        let taskID = task.id
         try taskRepository.delete(task)
         _ = deleteLinkedCalendarEventIfNeeded(eventIdentifier)
+        cancelLinkedNotificationReminderIfNeeded(taskID: taskID)
     }
 
     private func validate(_ draft: PlanningTaskDraft) throws -> PlanningTaskDraft {
@@ -252,6 +265,39 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             try taskRepository.update(task)
         } catch {
             task.systemCalendarEventId = previousIdentifier
+        }
+    }
+
+    private func performPostPersistenceNotificationSync(for task: TaskItem) {
+        guard notificationSettings.isTaskRemindersEnabled else { return }
+
+        guard task.status == .todo || task.status == .postponed else {
+            cancelLinkedNotificationReminderIfNeeded(taskID: task.id)
+            return
+        }
+
+        guard let fireDate = task.dueAt ?? task.startAt else {
+            cancelLinkedNotificationReminderIfNeeded(taskID: task.id)
+            return
+        }
+
+        let reminder = TaskReminderPayload(
+            id: task.id,
+            title: task.title,
+            fireDate: fireDate,
+            kind: .personalTask
+        )
+
+        Task {
+            await notificationScheduler.scheduleTaskReminder(reminder)
+        }
+    }
+
+    private func cancelLinkedNotificationReminderIfNeeded(taskID: UUID) {
+        guard notificationSettings.isTaskRemindersEnabled else { return }
+
+        Task {
+            await notificationScheduler.cancelTaskReminder(id: taskID)
         }
     }
 }

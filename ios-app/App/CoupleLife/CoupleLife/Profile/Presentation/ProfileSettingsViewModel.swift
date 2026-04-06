@@ -9,6 +9,7 @@ final class ProfileSettingsViewModel: ObservableObject {
     @Published private(set) var cloudSyncAvailability: ServiceAvailability = .notSupported
     @Published private(set) var isLoading = false
     @Published private(set) var isRequestingHealthAuthorization = false
+    @Published private(set) var isRequestingNotificationAuthorization = false
     @Published private(set) var isUpdatingCalendarSync = false
 
     private let healthDataService: any HealthDataService
@@ -43,6 +44,12 @@ final class ProfileSettingsViewModel: ObservableObject {
         isRequestingHealthAuthorization = true
         defer { isRequestingHealthAuthorization = false }
         healthAvailability = await healthDataService.requestAuthorization()
+    }
+
+    func requestNotificationAuthorization() async {
+        isRequestingNotificationAuthorization = true
+        defer { isRequestingNotificationAuthorization = false }
+        notificationAvailability = await notificationScheduler.requestAuthorization()
     }
 
     func setCalendarSyncEnabled(_ enabled: Bool) async {

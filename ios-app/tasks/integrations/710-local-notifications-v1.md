@@ -1,5 +1,8 @@
 # 710 本地通知调度 v1
 
+- 状态: Done
+- 最后更新: 2026-04-06
+
 - Phase: Phase 1 (MVP)
 - 模块: Integrations
 - 依赖: 110、500
@@ -22,8 +25,26 @@
 
 - 将通知与业务模型解耦：只依赖必要字段（id、时间、标题、类型）
 - 为后续“共享任务提醒”预留扩展点（Phase 2）
+- 数据路径：Planning/Profile View -> ViewModel/SettingsController -> NotificationScheduler -> UNUserNotificationCenter
+- 权限与降级：Profile 负责展示授权状态与授权入口；Planning 中提醒开关在未授权/不可用时保持清晰降级文案，关闭时清理待触发提醒
+- MVP 策略：任务提醒与喝水提醒默认关闭；同一业务提醒使用稳定 identifier 覆盖旧请求，避免重复堆叠
 
 ## Skills 使用
 
 - `$xcode-simulator-debug`: 用于排查通知权限、Simulator 行为差异与调度逻辑；适用于“构建/运行 + 日志定位”。
 
+## 实施记录
+
+- 已实现 `UserNotificationScheduler`，通过稳定 identifier 覆盖任务提醒与喝水提醒，支持授权请求、创建、更新、取消与批量清理。
+- `DefaultPlanningTaskService` 在任务创建/更新/完成/取消/删除后做最佳努力通知联动；通知失败不会阻断任务 CRUD。
+- `ProfileTab` 展示真实通知授权状态并提供授权入口，`PlanningTab` 增加任务提醒/喝水提醒开关与未授权降级文案。
+
+## 验证记录
+
+- `cd ios-app/App/CoupleLife && xcodegen generate`
+- `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
+- 结果：111 个测试全部通过；新增通知设置控制器、调度器适配层、任务服务通知规则与 Profile 授权入口测试均通过。
+
+## 已知风险/遗留
+
+- 已完成命令行与单元测试验证，但本次未做真机通知到达手测；仍需在真机上确认授权弹窗、后台投递时机与系统设置跳转体验。

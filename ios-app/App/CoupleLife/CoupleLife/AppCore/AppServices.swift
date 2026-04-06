@@ -67,6 +67,40 @@ extension HealthDataService {
 
 protocol NotificationScheduler {
     func availability() async -> ServiceAvailability
+    func requestAuthorization() async -> ServiceAvailability
+    func scheduleTaskReminder(_ reminder: TaskReminderPayload) async
+    func cancelTaskReminder(id: UUID) async
+    func cancelAllTaskReminders() async
+    func scheduleWaterReminder() async
+    func cancelWaterReminder() async
+}
+
+enum TaskReminderKind: Equatable {
+    case personalTask
+}
+
+struct TaskReminderPayload: Equatable {
+    let id: UUID
+    let title: String
+    let fireDate: Date
+    let kind: TaskReminderKind
+}
+
+struct NotificationSettingsStatus: Equatable {
+    var isTaskRemindersEnabled: Bool
+    var isWaterReminderEnabled: Bool
+    var availability: ServiceAvailability
+}
+
+protocol NotificationSettingsStore: AnyObject {
+    var isTaskRemindersEnabled: Bool { get set }
+    var isWaterReminderEnabled: Bool { get set }
+}
+
+protocol NotificationSettingsControlling {
+    func currentStatus() async -> NotificationSettingsStatus
+    func setTaskRemindersEnabled(_ enabled: Bool) async -> NotificationSettingsStatus
+    func setWaterReminderEnabled(_ enabled: Bool) async -> NotificationSettingsStatus
 }
 
 protocol CloudSyncService {
@@ -93,6 +127,12 @@ struct NoopHealthDataService: HealthDataService {
 
 struct NoopNotificationScheduler: NotificationScheduler {
     func availability() async -> ServiceAvailability { .notSupported }
+    func requestAuthorization() async -> ServiceAvailability { .notSupported }
+    func scheduleTaskReminder(_ reminder: TaskReminderPayload) async {}
+    func cancelTaskReminder(id: UUID) async {}
+    func cancelAllTaskReminders() async {}
+    func scheduleWaterReminder() async {}
+    func cancelWaterReminder() async {}
 }
 
 struct NoopCloudSyncService: CloudSyncService {

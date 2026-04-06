@@ -102,7 +102,16 @@ struct ProfileTab: View {
                     tagText: notificationStatusText,
                     tagColorToken: notificationStatusColorToken,
                     tagSymbolName: notificationStatusSymbolName
-                )
+                ) {
+                    Button(notificationActionTitle) {
+                        Task { await viewModel.requestNotificationAuthorization() }
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(
+                        viewModel.isRequestingNotificationAuthorization ||
+                        viewModel.notificationAvailability == .notSupported
+                    )
+                }
 
                 Divider()
 
@@ -277,28 +286,61 @@ struct ProfileTab: View {
 
     private var notificationSummary: String {
         switch viewModel.notificationAvailability {
+        case .available:
+            return "已允许本地通知。你仍需在计划页单独开启任务提醒或喝水提醒，关闭后不会继续触发。"
+        case .notAuthorized:
+            return "尚未授权通知。授权前不会发送任何任务提醒或喝水提醒；你也可以前往系统设置修改。"
         case .notSupported:
-            return "当前分支尚未接入提醒能力，这里先展示预留状态，避免误导你已启用通知。"
-        case .available, .notAuthorized, .failed:
-            return "提醒能力将在后续任务接入；届时这里会显示真实授权状态与提醒范围说明。"
+            return "当前环境不支持本地通知提醒；计划页中的相关开关会保持禁用。"
+        case .failed(let message):
+            return message
         }
     }
 
     private var notificationStatusText: String {
         switch viewModel.notificationAvailability {
+        case .available:
+            return "已授权"
+        case .notAuthorized:
+            return "未授权"
         case .notSupported:
-            return "未接入"
-        case .available, .notAuthorized, .failed:
-            return "功能预留中"
+            return "当前环境不可用"
+        case .failed:
+            return "状态异常"
         }
     }
 
     private var notificationStatusColorToken: AppColorToken {
-        .slate
+        switch viewModel.notificationAvailability {
+        case .available:
+            return .green
+        case .notAuthorized, .notSupported, .failed:
+            return .slate
+        }
     }
 
     private var notificationStatusSymbolName: String {
-        "bell.slash"
+        switch viewModel.notificationAvailability {
+        case .available:
+            return "bell.badge"
+        case .notAuthorized:
+            return "bell.slash"
+        case .notSupported, .failed:
+            return "exclamationmark.triangle"
+        }
+    }
+
+    private var notificationActionTitle: String {
+        switch viewModel.notificationAvailability {
+        case .available:
+            return "重新检查授权"
+        case .notAuthorized:
+            return "允许通知"
+        case .notSupported:
+            return "当前不可用"
+        case .failed:
+            return "重试授权"
+        }
     }
 
     private var cloudSyncSummary: String {

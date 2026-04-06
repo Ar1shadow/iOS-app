@@ -84,21 +84,33 @@ final class PlanningViewModel: ObservableObject {
     @Published var customDateRangeEnd: Date
     @Published var editor: PlanningTaskEditor?
     @Published private(set) var calendarSyncStatus = CalendarSyncStatus(isEnabled: false, availability: .notAuthorized)
+    @Published private(set) var notificationSettingsStatus = NotificationSettingsStatus(
+        isTaskRemindersEnabled: false,
+        isWaterReminderEnabled: false,
+        availability: .notAuthorized
+    )
     @Published private(set) var isUpdatingCalendarSync = false
+    @Published private(set) var isUpdatingNotificationSettings = false
 
     private let service: any PlanningTaskService
     private let calendarSyncController: any CalendarSyncSettingsControlling
+    private let notificationController: any NotificationSettingsControlling
     private let calendar: Calendar
     private let nowProvider: () -> Date
 
     init(
         service: any PlanningTaskService,
         calendarSyncController: any CalendarSyncSettingsControlling,
+        notificationController: any NotificationSettingsControlling = DefaultNotificationSettingsController(
+            notificationScheduler: NoopNotificationScheduler(),
+            settingsStore: UserDefaultsNotificationSettingsStore()
+        ),
         calendar: Calendar = .current,
         nowProvider: @escaping () -> Date = Date.init
     ) {
         self.service = service
         self.calendarSyncController = calendarSyncController
+        self.notificationController = notificationController
         self.calendar = calendar
         self.nowProvider = nowProvider
 
@@ -175,6 +187,14 @@ final class PlanningViewModel: ObservableObject {
         calendarSyncStatus.isEnabled
     }
 
+    var isTaskRemindersEnabled: Bool {
+        notificationSettingsStatus.isTaskRemindersEnabled
+    }
+
+    var isWaterReminderEnabled: Bool {
+        notificationSettingsStatus.isWaterReminderEnabled
+    }
+
     var calendarSyncSummary: String {
         switch (calendarSyncStatus.isEnabled, calendarSyncStatus.availability) {
         case (true, .available):
@@ -186,6 +206,28 @@ final class PlanningViewModel: ObservableObject {
         case (_, .notSupported):
             return "当前环境不支持系统日历同步。模拟器和真机的权限表现可能不同。"
         case (_, .failed(let message)):
+            return message
+        }
+    }
+
+    var notificationSummary: String {
+        switch notificationSettingsStatus.availability {
+        case .available:
+            switch (notificationSettingsStatus.isTaskRemindersEnabled, notificationSettingsStatus.isWaterReminderEnabled) {
+            case (true, true):
+                return "任务提醒已开启；喝水提醒会在每天 10:00 发送。"
+            case (true, false):
+                return "任务提醒已开启；喝水提醒仍保持关闭。"
+            case (false, true):
+                return "喝水提醒会在每天 10:00 发送；任务提醒仍保持关闭。"
+            case (false, false):
+                return "通知权限已可用。你可以分别开启任务提醒和喝水提醒。"
+            }
+        case .notAuthorized:
+            return "未授权时不会发送任何本地通知。你可以在这里尝试开启，或前往“我的”页检查通知权限。"
+        case .notSupported:
+            return "当前环境不支持本地通知提醒；两个开关都会保持关闭。"
+        case .failed(let message):
             return message
         }
     }
@@ -218,10 +260,26 @@ final class PlanningViewModel: ObservableObject {
         calendarSyncStatus = await calendarSyncController.currentStatus()
     }
 
+    func loadNotificationSettingsStatus() async {
+        notificationSettingsStatus = await notificationController.currentStatus()
+    }
+
     func setCalendarSyncEnabled(_ enabled: Bool) async {
         isUpdatingCalendarSync = true
         defer { isUpdatingCalendarSync = false }
         calendarSyncStatus = await calendarSyncController.setSyncEnabled(enabled)
+    }
+
+    func setTaskRemindersEnabled(_ enabled: Bool) async {
+        isUpdatingNotificationSettings = true
+        defer { isUpdatingNotificationSettings = false }
+        notificationSettingsStatus = await notificationController.setTaskRemindersEnabled(enabled)
+    }
+
+    func setWaterReminderEnabled(_ enabled: Bool) async {
+        isUpdatingNotificationSettings = true
+        defer { isUpdatingNotificationSettings = false }
+        notificationSettingsStatus = await notificationController.setWaterReminderEnabled(enabled)
     }
 
     func startAdd() {
