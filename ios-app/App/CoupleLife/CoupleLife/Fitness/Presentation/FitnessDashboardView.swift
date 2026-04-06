@@ -131,7 +131,7 @@ struct FitnessDashboardView: View {
                         .foregroundStyle(AppColorToken.textSecondary.color)
                 }
                 Spacer()
-                sourceBadge(text: sourceMarker(for: viewModel.visibleSummary))
+                sourceBadge(text: FitnessDashboardSourceMarker.text(for: viewModel.visibleSummary, metric: .steps))
             }
 
             if viewModel.hasAnyTrendData {
@@ -188,7 +188,7 @@ struct FitnessDashboardView: View {
                                 .font(AppTypography.body)
                                 .foregroundStyle(metric.color.color)
                             Spacer()
-                            sourceBadge(text: sourceMarker(for: viewModel.visibleSummary))
+                            sourceBadge(text: FitnessDashboardSourceMarker.text(for: viewModel.visibleSummary, metric: metric))
                         }
 
                         VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -401,6 +401,29 @@ enum FitnessMetricCard: CaseIterable {
             return snapshot?.standMinutes == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         }
     }
+
+    func hasValue(in snapshot: HealthMetricSnapshot?) -> Bool {
+        guard let snapshot else {
+            return false
+        }
+
+        switch self {
+        case .steps:
+            return snapshot.steps != nil
+        case .sleep:
+            return snapshot.sleepSeconds != nil
+        case .restingHeartRate:
+            return snapshot.restingHeartRate != nil
+        case .distance:
+            return snapshot.distanceMeters != nil
+        case .activeEnergy:
+            return snapshot.activeEnergyKcal != nil
+        case .exercise:
+            return snapshot.exerciseMinutes != nil
+        case .stand:
+            return snapshot.standMinutes != nil
+        }
+    }
 }
 
 enum FitnessTrendChartMark: Equatable {
@@ -438,6 +461,14 @@ enum FitnessDashboardSourceMarker {
         case .manual:
             return "手动录入"
         }
+    }
+
+    static func text(for snapshot: HealthMetricSnapshot?, metric: FitnessMetricCard) -> String {
+        guard metric.hasValue(in: snapshot) else {
+            return "暂无数据"
+        }
+
+        return text(for: snapshot)
     }
 }
 

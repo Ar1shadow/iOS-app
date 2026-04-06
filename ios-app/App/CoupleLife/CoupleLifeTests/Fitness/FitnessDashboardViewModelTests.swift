@@ -51,6 +51,30 @@ final class FitnessDashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visibleSummary?.steps, 5678)
     }
 
+    func testRefreshHealthDataRetriesAvailabilityCheckWhenCurrentStateIsFailed() async {
+        let content = makeContent(needsBackgroundRefresh: false)
+        let refreshedContent = makeContent(needsBackgroundRefresh: false, daySteps: 9876)
+        let service = StubFitnessDashboardService(contents: [content, refreshedContent])
+        let healthService = StubFitnessHealthDataService(
+            availabilitySequence: [.failed("x"), .available],
+            requestAuthorizationAvailability: .available,
+            refreshAvailability: .available
+        )
+        let viewModel = FitnessDashboardViewModel(
+            service: service,
+            healthDataService: healthService,
+            ownerUserId: "u1",
+            nowProvider: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+
+        await viewModel.load()
+        await viewModel.refreshHealthData()
+
+        XCTAssertEqual(healthService.availabilityCallCount, 2)
+        XCTAssertEqual(healthService.refreshCallCount, 1)
+        XCTAssertEqual(viewModel.visibleSummary?.steps, 9876)
+    }
+
     func testLoadShowsExpandedAvailableMessageWhenAllMetricsAreMissing() async {
         let content = makeEmptyContent(needsBackgroundRefresh: false)
         let service = StubFitnessDashboardService(contents: [content])
@@ -166,6 +190,7 @@ private final class StubFitnessHealthDataService: HealthDataService {
 
     private(set) var requestAuthorizationCallCount = 0
     private(set) var refreshCallCount = 0
+    private(set) var availabilityCallCount = 0
 
     init(
         availabilitySequence: [ServiceAvailability],
@@ -179,6 +204,7 @@ private final class StubFitnessHealthDataService: HealthDataService {
 
     func availability() async -> ServiceAvailability {
         let index = min(availabilityIndex, availabilitySequence.count - 1)
+        availabilityCallCount += 1
         defer { availabilityIndex += 1 }
         return availabilitySequence[index]
     }

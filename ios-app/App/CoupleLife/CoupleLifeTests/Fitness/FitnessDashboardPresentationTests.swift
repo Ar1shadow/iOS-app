@@ -44,4 +44,28 @@ final class FitnessDashboardPresentationTests: XCTestCase {
     func testSourceMarkerUsesNoDataCopyWhenSnapshotIsMissing() {
         XCTAssertEqual(FitnessDashboardSourceMarker.text(for: nil), "暂无数据")
     }
+
+    func testSourceMarkerUsesNoDataCopyWhenMetricValueIsMissing() {
+        let snapshot = HealthMetricSnapshot(
+            dayStart: .distantPast,
+            ownerUserId: "u1",
+            bucket: .day,
+            source: .healthKit,
+            steps: 3200
+        )
+
+        XCTAssertEqual(FitnessDashboardSourceMarker.text(for: snapshot, metric: .distance), "暂无数据")
+    }
+
+    func testSourceMarkerUsesSystemSyncWhenMetricValueExists() {
+        let snapshot = HealthMetricSnapshot(
+            dayStart: .distantPast,
+            ownerUserId: "u1",
+            bucket: .day,
+            source: .healthKit,
+            distanceMeters: 2400
+        )
+
+        XCTAssertEqual(FitnessDashboardSourceMarker.text(for: snapshot, metric: .distance), "系统同步")
+    }
 }

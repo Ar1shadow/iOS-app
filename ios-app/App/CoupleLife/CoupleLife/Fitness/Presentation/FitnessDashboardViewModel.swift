@@ -97,6 +97,8 @@ final class FitnessDashboardViewModel: ObservableObject {
         var availability = currentHealthState.availability
         if requestAuthorization {
             availability = await healthDataService.requestAuthorization()
+        } else if availability != .available {
+            availability = await healthDataService.availability()
         }
 
         if availability == .available {
