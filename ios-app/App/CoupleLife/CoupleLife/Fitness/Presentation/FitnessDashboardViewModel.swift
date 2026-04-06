@@ -62,7 +62,7 @@ final class FitnessDashboardViewModel: ObservableObject {
     }
 
     func refreshIfNeeded() async {
-        guard let content, content.isCurrentDayCacheStale else {
+        guard let content, content.needsBackgroundRefresh else {
             return
         }
 

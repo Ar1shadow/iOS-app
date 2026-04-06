@@ -289,16 +289,7 @@ struct FitnessDashboardView: View {
     }
 
     private func sourceMarker(for snapshot: HealthMetricSnapshot?) -> String {
-        guard let snapshot else {
-            return "系统同步"
-        }
-
-        switch snapshot.source {
-        case .healthKit, .systemCalendar:
-            return "系统同步"
-        case .manual:
-            return "手动录入"
-        }
+        FitnessDashboardSourceMarker.text(for: snapshot)
     }
 
     private func sourceBadge(text: String) -> some View {
@@ -431,6 +422,21 @@ enum FitnessTrendChartMark: Equatable {
                 return .value(date: point.date, label: point.label, value: value)
             }
             return .missing(date: point.date, label: point.label)
+        }
+    }
+}
+
+enum FitnessDashboardSourceMarker {
+    static func text(for snapshot: HealthMetricSnapshot?) -> String {
+        guard let snapshot else {
+            return "暂无数据"
+        }
+
+        switch snapshot.source {
+        case .healthKit, .systemCalendar:
+            return "系统同步"
+        case .manual:
+            return "手动录入"
         }
     }
 }

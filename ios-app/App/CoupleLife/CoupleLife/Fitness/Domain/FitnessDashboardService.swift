@@ -9,7 +9,7 @@ struct FitnessTrendPoint: Equatable {
 struct FitnessDashboardContent: Equatable {
     let summaries: [HealthMetricBucket: HealthMetricSnapshot]
     let trendSeries: [HealthMetricBucket: [FitnessTrendPoint]]
-    let isCurrentDayCacheStale: Bool
+    let needsBackgroundRefresh: Bool
 }
 
 protocol FitnessDashboardService {
@@ -144,17 +144,26 @@ final class DefaultFitnessDashboardService: FitnessDashboardService {
         }
 
         let dayStart = calendar.startOfDay(for: date)
-        let isCurrentDayCacheStale: Bool
-        if let daySnapshot = summaries[.day] {
-            isCurrentDayCacheStale = !(daySnapshot.dayStart == dayStart && calendar.isDate(daySnapshot.updatedAt, inSameDayAs: nowProvider()))
+        let weekStart = FitnessDashboardChartAdapter.alignedStart(for: .week, containing: date, calendar: calendar)
+        let monthStart = FitnessDashboardChartAdapter.alignedStart(for: .month, containing: date, calendar: calendar)
+
+        let daySnapshot = summaries[.day]
+        let dayIsStale: Bool
+        if let daySnapshot {
+            dayIsStale = !(daySnapshot.dayStart == dayStart && calendar.isDate(daySnapshot.updatedAt, inSameDayAs: nowProvider()))
         } else {
-            isCurrentDayCacheStale = true
+            dayIsStale = true
         }
+
+        let needsBackgroundRefresh =
+            dayIsStale ||
+            summaries[.week]?.dayStart != weekStart ||
+            summaries[.month]?.dayStart != monthStart
 
         return FitnessDashboardContent(
             summaries: summaries,
             trendSeries: trendSeries,
-            isCurrentDayCacheStale: isCurrentDayCacheStale
+            needsBackgroundRefresh: needsBackgroundRefresh
         )
     }
 

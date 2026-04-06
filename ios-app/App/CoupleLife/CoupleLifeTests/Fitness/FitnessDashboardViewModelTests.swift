@@ -4,7 +4,7 @@ import XCTest
 @MainActor
 final class FitnessDashboardViewModelTests: XCTestCase {
     func testSelectBucketUpdatesVisibleContentWithoutRefreshingHealthData() async {
-        let content = makeContent(isCurrentDayCacheStale: false)
+        let content = makeContent(needsBackgroundRefresh: false)
         let service = StubFitnessDashboardService(contents: [content])
         let healthService = StubFitnessHealthDataService(
             availabilitySequence: [.available],
@@ -28,8 +28,8 @@ final class FitnessDashboardViewModelTests: XCTestCase {
     }
 
     func testRefreshIfNeededUsesStaleCacheSignalToReloadDashboard() async {
-        let staleContent = makeContent(isCurrentDayCacheStale: true, daySteps: 1234)
-        let refreshedContent = makeContent(isCurrentDayCacheStale: false, daySteps: 5678)
+        let staleContent = makeContent(needsBackgroundRefresh: true, daySteps: 1234)
+        let refreshedContent = makeContent(needsBackgroundRefresh: false, daySteps: 5678)
         let service = StubFitnessDashboardService(contents: [staleContent, refreshedContent])
         let healthService = StubFitnessHealthDataService(
             availabilitySequence: [.available],
@@ -52,7 +52,7 @@ final class FitnessDashboardViewModelTests: XCTestCase {
     }
 
     func testLoadShowsExpandedAvailableMessageWhenAllMetricsAreMissing() async {
-        let content = makeEmptyContent(isCurrentDayCacheStale: false)
+        let content = makeEmptyContent(needsBackgroundRefresh: false)
         let service = StubFitnessDashboardService(contents: [content])
         let healthService = StubFitnessHealthDataService(
             availabilitySequence: [.available],
@@ -78,7 +78,7 @@ final class FitnessDashboardViewModelTests: XCTestCase {
     }
 
     func testLoadShowsExpandedAuthorizationMessageWhenNotAuthorized() async {
-        let content = makeContent(isCurrentDayCacheStale: false)
+        let content = makeContent(needsBackgroundRefresh: false)
         let service = StubFitnessDashboardService(contents: [content])
         let healthService = StubFitnessHealthDataService(
             availabilitySequence: [.notAuthorized],
@@ -104,7 +104,7 @@ final class FitnessDashboardViewModelTests: XCTestCase {
     }
 
     private func makeContent(
-        isCurrentDayCacheStale: Bool,
+        needsBackgroundRefresh: Bool,
         daySteps: Double = 4321
     ) -> FitnessDashboardContent {
         let dayStart = Date(timeIntervalSince1970: 1_699_977_600)
@@ -122,11 +122,11 @@ final class FitnessDashboardViewModelTests: XCTestCase {
                 .week: [FitnessTrendPoint(date: weekStart, label: "4/1", value: 21_000)],
                 .month: [FitnessTrendPoint(date: monthStart, label: "4月", value: 100_000)]
             ],
-            isCurrentDayCacheStale: isCurrentDayCacheStale
+            needsBackgroundRefresh: needsBackgroundRefresh
         )
     }
 
-    private func makeEmptyContent(isCurrentDayCacheStale: Bool) -> FitnessDashboardContent {
+    private func makeEmptyContent(needsBackgroundRefresh: Bool) -> FitnessDashboardContent {
         let dayStart = Date(timeIntervalSince1970: 1_699_977_600)
         let weekStart = Date(timeIntervalSince1970: 1_699_459_200)
         let monthStart = Date(timeIntervalSince1970: 1_698_796_800)
@@ -138,7 +138,7 @@ final class FitnessDashboardViewModelTests: XCTestCase {
                 .month: HealthMetricSnapshot(dayStart: monthStart, ownerUserId: "u1", bucket: .month)
             ],
             trendSeries: [.day: [], .week: [], .month: []],
-            isCurrentDayCacheStale: isCurrentDayCacheStale
+            needsBackgroundRefresh: needsBackgroundRefresh
         )
     }
 }

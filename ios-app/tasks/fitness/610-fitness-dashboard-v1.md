@@ -34,12 +34,13 @@
 - 新增 Fitness domain/presentation 层与测试，切换粒度只切本地状态，不重复触发 HealthKit 读取
 - Follow-up：补齐 HealthKit 汇总读取与缓存写回，`distanceMeters`、`activeEnergyKcal`、`exerciseMinutes`、`standMinutes` 现在会随 day/week/month bucket 一起落库
 - Follow-up：修正文案与趋势图缺失态，卡片/权限提示改为“暂无缓存/授权并刷新”语义，缺失趋势点不再渲染为 0 柱
+- Follow-up：后台刷新判定改为检查当前 day/week/month 三个 bucket 是否齐全，空数据来源标记改为“暂无数据”
 
 ## 验证记录
 
 - 已执行：`cd ios-app/App/CoupleLife && xcodegen generate`
 - 已执行：`xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
-- 已覆盖：缓存范围查询、趋势序列补齐、ViewModel 的缓存优先/按需刷新/切换粒度不触发刷新；HealthKit day/week/month 快照写回新增距离/能量/运动/站立字段；文案与缺失趋势点渲染修正；模拟器环境下全量测试 85 项通过
+- 已覆盖：缓存范围查询、ViewModel 的缓存优先/按需刷新/切换粒度不触发刷新；HealthKit day/week/month 快照写回新增距离/能量/运动/站立字段；文案、缺失趋势点渲染、缺桶后台刷新判定与空来源标记修正；模拟器环境下全量测试 88 项通过
 - 待真机手测：HealthKit 授权弹窗、真实缓存刷新、未授权到已授权的 UI 切换
 
 ## 已知风险/遗留

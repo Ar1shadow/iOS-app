@@ -40,6 +40,7 @@
 		65EE0448B7346B917EB4972B /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */; };
 		6A16BC8FD1A55AF49840439F /* CalendarMonthGridBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA6C673CBD0EFD4B534A0FE /* CalendarMonthGridBuilderTests.swift */; };
 		7712F4A19D90F6FEC125483C /* SharedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2741EE92C12BB96455F47425 /* SharedCard.swift */; };
+		7A98A224B47F38BBC87566C2 /* FitnessDashboardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98C8BC4C213D161DD6AB9294 /* FitnessDashboardServiceTests.swift */; };
 		7ABE5D5AA34EE45ECE9CA282 /* RecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74404320BB643C82FBBE684 /* RecordTests.swift */; };
 		7DEE6A3DE3BC331DC385FC1B /* SharedSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3202B7E6C5B8D68EFFEF8E06 /* SharedSectionHeader.swift */; };
 		7F10811CA1D556D46C01E548 /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */; };
@@ -146,6 +147,7 @@
 		91934D543367B87B0C3619D7 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		9671B30789FB25A48CCF8A5F /* FitnessTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTab.swift; sourceTree = "<group>"; };
 		974D9B5E264F3AF4269D098E /* RecordTypeStyleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordTypeStyleTests.swift; sourceTree = "<group>"; };
+		98C8BC4C213D161DD6AB9294 /* FitnessDashboardServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardServiceTests.swift; sourceTree = "<group>"; };
 		994E71278FBED4A90F1CA403 /* HomeTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTab.swift; sourceTree = "<group>"; };
 		A12D0C2425B0DFD8F715BA6F /* HealthSnapshotRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthSnapshotRepository.swift; sourceTree = "<group>"; };
 		A3E601ADC69AF3DFE79F51D6 /* CalendarDayDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayDetailViewModel.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 			children = (
 				153E1C7507E33BB9A5882866 /* FitnessDashboardChartAdapterTests.swift */,
 				25376E6BD1B96617936E413A /* FitnessDashboardPresentationTests.swift */,
+				98C8BC4C213D161DD6AB9294 /* FitnessDashboardServiceTests.swift */,
 				8696CE051DBEA98FEB0BDACC /* FitnessDashboardViewModelTests.swift */,
 			);
 			path = Fitness;
@@ -762,6 +765,7 @@
 				FCF69545C55582F0E3364F3A /* EventKitCalendarSyncServiceTests.swift in Sources */,
 				605D6AF07B7133FBED474010 /* FitnessDashboardChartAdapterTests.swift in Sources */,
 				E7C2217C910E4F6BC14D6F39 /* FitnessDashboardPresentationTests.swift in Sources */,
+				7A98A224B47F38BBC87566C2 /* FitnessDashboardServiceTests.swift in Sources */,
 				84373F0D9E51751D949A769D /* FitnessDashboardViewModelTests.swift in Sources */,
 				2B4DA28681CFAD6CA7A51136 /* HealthKitHealthDataServiceTests.swift in Sources */,
 				34991AD2AEA77F2BC88FA828 /* HealthSnapshotRepositoryTests.swift in Sources */,

@@ -40,4 +40,8 @@ final class FitnessDashboardPresentationTests: XCTestCase {
         XCTAssertEqual(marks[0], .value(date: Date(timeIntervalSince1970: 1), label: "4/1", value: 3200))
         XCTAssertEqual(marks[1], .missing(date: Date(timeIntervalSince1970: 2), label: "4/2"))
     }
+
+    func testSourceMarkerUsesNoDataCopyWhenSnapshotIsMissing() {
+        XCTAssertEqual(FitnessDashboardSourceMarker.text(for: nil), "暂无数据")
+    }
 }
