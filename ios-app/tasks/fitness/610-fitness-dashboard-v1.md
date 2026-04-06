@@ -32,17 +32,18 @@
 - 已实现 `FitnessTab` 仪表盘：日/周/月切换、权限引导、步数趋势图、健康指标卡片与来源标记
 - 扩展 `HealthSnapshotRepository` 范围查询；Dashboard 先读 SwiftData 缓存，首次进入仅在日缓存缺失或过期时后台刷新
 - 新增 Fitness domain/presentation 层与测试，切换粒度只切本地状态，不重复触发 HealthKit 读取
+- Follow-up：补齐 HealthKit 汇总读取与缓存写回，`distanceMeters`、`activeEnergyKcal`、`exerciseMinutes`、`standMinutes` 现在会随 day/week/month bucket 一起落库
 
 ## 验证记录
 
 - 已执行：`cd ios-app/App/CoupleLife && xcodegen generate`
 - 已执行：`xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
-- 已覆盖：缓存范围查询、趋势序列补齐、ViewModel 的缓存优先/按需刷新/切换粒度不触发刷新；模拟器环境下全量测试 80 项通过
+- 已覆盖：缓存范围查询、趋势序列补齐、ViewModel 的缓存优先/按需刷新/切换粒度不触发刷新；HealthKit day/week/month 快照写回新增距离/能量/运动/站立字段；模拟器环境下全量测试 80 项通过
 - 待真机手测：HealthKit 授权弹窗、真实缓存刷新、未授权到已授权的 UI 切换
 
 ## 已知风险/遗留
 
-- 当前 HealthKit 集成仍只稳定填充步数、睡眠、静息心率；距离、能量、运动、站立在页面中明确展示“暂无数据”
+- 代码已接入距离、能量、运动、站立聚合读取；是否返回非空值仍取决于用户 HealthKit 实际授权与系统样本完整度
 - 趋势图当前只绘制步数缓存，后续若补齐更多指标缓存，需要扩展适配层而不是直接把图表逻辑塞回 View
 
 ## Skills 使用

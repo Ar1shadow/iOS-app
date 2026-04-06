@@ -68,7 +68,15 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
         let client = FakeHealthKitClient(
             isHealthDataAvailable: true,
             requestStatus: .unnecessary,
-            metricPayload: .init(steps: 8000, sleepSeconds: 7.5 * 3600, restingHeartRate: nil)
+            metricPayload: .init(
+                steps: 8000,
+                distanceMeters: 5_200,
+                activeEnergyKcal: 420,
+                exerciseMinutes: 38,
+                standMinutes: 600,
+                sleepSeconds: 7.5 * 3600,
+                restingHeartRate: nil
+            )
         )
         let service = makeService(client: client, repository: repository, calendar: calendar, now: now)
 
@@ -90,9 +98,33 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
             isHealthDataAvailable: true,
             requestStatus: .unnecessary,
             metricPayloadByStartDate: [
-                calendar.startOfDay(for: staleDate): .init(steps: 8123, sleepSeconds: 7.25 * 3600, restingHeartRate: 54),
-                calendar.dateInterval(of: .weekOfYear, for: staleDate)!.start: .init(steps: 42_000, sleepSeconds: 46 * 3600, restingHeartRate: 56),
-                calendar.dateInterval(of: .month, for: staleDate)!.start: .init(steps: 160_000, sleepSeconds: 180 * 3600, restingHeartRate: 58)
+                calendar.startOfDay(for: staleDate): .init(
+                    steps: 8123,
+                    distanceMeters: 6_400,
+                    activeEnergyKcal: 510,
+                    exerciseMinutes: 44,
+                    standMinutes: 720,
+                    sleepSeconds: 7.25 * 3600,
+                    restingHeartRate: 54
+                ),
+                calendar.dateInterval(of: .weekOfYear, for: staleDate)!.start: .init(
+                    steps: 42_000,
+                    distanceMeters: 31_000,
+                    activeEnergyKcal: 2_840,
+                    exerciseMinutes: 260,
+                    standMinutes: 4_200,
+                    sleepSeconds: 46 * 3600,
+                    restingHeartRate: 56
+                ),
+                calendar.dateInterval(of: .month, for: staleDate)!.start: .init(
+                    steps: 160_000,
+                    distanceMeters: 118_000,
+                    activeEnergyKcal: 10_400,
+                    exerciseMinutes: 1_040,
+                    standMinutes: 17_600,
+                    sleepSeconds: 180 * 3600,
+                    restingHeartRate: 58
+                )
             ]
         )
         let service = makeService(client: client, repository: repository, calendar: calendar, now: now)
@@ -108,14 +140,26 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
         XCTAssertEqual(availability, ServiceAvailability.available)
         XCTAssertEqual(client.readMetricsCallCount, 3)
         XCTAssertEqual(daySnapshot?.steps, 8123)
+        XCTAssertEqual(daySnapshot?.distanceMeters, 6_400)
+        XCTAssertEqual(daySnapshot?.activeEnergyKcal, 510)
+        XCTAssertEqual(daySnapshot?.exerciseMinutes, 44)
+        XCTAssertEqual(daySnapshot?.standMinutes, 720)
         XCTAssertEqual(daySnapshot?.sleepSeconds, 7.25 * 3600)
         XCTAssertEqual(daySnapshot?.restingHeartRate, 54)
         XCTAssertEqual(daySnapshot?.source, .healthKit)
         XCTAssertEqual(daySnapshot?.bucket, .day)
         XCTAssertEqual(weekSnapshot?.steps, 42_000)
+        XCTAssertEqual(weekSnapshot?.distanceMeters, 31_000)
+        XCTAssertEqual(weekSnapshot?.activeEnergyKcal, 2_840)
+        XCTAssertEqual(weekSnapshot?.exerciseMinutes, 260)
+        XCTAssertEqual(weekSnapshot?.standMinutes, 4_200)
         XCTAssertEqual(weekSnapshot?.restingHeartRate, 56)
         XCTAssertEqual(weekSnapshot?.bucket, .week)
         XCTAssertEqual(monthSnapshot?.steps, 160_000)
+        XCTAssertEqual(monthSnapshot?.distanceMeters, 118_000)
+        XCTAssertEqual(monthSnapshot?.activeEnergyKcal, 10_400)
+        XCTAssertEqual(monthSnapshot?.exerciseMinutes, 1_040)
+        XCTAssertEqual(monthSnapshot?.standMinutes, 17_600)
         XCTAssertEqual(monthSnapshot?.restingHeartRate, 58)
         XCTAssertEqual(monthSnapshot?.bucket, .month)
     }
@@ -153,7 +197,15 @@ private final class FakeHealthKitClient: HealthKitClient {
     init(
         isHealthDataAvailable: Bool,
         requestStatus: HealthKitAuthorizationRequestStatus,
-        metricPayload: HealthMetricPayload = .init(steps: nil, sleepSeconds: nil, restingHeartRate: nil),
+        metricPayload: HealthMetricPayload = .init(
+            steps: nil,
+            distanceMeters: nil,
+            activeEnergyKcal: nil,
+            exerciseMinutes: nil,
+            standMinutes: nil,
+            sleepSeconds: nil,
+            restingHeartRate: nil
+        ),
         metricPayloadByStartDate: [Date: HealthMetricPayload] = [:],
         readMetricsError: Error? = nil
     ) {

@@ -9,6 +9,10 @@ enum HealthKitAuthorizationRequestStatus {
 
 struct HealthMetricPayload: Equatable {
     let steps: Double?
+    let distanceMeters: Double?
+    let activeEnergyKcal: Double?
+    let exerciseMinutes: Double?
+    let standMinutes: Double?
     let sleepSeconds: Double?
     let restingHeartRate: Double?
 }
@@ -113,6 +117,10 @@ final class HealthKitHealthDataService: HealthDataService {
                     bucket: bucket,
                     source: .healthKit,
                     steps: payload.steps,
+                    distanceMeters: payload.distanceMeters,
+                    activeEnergyKcal: payload.activeEnergyKcal,
+                    exerciseMinutes: payload.exerciseMinutes,
+                    standMinutes: payload.standMinutes,
                     restingHeartRate: payload.restingHeartRate,
                     sleepSeconds: payload.sleepSeconds,
                     createdAt: now,
@@ -185,23 +193,80 @@ private final class LiveHealthKitClient: HealthKitClient {
 
     func readMetrics(from startDate: Date, to endDate: Date) async throws -> HealthMetricPayload {
         async let steps = readStepCount(from: startDate, to: endDate)
+        async let distanceMeters = readDistance(from: startDate, to: endDate)
+        async let activeEnergyKcal = readActiveEnergy(from: startDate, to: endDate)
+        async let exerciseMinutes = readExerciseMinutes(from: startDate, to: endDate)
+        async let standMinutes = readStandMinutes(from: startDate, to: endDate)
         async let sleepSeconds = readSleepDuration(from: startDate, to: endDate)
         async let restingHeartRate = readRestingHeartRate(from: startDate, to: endDate)
 
         return try await HealthMetricPayload(
             steps: steps,
+            distanceMeters: distanceMeters,
+            activeEnergyKcal: activeEnergyKcal,
+            exerciseMinutes: exerciseMinutes,
+            standMinutes: standMinutes,
             sleepSeconds: sleepSeconds,
             restingHeartRate: restingHeartRate
         )
     }
 
     private func readStepCount(from startDate: Date, to endDate: Date) async throws -> Double? {
-        let quantityType = Self.stepCountType
+        try await readCumulativeQuantity(
+            type: Self.stepCountType,
+            unit: HKUnit.count(),
+            from: startDate,
+            to: endDate
+        )
+    }
+
+    private func readDistance(from startDate: Date, to endDate: Date) async throws -> Double? {
+        try await readCumulativeQuantity(
+            type: Self.distanceType,
+            unit: HKUnit.meter(),
+            from: startDate,
+            to: endDate
+        )
+    }
+
+    private func readActiveEnergy(from startDate: Date, to endDate: Date) async throws -> Double? {
+        try await readCumulativeQuantity(
+            type: Self.activeEnergyType,
+            unit: HKUnit.kilocalorie(),
+            from: startDate,
+            to: endDate
+        )
+    }
+
+    private func readExerciseMinutes(from startDate: Date, to endDate: Date) async throws -> Double? {
+        try await readCumulativeQuantity(
+            type: Self.exerciseTimeType,
+            unit: HKUnit.minute(),
+            from: startDate,
+            to: endDate
+        )
+    }
+
+    private func readStandMinutes(from startDate: Date, to endDate: Date) async throws -> Double? {
+        try await readCumulativeQuantity(
+            type: Self.standTimeType,
+            unit: HKUnit.minute(),
+            from: startDate,
+            to: endDate
+        )
+    }
+
+    private func readCumulativeQuantity(
+        type: HKQuantityType,
+        unit: HKUnit,
+        from startDate: Date,
+        to endDate: Date
+    ) async throws -> Double? {
         let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
 
         return try await withCheckedThrowingContinuation { continuation in
             let query = HKStatisticsQuery(
-                quantityType: quantityType,
+                quantityType: type,
                 quantitySamplePredicate: predicate,
                 options: .cumulativeSum
             ) { _, statistics, error in
@@ -210,7 +275,7 @@ private final class LiveHealthKitClient: HealthKitClient {
                     return
                 }
 
-                let value = statistics?.sumQuantity()?.doubleValue(for: HKUnit.count())
+                let value = statistics?.sumQuantity()?.doubleValue(for: unit)
                 continuation.resume(returning: value)
             }
 
@@ -277,11 +342,35 @@ private final class LiveHealthKitClient: HealthKitClient {
     }
 
     private static var readTypes: Set<HKObjectType> {
-        [stepCountType, sleepAnalysisType, restingHeartRateType]
+        [
+            stepCountType,
+            distanceType,
+            activeEnergyType,
+            exerciseTimeType,
+            standTimeType,
+            sleepAnalysisType,
+            restingHeartRateType
+        ]
     }
 
     private static var stepCountType: HKQuantityType {
         HKObjectType.quantityType(forIdentifier: .stepCount)!
+    }
+
+    private static var distanceType: HKQuantityType {
+        HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning)!
+    }
+
+    private static var activeEnergyType: HKQuantityType {
+        HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!
+    }
+
+    private static var exerciseTimeType: HKQuantityType {
+        HKObjectType.quantityType(forIdentifier: .appleExerciseTime)!
+    }
+
+    private static var standTimeType: HKQuantityType {
+        HKObjectType.quantityType(forIdentifier: .appleStandTime)!
     }
 
     private static var sleepAnalysisType: HKCategoryType {
