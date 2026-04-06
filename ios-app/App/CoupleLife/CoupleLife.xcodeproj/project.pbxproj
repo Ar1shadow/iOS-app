@@ -16,6 +16,7 @@
 		1360965893AFCDE57150C555 /* CalendarViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09384F51D9DB7A43F7ADF793 /* CalendarViewModelTests.swift */; };
 		1510A34B10848261D70BCA47 /* HomeTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 994E71278FBED4A90F1CA403 /* HomeTab.swift */; };
 		176A11903AAC152A8C324FD1 /* HomeDashboardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */; };
+		19EB1364B6C9B53436FB4171 /* CoupleLifeWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465C1F1C31AB14210ED2AD49 /* CoupleLifeWidgetsBundle.swift */; };
 		1B29592EC00160DCD8FED394 /* NotificationSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD9C39AC82CD4031931794 /* NotificationSettingsController.swift */; };
 		1B5AC1AEC17181C4D5DB6EB9 /* HomeDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C0FD0624418B4406670A53 /* HomeDashboardViewModel.swift */; };
 		2105A56E05D8826F77FA9BEA /* UserNotificationSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227864F11ACC8B1931786A2E /* UserNotificationSchedulerTests.swift */; };
@@ -28,6 +29,7 @@
 		32A4753AE4297430389420F0 /* AppTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8336E99FE744A9F633D4E4DF /* AppTab.swift */; };
 		3433834A06D436D3B7B6C3C7 /* CurrentUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E0953AA6938FE93B936195 /* CurrentUser.swift */; };
 		34991AD2AEA77F2BC88FA828 /* HealthSnapshotRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBE54BAED4AE3605F3399AA /* HealthSnapshotRepositoryTests.swift */; };
+		37D1674EB3F94B8D9ECC5AC2 /* TodayTasksWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4281168D44BFABF16489CC9 /* TodayTasksWidget.swift */; };
 		3A9FB611456AAA5282D1AAE8 /* PlanningTaskFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5ED14498A05B160C876E43A /* PlanningTaskFormView.swift */; };
 		3AA17DB407BF69E45BEE95A2 /* SharedStatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08914CD17B066AFCCA8717E5 /* SharedStatusBadge.swift */; };
 		3B88097B54BE6C973AFE3DC9 /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1A703FBBDAF0008DDC8494 /* CalendarViewModel.swift */; };
@@ -41,6 +43,7 @@
 		614F5D061A3F78BC2F7A7B63 /* PlanningViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AEA9C5D3669B5F5F864E03 /* PlanningViewModel.swift */; };
 		65EE0448B7346B917EB4972B /* TaskRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC4673E59CE0FD02FB43BE0 /* TaskRepositoryTests.swift */; };
 		6A16BC8FD1A55AF49840439F /* CalendarMonthGridBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCA6C673CBD0EFD4B534A0FE /* CalendarMonthGridBuilderTests.swift */; };
+		73341D0433CE030BC8FCE649 /* WidgetTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77CC08A71F2EFFD490875462 /* WidgetTheme.swift */; };
 		7712F4A19D90F6FEC125483C /* SharedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2741EE92C12BB96455F47425 /* SharedCard.swift */; };
 		7A98A224B47F38BBC87566C2 /* FitnessDashboardServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98C8BC4C213D161DD6AB9294 /* FitnessDashboardServiceTests.swift */; };
 		7ABE5D5AA34EE45ECE9CA282 /* RecordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74404320BB643C82FBBE684 /* RecordTests.swift */; };
@@ -53,10 +56,13 @@
 		8E5F6D5CC39640DF63E4141C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 793EE7F7B5AFDC1ECEED0A38 /* HealthKit.framework */; };
 		900154592587FD534DC5AB59 /* RecordTypeStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974D9B5E264F3AF4269D098E /* RecordTypeStyleTests.swift */; };
 		91E1FF2A4D60D1CA56CB3539 /* TaskRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8E360A2849A376938BFFD0F /* TaskRepository.swift */; };
+		92BDEA8C1F694DE4B775CABC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67DCABD39BF8028167B122BD /* WidgetKit.framework */; };
 		946FAF72F6F248971979B0D4 /* ProfileSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CDAD725965FCE747779BDBB /* ProfileSettingsViewModel.swift */; };
 		964780E09722719D8DE812C5 /* CalendarMonthGridBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B576E8225232C8E8FA9133 /* CalendarMonthGridBuilder.swift */; };
 		97B13185FBFB321455B84B65 /* CoupleLifeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BF39EA8F498BD7A9B8DBAFE /* CoupleLifeApp.swift */; };
+		998622B7E2C1D9CE2A05D8DA /* TodayStepsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BEB3CD82A61DAFCAD2E5146 /* TodayStepsWidget.swift */; };
 		9FB762D71960E64BA3E35EB7 /* HealthKitHealthDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783F6CC5C04BB76974B29772 /* HealthKitHealthDataService.swift */; };
+		A0711F9D8E30E68FE33F3D62 /* AnniversaryCountdownWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 265ED26DDA9DCB9C69282CC6 /* AnniversaryCountdownWidget.swift */; };
 		A13D92796FCA3B4856453A67 /* PlanningViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472C643D4ACDEB573DFA271F /* PlanningViewModelTests.swift */; };
 		A1608AE06F75CDFEF6D80497 /* FitnessTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9671B30789FB25A48CCF8A5F /* FitnessTab.swift */; };
 		ABCE666B7CFA7DE90E37E923 /* FitnessDashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE784557B32E0060966EBFF1 /* FitnessDashboardViewModel.swift */; };
@@ -75,6 +81,7 @@
 		D0DA4CE587C4A812A585FABA /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91934D543367B87B0C3619D7 /* RootTabView.swift */; };
 		D74A11E7DE1285FCBA45BAE9 /* NotificationSettingsControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3A2513DD5882B4E2461F22 /* NotificationSettingsControllerTests.swift */; };
 		DEB0CA0F79411159C6E104A6 /* CalendarRecordSummaryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297B0044927D6B2D81E4D4B4 /* CalendarRecordSummaryService.swift */; };
+		DFF33DDC63C914406F733172 /* CoupleLifeWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8EA83F5D46DA4B527F341890 /* CoupleLifeWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E678817803441C39CC389797 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */; };
 		E79F37B3A92F84B52A0178E1 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 270E0C8D8154D41ED1CE1456 /* AppContainer.swift */; };
 		E7C2217C910E4F6BC14D6F39 /* FitnessDashboardPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25376E6BD1B96617936E413A /* FitnessDashboardPresentationTests.swift */; };
@@ -90,6 +97,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		65645E2C9028E404F79D8383 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6B0F44CC07DEC3EBA0235E80 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE0D9C3255B4AC3BAB0E9E7F;
+			remoteInfo = CoupleLifeWidgets;
+		};
 		D23325E4755DBACED05DF5BF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6B0F44CC07DEC3EBA0235E80 /* Project object */;
@@ -98,6 +112,20 @@
 			remoteInfo = CoupleLife;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A4675E1450D5A23984466B6E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DFF33DDC63C914406F733172 /* CoupleLifeWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		01B456671BCE804C5A20D703 /* CalendarDayDetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayDetailViewModelTests.swift; sourceTree = "<group>"; };
@@ -112,6 +140,7 @@
 		227864F11ACC8B1931786A2E /* UserNotificationSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationSchedulerTests.swift; sourceTree = "<group>"; };
 		22D2EF3871E2E598EA5D83AC /* PlanningTaskServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTaskServiceTests.swift; sourceTree = "<group>"; };
 		25376E6BD1B96617936E413A /* FitnessDashboardPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardPresentationTests.swift; sourceTree = "<group>"; };
+		265ED26DDA9DCB9C69282CC6 /* AnniversaryCountdownWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnniversaryCountdownWidget.swift; sourceTree = "<group>"; };
 		270E0C8D8154D41ED1CE1456 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		2741EE92C12BB96455F47425 /* SharedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedCard.swift; sourceTree = "<group>"; };
 		297B0044927D6B2D81E4D4B4 /* CalendarRecordSummaryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarRecordSummaryService.swift; sourceTree = "<group>"; };
@@ -123,19 +152,23 @@
 		3C449310356836D53472D407 /* CalendarSyncSettingsControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarSyncSettingsControllerTests.swift; sourceTree = "<group>"; };
 		41E48EC7161E715DBBA260B5 /* SharedEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedEmptyStateView.swift; sourceTree = "<group>"; };
 		44B576E8225232C8E8FA9133 /* CalendarMonthGridBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGridBuilder.swift; sourceTree = "<group>"; };
+		465C1F1C31AB14210ED2AD49 /* CoupleLifeWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeWidgetsBundle.swift; sourceTree = "<group>"; };
 		472C643D4ACDEB573DFA271F /* PlanningViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningViewModelTests.swift; sourceTree = "<group>"; };
 		4BC211CCD89BA7B038F38054 /* TaskItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskItem.swift; sourceTree = "<group>"; };
+		4BEB3CD82A61DAFCAD2E5146 /* TodayStepsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayStepsWidget.swift; sourceTree = "<group>"; };
 		4C3A2513DD5882B4E2461F22 /* NotificationSettingsControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsControllerTests.swift; sourceTree = "<group>"; };
 		4CE2F19E68EA5BCBDC70CC8A /* Record.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		4F04187C40AD64525964F343 /* HomeDashboardServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardServiceTests.swift; sourceTree = "<group>"; };
 		5068E83D006EA4CF05C06C20 /* RecordRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepository.swift; sourceTree = "<group>"; };
 		57B745131C107EAAC85E4986 /* PlanningTaskService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTaskService.swift; sourceTree = "<group>"; };
 		5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepositoryTests.swift; sourceTree = "<group>"; };
+		67DCABD39BF8028167B122BD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		68F3C57B4B7B5C3C17D1DF88 /* CoupleLife.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CoupleLife.entitlements; sourceTree = "<group>"; };
 		6EECBC91790905A1DBE811D0 /* ProfileTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileTab.swift; sourceTree = "<group>"; };
 		70B8D581D173E3557291D570 /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		70C0BE04A0EC99C84C8E30C9 /* HealthKitHealthDataServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitHealthDataServiceTests.swift; sourceTree = "<group>"; };
 		71FA91448CFA7C261DE1801D /* FitnessDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardView.swift; sourceTree = "<group>"; };
+		77CC08A71F2EFFD490875462 /* WidgetTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetTheme.swift; sourceTree = "<group>"; };
 		783F6CC5C04BB76974B29772 /* HealthKitHealthDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitHealthDataService.swift; sourceTree = "<group>"; };
 		79192C8E0C81DA28DDF58033 /* AppTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabTests.swift; sourceTree = "<group>"; };
 		793EE7F7B5AFDC1ECEED0A38 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
@@ -150,6 +183,7 @@
 		88C4739B6099C71FD1F39CCC /* FitnessDashboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardService.swift; sourceTree = "<group>"; };
 		89DD9C39AC82CD4031931794 /* NotificationSettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsController.swift; sourceTree = "<group>"; };
 		8A9F423E7436C1EC6683AD83 /* HealthMetricSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthMetricSnapshot.swift; sourceTree = "<group>"; };
+		8EA83F5D46DA4B527F341890 /* CoupleLifeWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = CoupleLifeWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8EE0645E5C085A5C510E6273 /* ModelContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerFactory.swift; sourceTree = "<group>"; };
 		91222A0F8EE3CFE1C2962ABB /* HomeDashboardViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeDashboardViewModelTests.swift; sourceTree = "<group>"; };
 		91934D543367B87B0C3619D7 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
@@ -173,6 +207,7 @@
 		CD1A703FBBDAF0008DDC8494 /* CalendarViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 		CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedTag.swift; sourceTree = "<group>"; };
 		CFA042A224546AABD7E6A8AB /* CoupleLifeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleLifeTests.swift; sourceTree = "<group>"; };
+		D809FF210C0BBBCF2613A978 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DCA6C673CBD0EFD4B534A0FE /* CalendarMonthGridBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarMonthGridBuilderTests.swift; sourceTree = "<group>"; };
 		DDE07CE2F602FDF505EAF0A8 /* CalendarDayRecordService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarDayRecordService.swift; sourceTree = "<group>"; };
 		DE31CF2D30B6FBD26CF21719 /* UserNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationScheduler.swift; sourceTree = "<group>"; };
@@ -181,11 +216,20 @@
 		E0D15A689EC8A7BC30135F22 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
 		E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CoupleLifeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED12AC0A66505B875565E747 /* ProfileSettingsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsViewModelTests.swift; sourceTree = "<group>"; };
+		F4281168D44BFABF16489CC9 /* TodayTasksWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayTasksWidget.swift; sourceTree = "<group>"; };
 		F999C232176D9090AC8577F8 /* PlanningTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTab.swift; sourceTree = "<group>"; };
 		FFBE54BAED4AE3605F3399AA /* HealthSnapshotRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthSnapshotRepositoryTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		7EEA550FC394D1DC616F6A5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92BDEA8C1F694DE4B775CABC /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D9202221C56F2678818B6F6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -352,6 +396,7 @@
 			children = (
 				E05C56B65ABE346760F15BD0 /* CoupleLife.app */,
 				E76804E703EF9537F10E22F1 /* CoupleLifeTests.xctest */,
+				8EA83F5D46DA4B527F341890 /* CoupleLifeWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -431,6 +476,19 @@
 			path = Calendar;
 			sourceTree = "<group>";
 		};
+		8783158114C8CE7051F96877 /* CoupleLifeWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				265ED26DDA9DCB9C69282CC6 /* AnniversaryCountdownWidget.swift */,
+				465C1F1C31AB14210ED2AD49 /* CoupleLifeWidgetsBundle.swift */,
+				D809FF210C0BBBCF2613A978 /* Info.plist */,
+				4BEB3CD82A61DAFCAD2E5146 /* TodayStepsWidget.swift */,
+				F4281168D44BFABF16489CC9 /* TodayTasksWidget.swift */,
+				77CC08A71F2EFFD490875462 /* WidgetTheme.swift */,
+			);
+			path = CoupleLifeWidgets;
+			sourceTree = "<group>";
+		};
 		8976AF3695DB54FD1F70A35E /* Tabs */ = {
 			isa = PBXGroup;
 			children = (
@@ -476,6 +534,7 @@
 			children = (
 				1D8F73EDFD4011C6C92D9A99 /* CoupleLife */,
 				F0A3E68835B3A09778748A95 /* CoupleLifeTests */,
+				8783158114C8CE7051F96877 /* CoupleLifeWidgets */,
 				F256CAB57A793E25ABF36298 /* Frameworks */,
 				6CD1E2235048540326704526 /* Products */,
 			);
@@ -614,6 +673,7 @@
 			isa = PBXGroup;
 			children = (
 				793EE7F7B5AFDC1ECEED0A38 /* HealthKit.framework */,
+				67DCABD39BF8028167B122BD /* WidgetKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -673,10 +733,12 @@
 			buildPhases = (
 				6965FB0C0FCCCF77E0FFF429 /* Sources */,
 				8D9202221C56F2678818B6F6 /* Frameworks */,
+				A4675E1450D5A23984466B6E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				97A7679B4C889BDF955E86F6 /* PBXTargetDependency */,
 			);
 			name = CoupleLife;
 			packageProductDependencies = (
@@ -684,6 +746,24 @@
 			productName = CoupleLife;
 			productReference = E05C56B65ABE346760F15BD0 /* CoupleLife.app */;
 			productType = "com.apple.product-type.application";
+		};
+		DE0D9C3255B4AC3BAB0E9E7F /* CoupleLifeWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1C7223CBCBA1D2672709646 /* Build configuration list for PBXNativeTarget "CoupleLifeWidgets" */;
+			buildPhases = (
+				D0C66EC043F0DC0BA612E116 /* Sources */,
+				7EEA550FC394D1DC616F6A5A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoupleLifeWidgets;
+			packageProductDependencies = (
+			);
+			productName = CoupleLifeWidgets;
+			productReference = 8EA83F5D46DA4B527F341890 /* CoupleLifeWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -712,6 +792,7 @@
 			targets = (
 				88BE2CD0D2268CF4409E4EE6 /* CoupleLife */,
 				258501C0073824AD0DD100D9 /* CoupleLifeTests */,
+				DE0D9C3255B4AC3BAB0E9E7F /* CoupleLifeWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -810,6 +891,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D0C66EC043F0DC0BA612E116 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0711F9D8E30E68FE33F3D62 /* AnniversaryCountdownWidget.swift in Sources */,
+				19EB1364B6C9B53436FB4171 /* CoupleLifeWidgetsBundle.swift in Sources */,
+				998622B7E2C1D9CE2A05D8DA /* TodayStepsWidget.swift in Sources */,
+				37D1674EB3F94B8D9ECC5AC2 /* TodayTasksWidget.swift in Sources */,
+				73341D0433CE030BC8FCE649 /* WidgetTheme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -817,6 +910,11 @@
 			isa = PBXTargetDependency;
 			target = 88BE2CD0D2268CF4409E4EE6 /* CoupleLife */;
 			targetProxy = D23325E4755DBACED05DF5BF /* PBXContainerItemProxy */;
+		};
+		97A7679B4C889BDF955E86F6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE0D9C3255B4AC3BAB0E9E7F /* CoupleLifeWidgets */;
+			targetProxy = 65645E2C9028E404F79D8383 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -918,6 +1016,27 @@
 			};
 			name = Release;
 		};
+		B0707A8CFCCEC52D77EB2BD7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				COUPLELIFE_HOST_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CoupleLifeWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife.widgets;
+				PRODUCT_NAME = CoupleLifeWidgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		BBF9A2CCA9C839A42700DC84 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -941,6 +1060,27 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		E49A30477EA46B12CBD14D4B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				COUPLELIFE_HOST_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CoupleLifeWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ar1shadow.couplelife.widgets;
+				PRODUCT_NAME = CoupleLifeWidgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		E71E4CB19D8DD4197D7A16FA /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -1048,6 +1188,15 @@
 			buildConfigurations = (
 				5A5F0790DF47253DE6240F49 /* Debug */,
 				BBF9A2CCA9C839A42700DC84 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E1C7223CBCBA1D2672709646 /* Build configuration list for PBXNativeTarget "CoupleLifeWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E49A30477EA46B12CBD14D4B /* Debug */,
+				B0707A8CFCCEC52D77EB2BD7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -25,9 +25,29 @@ targets:
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: CoupleLife 当前不会写入你的健康数据。
     dependencies:
       - sdk: HealthKit.framework
+      - target: CoupleLifeWidgets
+        embed: true
     scheme:
       testTargets:
         - CoupleLifeTests
+  CoupleLifeWidgets:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: CoupleLifeWidgets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ar1shadow.couplelife.widgets
+        PRODUCT_NAME: CoupleLifeWidgets
+        COUPLELIFE_HOST_BUNDLE_IDENTIFIER: com.ar1shadow.couplelife
+        INFOPLIST_FILE: CoupleLifeWidgets/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: NO
+    dependencies:
+      - sdk: WidgetKit.framework
+    scheme: {}
   CoupleLifeTests:
     type: bundle.unit-test
     platform: iOS
