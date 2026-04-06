@@ -51,6 +51,58 @@ final class FitnessDashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.visibleSummary?.steps, 5678)
     }
 
+    func testLoadShowsExpandedAvailableMessageWhenAllMetricsAreMissing() async {
+        let content = makeEmptyContent(isCurrentDayCacheStale: false)
+        let service = StubFitnessDashboardService(contents: [content])
+        let healthService = StubFitnessHealthDataService(
+            availabilitySequence: [.available],
+            requestAuthorizationAvailability: .available,
+            refreshAvailability: .available
+        )
+        let viewModel = FitnessDashboardViewModel(
+            service: service,
+            healthDataService: healthService,
+            ownerUserId: "u1"
+        )
+
+        await viewModel.load()
+
+        guard case .loaded(let healthState) = viewModel.state else {
+            return XCTFail("Expected loaded state")
+        }
+
+        XCTAssertEqual(
+            healthState.message,
+            "已连接健康服务。若暂无缓存，请确认系统健康权限已开放步数、距离、能量、运动、站立、睡眠和静息心率读取后手动刷新。"
+        )
+    }
+
+    func testLoadShowsExpandedAuthorizationMessageWhenNotAuthorized() async {
+        let content = makeContent(isCurrentDayCacheStale: false)
+        let service = StubFitnessDashboardService(contents: [content])
+        let healthService = StubFitnessHealthDataService(
+            availabilitySequence: [.notAuthorized],
+            requestAuthorizationAvailability: .notAuthorized,
+            refreshAvailability: .notAuthorized
+        )
+        let viewModel = FitnessDashboardViewModel(
+            service: service,
+            healthDataService: healthService,
+            ownerUserId: "u1"
+        )
+
+        await viewModel.load()
+
+        guard case .loaded(let healthState) = viewModel.state else {
+            return XCTFail("Expected loaded state")
+        }
+
+        XCTAssertEqual(
+            healthState.message,
+            "未授权。请点按“连接健康数据”，随后在系统健康权限页开启步数、距离、能量、运动、站立、睡眠与心率读取。"
+        )
+    }
+
     private func makeContent(
         isCurrentDayCacheStale: Bool,
         daySteps: Double = 4321
@@ -70,6 +122,22 @@ final class FitnessDashboardViewModelTests: XCTestCase {
                 .week: [FitnessTrendPoint(date: weekStart, label: "4/1", value: 21_000)],
                 .month: [FitnessTrendPoint(date: monthStart, label: "4月", value: 100_000)]
             ],
+            isCurrentDayCacheStale: isCurrentDayCacheStale
+        )
+    }
+
+    private func makeEmptyContent(isCurrentDayCacheStale: Bool) -> FitnessDashboardContent {
+        let dayStart = Date(timeIntervalSince1970: 1_699_977_600)
+        let weekStart = Date(timeIntervalSince1970: 1_699_459_200)
+        let monthStart = Date(timeIntervalSince1970: 1_698_796_800)
+
+        return FitnessDashboardContent(
+            summaries: [
+                .day: HealthMetricSnapshot(dayStart: dayStart, ownerUserId: "u1", bucket: .day),
+                .week: HealthMetricSnapshot(dayStart: weekStart, ownerUserId: "u1", bucket: .week),
+                .month: HealthMetricSnapshot(dayStart: monthStart, ownerUserId: "u1", bucket: .month)
+            ],
+            trendSeries: [.day: [], .week: [], .month: []],
             isCurrentDayCacheStale: isCurrentDayCacheStale
         )
     }

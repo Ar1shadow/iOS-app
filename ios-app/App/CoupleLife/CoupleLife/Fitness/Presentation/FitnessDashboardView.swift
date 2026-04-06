@@ -135,19 +135,26 @@ struct FitnessDashboardView: View {
             }
 
             if viewModel.hasAnyTrendData {
-                Chart(viewModel.visibleTrend, id: \.date) { point in
-                    BarMark(
-                        x: .value("日期", point.label),
-                        y: .value("步数", point.value ?? 0)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [AppColorToken.green.color.opacity(point.value == nil ? 0.18 : 0.45), AppColorToken.indigo.color.opacity(point.value == nil ? 0.28 : 0.85)],
-                            startPoint: .bottom,
-                            endPoint: .top
+                Chart(FitnessTrendChartMark.make(for: viewModel.visibleTrend), id: \.id) { mark in
+                    switch mark {
+                    case .value(_, let label, let value):
+                        BarMark(
+                            x: .value("日期", label),
+                            y: .value("步数", value)
                         )
-                    )
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [AppColorToken.green.color.opacity(0.45), AppColorToken.indigo.color.opacity(0.85)],
+                                startPoint: .bottom,
+                                endPoint: .top
+                            )
+                        )
+                    case .missing(_, let label):
+                        RuleMark(x: .value("日期", label))
+                            .foregroundStyle(AppColorToken.slate.color.opacity(0.45))
+                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    }
                 }
                 .chartYAxis {
                     AxisMarks(position: .leading)
@@ -221,7 +228,7 @@ struct FitnessDashboardView: View {
         case .available:
             return "优先展示本地缓存，刷新时后台更新 day/week/month 汇总"
         case .notAuthorized:
-            return "开启后可同步步数、睡眠摘要和静息心率"
+            return "开启后可同步步数、距离、能量、运动、站立、睡眠和静息心率"
         case .notSupported:
             return "保留空态与语义占位，不触发无效读取"
         case .failed:
@@ -314,7 +321,7 @@ struct FitnessDashboardView: View {
     }
 }
 
-private enum FitnessMetricCard: CaseIterable {
+enum FitnessMetricCard: CaseIterable {
     case steps
     case sleep
     case restingHeartRate
@@ -388,19 +395,42 @@ private enum FitnessMetricCard: CaseIterable {
     func detailText(from snapshot: HealthMetricSnapshot?) -> String {
         switch self {
         case .steps:
-            return snapshot?.steps == nil ? "等待系统同步步数缓存" : "来自 Apple 健康的累计步数"
+            return snapshot?.steps == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         case .sleep:
-            return snapshot?.sleepSeconds == nil ? "等待系统同步睡眠摘要" : "按所选粒度汇总的睡眠时长"
+            return snapshot?.sleepSeconds == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         case .restingHeartRate:
-            return snapshot?.restingHeartRate == nil ? "等待系统同步静息心率" : "按所选粒度聚合的静息心率"
+            return snapshot?.restingHeartRate == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         case .distance:
-            return "Task 600 尚未填充距离缓存"
+            return snapshot?.distanceMeters == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         case .activeEnergy:
-            return "Task 600 尚未填充能量缓存"
+            return snapshot?.activeEnergyKcal == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         case .exercise:
-            return "Task 600 尚未填充运动时长缓存"
+            return snapshot?.exerciseMinutes == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
         case .stand:
-            return "Task 600 尚未填充站立时长缓存"
+            return snapshot?.standMinutes == nil ? "暂无缓存，请授权并刷新。" : "来自 Apple 健康的聚合数据"
+        }
+    }
+}
+
+enum FitnessTrendChartMark: Equatable {
+    case value(date: Date, label: String, value: Double)
+    case missing(date: Date, label: String)
+
+    var id: String {
+        switch self {
+        case .value(let date, let label, _):
+            return "value-\(date.timeIntervalSince1970)-\(label)"
+        case .missing(let date, let label):
+            return "missing-\(date.timeIntervalSince1970)-\(label)"
+        }
+    }
+
+    static func make(for points: [FitnessTrendPoint]) -> [FitnessTrendChartMark] {
+        points.map { point in
+            if let value = point.value {
+                return .value(date: point.date, label: point.label, value: value)
+            }
+            return .missing(date: point.date, label: point.label)
         }
     }
 }

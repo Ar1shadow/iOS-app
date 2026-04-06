@@ -130,16 +130,28 @@ final class FitnessDashboardViewModel: ObservableObject {
 
     private func message(for availability: ServiceAvailability, content: FitnessDashboardContent) -> String? {
         switch availability {
-        case .available where content.summaries.values.allSatisfy({ $0.steps == nil && $0.sleepSeconds == nil && $0.restingHeartRate == nil }):
-            return "已连接健康服务。若暂无步数、睡眠或静息心率，请确认系统健康权限后手动刷新缓存。"
+        case .available where content.summaries.values.allSatisfy({ FitnessDashboardMetricAvailability.hasNoCachedMetrics($0) }):
+            return "已连接健康服务。若暂无缓存，请确认系统健康权限已开放步数、距离、能量、运动、站立、睡眠和静息心率读取后手动刷新。"
         case .available:
             return nil
         case .notAuthorized:
-            return "未授权。请点按“连接健康数据”，随后在系统健康权限页开启步数、睡眠与心率读取。"
+            return "未授权。请点按“连接健康数据”，随后在系统健康权限页开启步数、距离、能量、运动、站立、睡眠与心率读取。"
         case .notSupported:
             return "当前设备或环境不支持 HealthKit，模拟器通常也不会返回真实健康数据。"
         case .failed(let message):
             return message
         }
+    }
+}
+
+enum FitnessDashboardMetricAvailability {
+    static func hasNoCachedMetrics(_ snapshot: HealthMetricSnapshot) -> Bool {
+        snapshot.steps == nil &&
+        snapshot.distanceMeters == nil &&
+        snapshot.activeEnergyKcal == nil &&
+        snapshot.exerciseMinutes == nil &&
+        snapshot.standMinutes == nil &&
+        snapshot.sleepSeconds == nil &&
+        snapshot.restingHeartRate == nil
     }
 }
