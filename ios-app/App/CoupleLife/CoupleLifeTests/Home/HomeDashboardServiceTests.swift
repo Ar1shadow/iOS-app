@@ -211,4 +211,13 @@ private final class InMemoryHealthSnapshotRepository: HealthSnapshotRepository {
     func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
         try snapshot(bucket: .day, start: dayStart, ownerUserId: ownerUserId)
     }
+
+    func snapshots(bucket: HealthMetricBucket, from startDate: Date, to endDate: Date, ownerUserId: String) throws -> [HealthMetricSnapshot] {
+        guard let snapshot = try snapshot(bucket: bucket, start: startDate, ownerUserId: ownerUserId),
+              snapshot.dayStart >= startDate,
+              snapshot.dayStart < endDate else {
+            return []
+        }
+        return [snapshot]
+    }
 }

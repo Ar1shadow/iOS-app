@@ -1,10 +1,23 @@
 import SwiftUI
 
 struct FitnessTab: View {
+    private let healthSnapshotRepository: any HealthSnapshotRepository
+    private let healthDataService: any HealthDataService
+
+    init(
+        healthSnapshotRepository: any HealthSnapshotRepository,
+        healthDataService: any HealthDataService
+    ) {
+        self.healthSnapshotRepository = healthSnapshotRepository
+        self.healthDataService = healthDataService
+    }
+
     var body: some View {
         NavigationStack {
-            ContentUnavailableView("运动", systemImage: "figure.walk", description: Text("Phase 1 占位页面"))
-                .navigationTitle("运动")
+            FitnessDashboardView(
+                healthSnapshotRepository: healthSnapshotRepository,
+                healthDataService: healthDataService
+            )
         }
     }
 }

@@ -5,6 +5,7 @@ protocol HealthSnapshotRepository {
     func upsert(_ snapshot: HealthMetricSnapshot) throws
     func snapshot(bucket: HealthMetricBucket, start: Date, ownerUserId: String) throws -> HealthMetricSnapshot?
     func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot?
+    func snapshots(bucket: HealthMetricBucket, from startDate: Date, to endDate: Date, ownerUserId: String) throws -> [HealthMetricSnapshot]
 }
 
 final class SwiftDataHealthSnapshotRepository: HealthSnapshotRepository {
@@ -49,5 +50,17 @@ final class SwiftDataHealthSnapshotRepository: HealthSnapshotRepository {
 
     func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
         try snapshot(bucket: .day, start: dayStart, ownerUserId: ownerUserId)
+    }
+
+    func snapshots(bucket: HealthMetricBucket, from startDate: Date, to endDate: Date, ownerUserId: String) throws -> [HealthMetricSnapshot] {
+        let predicate = #Predicate<HealthMetricSnapshot> {
+            $0.bucketRaw == bucket.rawValue &&
+            $0.ownerUserId == ownerUserId &&
+            $0.dayStart >= startDate &&
+            $0.dayStart < endDate
+        }
+        var descriptor = FetchDescriptor<HealthMetricSnapshot>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.dayStart, order: .forward)]
+        return try context.fetch(descriptor)
     }
 }

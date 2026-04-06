@@ -29,7 +29,10 @@ struct RootTabView: View {
             )
                 .tabItem { Label(AppTab.planning.title, systemImage: AppTab.planning.systemImage) }
 
-            FitnessTab()
+            FitnessTab(
+                healthSnapshotRepository: healthSnapshotRepository,
+                healthDataService: appContainer.healthData
+            )
                 .tabItem { Label(AppTab.fitness.title, systemImage: AppTab.fitness.systemImage) }
 
             ProfileTab(
