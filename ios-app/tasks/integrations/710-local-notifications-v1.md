@@ -38,12 +38,14 @@
 - 已实现 `UserNotificationScheduler`，通过稳定 identifier 覆盖任务提醒与喝水提醒，支持授权请求、创建、更新、取消与批量清理。
 - `DefaultPlanningTaskService` 在任务创建/更新/完成/取消/删除后做最佳努力通知联动；通知失败不会阻断任务 CRUD。
 - `ProfileTab` 展示真实通知授权状态并提供授权入口，`PlanningTab` 增加任务提醒/喝水提醒开关与未授权降级文案。
+- 后续修正：Profile 加载时会通过 `NotificationSettingsController.currentStatus()` 自动对齐已存提醒开关，系统权限被撤销后无需进入 Planning 也会关闭失效开关并取消待触发提醒。
+- 后续修正：任务提醒相关异步调度在 `Task` 内再次检查设置开关，避免用户快速关闭提醒后仍继续调度旧通知。
 
 ## 验证记录
 
 - `cd ios-app/App/CoupleLife && xcodegen generate`
 - `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
-- 结果：111 个测试全部通过；新增通知设置控制器、调度器适配层、任务服务通知规则与 Profile 授权入口测试均通过。
+- 结果：115 个测试全部通过；新增通知设置控制器、调度器适配层、任务服务通知规则、Profile 授权入口与权限撤销回归测试均通过。
 
 ## 已知风险/遗留
 

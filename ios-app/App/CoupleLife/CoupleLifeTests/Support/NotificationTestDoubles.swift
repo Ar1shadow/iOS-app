@@ -24,6 +24,8 @@ final class TestNotificationScheduler: NotificationScheduler {
     var didScheduleWaterReminder = false
     var didCancelWaterReminder = false
     var operationExpectation: XCTestExpectation?
+    var onCancelAllTaskReminders: (() async -> Void)?
+    var onScheduleTaskReminder: (() async -> Void)?
 
     func availability() async -> ServiceAvailability {
         serviceAvailability
@@ -34,6 +36,7 @@ final class TestNotificationScheduler: NotificationScheduler {
     }
 
     func scheduleTaskReminder(_ reminder: TaskReminderPayload) async {
+        await onScheduleTaskReminder?()
         scheduledTaskReminders.append(reminder)
         operationExpectation?.fulfill()
     }
@@ -44,6 +47,7 @@ final class TestNotificationScheduler: NotificationScheduler {
     }
 
     func cancelAllTaskReminders() async {
+        await onCancelAllTaskReminders?()
         didCancelAllTaskReminders = true
         operationExpectation?.fulfill()
     }
@@ -94,5 +98,23 @@ final class FakeUserNotificationCenter: UserNotificationCenterClient {
 
     func removeDeliveredNotifications(withIdentifiers identifiers: [String]) {
         removedDeliveredIdentifiers.append(identifiers)
+    }
+}
+
+actor AsyncGate {
+    private var continuation: CheckedContinuation<Void, Never>?
+    private var isOpen = false
+
+    func wait() async {
+        guard !isOpen else { return }
+        await withCheckedContinuation { continuation in
+            self.continuation = continuation
+        }
+    }
+
+    func open() {
+        isOpen = true
+        continuation?.resume()
+        continuation = nil
     }
 }

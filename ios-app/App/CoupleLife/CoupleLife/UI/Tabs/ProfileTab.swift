@@ -20,6 +20,10 @@ struct ProfileTab: View {
                     calendarSyncService: calendarSyncService,
                     settingsStore: calendarSyncSettings
                 ),
+                notificationController: DefaultNotificationSettingsController(
+                    notificationScheduler: notificationScheduler,
+                    settingsStore: UserDefaultsNotificationSettingsStore()
+                ),
                 notificationScheduler: notificationScheduler,
                 cloudSyncService: cloudSyncService
             )
@@ -285,11 +289,20 @@ struct ProfileTab: View {
     }
 
     private var notificationSummary: String {
-        switch viewModel.notificationAvailability {
+        switch viewModel.notificationSettingsStatus.availability {
         case .available:
-            return "已允许本地通知。你仍需在计划页单独开启任务提醒或喝水提醒，关闭后不会继续触发。"
+            switch (viewModel.notificationSettingsStatus.isTaskRemindersEnabled, viewModel.notificationSettingsStatus.isWaterReminderEnabled) {
+            case (true, true):
+                return "已允许通知，任务提醒和喝水提醒都保持开启。若你刚恢复授权，可前往计划页确认提醒配置。"
+            case (true, false):
+                return "已允许通知，任务提醒保持开启；喝水提醒关闭。"
+            case (false, true):
+                return "已允许通知，喝水提醒保持开启；任务提醒关闭。"
+            case (false, false):
+                return "已允许本地通知，但任务提醒和喝水提醒目前都未开启。"
+            }
         case .notAuthorized:
-            return "尚未授权通知。授权前不会发送任何任务提醒或喝水提醒；你也可以前往系统设置修改。"
+            return "尚未授权通知。若系统权限被撤销，已保存的提醒开关会自动关闭并停止触发。"
         case .notSupported:
             return "当前环境不支持本地通知提醒；计划页中的相关开关会保持禁用。"
         case .failed(let message):
@@ -298,9 +311,16 @@ struct ProfileTab: View {
     }
 
     private var notificationStatusText: String {
-        switch viewModel.notificationAvailability {
+        switch viewModel.notificationSettingsStatus.availability {
         case .available:
-            return "已授权"
+            switch (viewModel.notificationSettingsStatus.isTaskRemindersEnabled, viewModel.notificationSettingsStatus.isWaterReminderEnabled) {
+            case (true, true):
+                return "已授权，2 项提醒开启"
+            case (true, false), (false, true):
+                return "已授权，1 项提醒开启"
+            case (false, false):
+                return "已授权，未开启"
+            }
         case .notAuthorized:
             return "未授权"
         case .notSupported:
@@ -311,18 +331,18 @@ struct ProfileTab: View {
     }
 
     private var notificationStatusColorToken: AppColorToken {
-        switch viewModel.notificationAvailability {
+        switch viewModel.notificationSettingsStatus.availability {
         case .available:
-            return .green
+            return (viewModel.notificationSettingsStatus.isTaskRemindersEnabled || viewModel.notificationSettingsStatus.isWaterReminderEnabled) ? .green : .indigo
         case .notAuthorized, .notSupported, .failed:
             return .slate
         }
     }
 
     private var notificationStatusSymbolName: String {
-        switch viewModel.notificationAvailability {
+        switch viewModel.notificationSettingsStatus.availability {
         case .available:
-            return "bell.badge"
+            return (viewModel.notificationSettingsStatus.isTaskRemindersEnabled || viewModel.notificationSettingsStatus.isWaterReminderEnabled) ? "bell.badge" : "bell"
         case .notAuthorized:
             return "bell.slash"
         case .notSupported, .failed:

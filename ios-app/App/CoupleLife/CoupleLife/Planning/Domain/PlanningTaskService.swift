@@ -173,8 +173,6 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     }
 
     func backfillTaskReminders() throws {
-        guard notificationSettings.isTaskRemindersEnabled else { return }
-
         let now = nowProvider()
         let tasks = try loadTasks()
             .filter { $0.status == .todo || $0.status == .postponed }
@@ -189,8 +187,10 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             }
 
         Task {
+            guard notificationSettings.isTaskRemindersEnabled else { return }
             await notificationScheduler.cancelAllTaskReminders()
             for reminder in tasks {
+                guard notificationSettings.isTaskRemindersEnabled else { return }
                 await notificationScheduler.scheduleTaskReminder(reminder)
             }
         }
@@ -294,8 +294,6 @@ final class DefaultPlanningTaskService: PlanningTaskService {
     }
 
     private func performPostPersistenceNotificationSync(for task: TaskItem) {
-        guard notificationSettings.isTaskRemindersEnabled else { return }
-
         guard task.status == .todo || task.status == .postponed else {
             cancelLinkedNotificationReminderIfNeeded(taskID: task.id)
             return
@@ -314,14 +312,14 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         )
 
         Task {
+            guard notificationSettings.isTaskRemindersEnabled else { return }
             await notificationScheduler.scheduleTaskReminder(reminder)
         }
     }
 
     private func cancelLinkedNotificationReminderIfNeeded(taskID: UUID) {
-        guard notificationSettings.isTaskRemindersEnabled else { return }
-
         Task {
+            guard notificationSettings.isTaskRemindersEnabled else { return }
             await notificationScheduler.cancelTaskReminder(id: taskID)
         }
     }

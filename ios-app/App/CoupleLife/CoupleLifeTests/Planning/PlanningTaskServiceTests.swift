@@ -345,6 +345,46 @@ final class PlanningTaskServiceTests: XCTestCase {
         XCTAssertTrue(notificationScheduler.scheduledTaskReminders.allSatisfy { $0.kind == .personalTask })
     }
 
+    func testBackfillTaskRemindersDoesNotScheduleWhenDisabledBeforeAsyncWorkContinues() throws {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let futureDue = Date(timeIntervalSince1970: 1_700_003_600)
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            TaskItem(title: "未来截止", dueAt: futureDue, status: .todo, planLevel: .day, ownerUserId: "local")
+        ])
+        let notificationScheduler = TestNotificationScheduler()
+        let notificationSettings = TestNotificationSettingsStore(isTaskRemindersEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings,
+            nowProvider: { now }
+        )
+        let cancelAllStarted = expectation(description: "cancel all started")
+        let completed = expectation(description: "backfill settled")
+        let gate = AsyncGate()
+
+        notificationScheduler.onCancelAllTaskReminders = {
+            cancelAllStarted.fulfill()
+            await gate.wait()
+        }
+        notificationScheduler.onScheduleTaskReminder = {
+            XCTFail("should not schedule reminders after settings were disabled")
+        }
+
+        try service.backfillTaskReminders()
+        wait(for: [cancelAllStarted], timeout: 1.0)
+        notificationSettings.isTaskRemindersEnabled = false
+        Task { await gate.open() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            completed.fulfill()
+        }
+        wait(for: [completed], timeout: 1.0)
+
+        XCTAssertTrue(notificationScheduler.didCancelAllTaskReminders)
+        XCTAssertTrue(notificationScheduler.scheduledTaskReminders.isEmpty)
+    }
+
     func testUpdateTaskKeepsCrudWorkingWhenCalendarSyncFails() throws {
         let repository = InMemoryPlanningTaskRepository(tasks: [])
         let calendarSync = TestCalendarSyncService()

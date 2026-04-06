@@ -5,6 +5,11 @@ final class ProfileSettingsViewModel: ObservableObject {
     @Published private(set) var hasLoadedOnce = false
     @Published private(set) var healthAvailability: ServiceAvailability = .notSupported
     @Published private(set) var calendarSyncStatus = CalendarSyncStatus(isEnabled: false, availability: .notSupported)
+    @Published private(set) var notificationSettingsStatus = NotificationSettingsStatus(
+        isTaskRemindersEnabled: false,
+        isWaterReminderEnabled: false,
+        availability: .notSupported
+    )
     @Published private(set) var notificationAvailability: ServiceAvailability = .notSupported
     @Published private(set) var cloudSyncAvailability: ServiceAvailability = .notSupported
     @Published private(set) var isLoading = false
@@ -14,17 +19,23 @@ final class ProfileSettingsViewModel: ObservableObject {
 
     private let healthDataService: any HealthDataService
     private let calendarSyncController: any CalendarSyncSettingsControlling
+    private let notificationController: any NotificationSettingsControlling
     private let notificationScheduler: any NotificationScheduler
     private let cloudSyncService: any CloudSyncService
 
     init(
         healthDataService: any HealthDataService,
         calendarSyncController: any CalendarSyncSettingsControlling,
+        notificationController: any NotificationSettingsControlling = DefaultNotificationSettingsController(
+            notificationScheduler: NoopNotificationScheduler(),
+            settingsStore: UserDefaultsNotificationSettingsStore()
+        ),
         notificationScheduler: any NotificationScheduler,
         cloudSyncService: any CloudSyncService
     ) {
         self.healthDataService = healthDataService
         self.calendarSyncController = calendarSyncController
+        self.notificationController = notificationController
         self.notificationScheduler = notificationScheduler
         self.cloudSyncService = cloudSyncService
     }
@@ -35,7 +46,8 @@ final class ProfileSettingsViewModel: ObservableObject {
 
         healthAvailability = await healthDataService.availability()
         calendarSyncStatus = await calendarSyncController.currentStatus()
-        notificationAvailability = await notificationScheduler.availability()
+        notificationSettingsStatus = await notificationController.currentStatus()
+        notificationAvailability = notificationSettingsStatus.availability
         cloudSyncAvailability = await cloudSyncService.availability()
         hasLoadedOnce = true
     }
@@ -50,6 +62,8 @@ final class ProfileSettingsViewModel: ObservableObject {
         isRequestingNotificationAuthorization = true
         defer { isRequestingNotificationAuthorization = false }
         notificationAvailability = await notificationScheduler.requestAuthorization()
+        notificationSettingsStatus = await notificationController.currentStatus()
+        notificationAvailability = notificationSettingsStatus.availability
     }
 
     func setCalendarSyncEnabled(_ enabled: Bool) async {
