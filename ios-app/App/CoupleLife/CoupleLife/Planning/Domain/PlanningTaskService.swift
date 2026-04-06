@@ -33,6 +33,7 @@ protocol PlanningTaskService {
     func postponeTask(_ task: TaskItem) throws
     func cancelTask(_ task: TaskItem) throws
     func deleteTask(_ task: TaskItem) throws
+    func backfillTaskReminders() throws
 }
 
 final class DefaultPlanningTaskService: PlanningTaskService {
@@ -169,6 +170,30 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         try taskRepository.delete(task)
         _ = deleteLinkedCalendarEventIfNeeded(eventIdentifier)
         cancelLinkedNotificationReminderIfNeeded(taskID: taskID)
+    }
+
+    func backfillTaskReminders() throws {
+        guard notificationSettings.isTaskRemindersEnabled else { return }
+
+        let now = nowProvider()
+        let tasks = try loadTasks()
+            .filter { $0.status == .todo || $0.status == .postponed }
+            .compactMap { task -> TaskReminderPayload? in
+                guard let fireDate = task.dueAt ?? task.startAt, fireDate > now else { return nil }
+                return TaskReminderPayload(
+                    id: task.id,
+                    title: task.title,
+                    fireDate: fireDate,
+                    kind: .personalTask
+                )
+            }
+
+        Task {
+            await notificationScheduler.cancelAllTaskReminders()
+            for reminder in tasks {
+                await notificationScheduler.scheduleTaskReminder(reminder)
+            }
+        }
     }
 
     private func validate(_ draft: PlanningTaskDraft) throws -> PlanningTaskDraft {

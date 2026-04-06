@@ -274,6 +274,14 @@ final class PlanningViewModel: ObservableObject {
         isUpdatingNotificationSettings = true
         defer { isUpdatingNotificationSettings = false }
         notificationSettingsStatus = await notificationController.setTaskRemindersEnabled(enabled)
+
+        guard enabled, notificationSettingsStatus.isTaskRemindersEnabled else { return }
+
+        do {
+            try service.backfillTaskReminders()
+        } catch {
+            // Reminder backfill is best-effort; keep settings state stable when task loading fails.
+        }
     }
 
     func setWaterReminderEnabled(_ enabled: Bool) async {

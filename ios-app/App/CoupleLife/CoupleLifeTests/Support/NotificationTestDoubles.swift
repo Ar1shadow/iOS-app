@@ -45,6 +45,7 @@ final class TestNotificationScheduler: NotificationScheduler {
 
     func cancelAllTaskReminders() async {
         didCancelAllTaskReminders = true
+        operationExpectation?.fulfill()
     }
 
     func scheduleWaterReminder() async {

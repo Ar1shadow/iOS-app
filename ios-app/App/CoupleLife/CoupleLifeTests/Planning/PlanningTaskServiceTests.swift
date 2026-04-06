@@ -312,6 +312,39 @@ final class PlanningTaskServiceTests: XCTestCase {
         XCTAssertEqual(notificationScheduler.cancelledTaskIDs, [task.id])
     }
 
+    func testBackfillTaskRemindersCancelsExistingRequestsAndSchedulesFutureActiveTasks() throws {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let futureDue = Date(timeIntervalSince1970: 1_700_003_600)
+        let futureStart = Date(timeIntervalSince1970: 1_700_007_200)
+        let repository = InMemoryPlanningTaskRepository(tasks: [
+            TaskItem(title: "未来截止", dueAt: futureDue, status: .todo, planLevel: .day, ownerUserId: "local"),
+            TaskItem(title: "未来开始", startAt: futureStart, status: .postponed, planLevel: .day, ownerUserId: "local"),
+            TaskItem(title: "已过期", dueAt: Date(timeIntervalSince1970: 1_699_999_000), status: .todo, planLevel: .day, ownerUserId: "local"),
+            TaskItem(title: "已完成", dueAt: futureDue, status: .done, planLevel: .day, ownerUserId: "local"),
+            TaskItem(title: "其他人任务", dueAt: futureDue, status: .todo, planLevel: .day, ownerUserId: "other")
+        ])
+        let notificationScheduler = TestNotificationScheduler()
+        let notificationSettings = TestNotificationSettingsStore(isTaskRemindersEnabled: true)
+        let service = DefaultPlanningTaskService(
+            taskRepository: repository,
+            ownerUserId: "local",
+            notificationScheduler: notificationScheduler,
+            notificationSettings: notificationSettings,
+            nowProvider: { now }
+        )
+        let expectation = expectation(description: "backfill reminders")
+        expectation.expectedFulfillmentCount = 3
+        notificationScheduler.operationExpectation = expectation
+
+        try service.backfillTaskReminders()
+        wait(for: [expectation], timeout: 1.0)
+
+        XCTAssertTrue(notificationScheduler.didCancelAllTaskReminders)
+        XCTAssertEqual(notificationScheduler.scheduledTaskReminders.map(\.title), ["未来截止", "未来开始"])
+        XCTAssertEqual(notificationScheduler.scheduledTaskReminders.map(\.fireDate), [futureDue, futureStart])
+        XCTAssertTrue(notificationScheduler.scheduledTaskReminders.allSatisfy { $0.kind == .personalTask })
+    }
+
     func testUpdateTaskKeepsCrudWorkingWhenCalendarSyncFails() throws {
         let repository = InMemoryPlanningTaskRepository(tasks: [])
         let calendarSync = TestCalendarSyncService()

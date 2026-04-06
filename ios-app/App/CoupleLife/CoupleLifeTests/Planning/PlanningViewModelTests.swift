@@ -376,6 +376,31 @@ final class PlanningViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.customDateRangeEnd, makeDate(year: 2024, month: 3, day: 24, hour: 23, calendar: calendar))
     }
 
+    func testEnableTaskRemindersBackfillsExistingTasksAfterSuccessfulAuthorization() async {
+        let service = TestPlanningTaskService()
+        let notificationController = TestNotificationSettingsController(
+            statusAfterToggle: NotificationSettingsStatus(
+                isTaskRemindersEnabled: true,
+                isWaterReminderEnabled: false,
+                availability: .available
+            )
+        )
+        let viewModel = PlanningViewModel(
+            service: service,
+            calendarSyncController: DefaultCalendarSyncSettingsController(
+                calendarSyncService: TestCalendarSyncService(),
+                settingsStore: TestCalendarSyncSettingsStore(isEnabled: false)
+            ),
+            notificationController: notificationController,
+            calendar: fixedCalendar(),
+            nowProvider: Date.init
+        )
+
+        await viewModel.setTaskRemindersEnabled(true)
+
+        XCTAssertEqual(service.backfillTaskRemindersCallCount, 1)
+    }
+
     private func makeViewModel(
         repository: InMemoryPlanningTaskRepository,
         calendar: Calendar,
@@ -442,6 +467,46 @@ final class PlanningViewModelTests: XCTestCase {
             hour: hour
         )
         return components.date!
+    }
+}
+
+private final class TestPlanningTaskService: PlanningTaskService {
+    private(set) var backfillTaskRemindersCallCount = 0
+
+    func loadTasks() throws -> [TaskItem] { [] }
+    func makeDraft(for task: TaskItem?) -> PlanningTaskDraft {
+        PlanningTaskDraft(title: "", detail: "", planLevel: .day, status: .todo, startAt: nil, dueAt: nil, isAllDay: false)
+    }
+    func createTask(from draft: PlanningTaskDraft) throws -> TaskItem {
+        fatalError("unused")
+    }
+    func updateTask(_ task: TaskItem, from draft: PlanningTaskDraft) throws {}
+    func markTaskDone(_ task: TaskItem) throws {}
+    func postponeTask(_ task: TaskItem) throws {}
+    func cancelTask(_ task: TaskItem) throws {}
+    func deleteTask(_ task: TaskItem) throws {}
+    func backfillTaskReminders() throws {
+        backfillTaskRemindersCallCount += 1
+    }
+}
+
+private final class TestNotificationSettingsController: NotificationSettingsControlling {
+    private let statusAfterToggle: NotificationSettingsStatus
+
+    init(statusAfterToggle: NotificationSettingsStatus) {
+        self.statusAfterToggle = statusAfterToggle
+    }
+
+    func currentStatus() async -> NotificationSettingsStatus {
+        statusAfterToggle
+    }
+
+    func setTaskRemindersEnabled(_ enabled: Bool) async -> NotificationSettingsStatus {
+        statusAfterToggle
+    }
+
+    func setWaterReminderEnabled(_ enabled: Bool) async -> NotificationSettingsStatus {
+        statusAfterToggle
     }
 }
 
