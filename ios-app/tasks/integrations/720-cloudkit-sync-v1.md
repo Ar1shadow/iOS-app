@@ -48,6 +48,12 @@
 - 命令: `xcodebuild test -quiet -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-task720 -only-testing:CoupleLifeTests/CloudSyncRoutePlannerTests -only-testing:CoupleLifeTests/CloudSyncConflictResolverTests -only-testing:CoupleLifeTests/DefaultCloudSyncServiceTests -only-testing:CoupleLifeTests/ProfileSettingsViewModelTests`
 - 结果: 通过，exit code 0。
 - 命令: `xcodebuild test -quiet -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-final`
-- 结果: 通过，exit code 0；仍有既有 warning：widget extension `CFBundleVersion` 与宿主 app 不一致。
+- 结果: 通过，exit code 0；当时仍有既有 warning：widget extension `CFBundleVersion` 与宿主 app 不一致。
+- 修复: 合入 main 后新增主 app 显式 `Info.plist`，主 app 与 widget `CFBundleVersion` 均为 `1`。
+- 命令: `xcodebuild test -quiet -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-main-final4`
+- 结果: 通过，exit code 0；`CFBundleVersion` warning 已消失。
+- 命令: `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -showdestinations`
+- 结果: 未发现实体 iPhone destination；只有 `Any iOS Device` placeholder 与 simulator placeholder，真机 CloudKit 联调被环境阻塞。
 - 手测: 未做真机/iCloud 双端联调。
 - 遗留风险: 真机 iCloud 账号、CloudKit schema 部署、共享库 zone/邀请关系仍需设备联调；当前验证覆盖代码路径、权限降级、路由、冲突与本地投影规则。
+- 重大风险: 当前 CloudKit client 已接入 private/shared database 读写路径，但未完成 CKShare 创建、邀请、接受共享和 custom zone 生命周期；真双端共享必须用实体设备验证后才能标记为产品级通过。

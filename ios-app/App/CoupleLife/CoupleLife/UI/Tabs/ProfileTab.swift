@@ -180,26 +180,12 @@ struct ProfileTab: View {
                     .disabled(viewModel.isRefreshingCloudSync || viewModel.cloudSyncAvailability == .notSupported)
                 }
 
-                if !viewModel.cloudSyncStatus.diagnostics.isEmpty {
-                    Divider()
+                Divider()
 
-                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                        Text("恢复建议")
-                            .font(AppTypography.body.weight(.semibold))
-                            .foregroundStyle(AppColorToken.textPrimary.color)
-
-                        ForEach(Array(viewModel.cloudSyncStatus.diagnostics.enumerated()), id: \.offset) { _, diagnostic in
-                            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                                Text(diagnostic.message)
-                                    .font(AppTypography.body)
-                                    .foregroundStyle(AppColorToken.textPrimary.color)
-                                Text(diagnostic.recoverySuggestion)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColorToken.textSecondary.color)
-                            }
-                        }
-                    }
-                }
+                CloudSyncDiagnosticsPanel(
+                    status: viewModel.cloudSyncStatus,
+                    hasActiveCoupleSpace: coupleViewModel.status.hasActiveSpace
+                )
             }
         }
     }
@@ -448,6 +434,102 @@ struct ProfileTab: View {
         async let settingsLoad: Void = viewModel.load()
         async let coupleLoad: Void = coupleViewModel.load()
         _ = await (settingsLoad, coupleLoad)
+    }
+}
+
+private struct CloudSyncDiagnosticsPanel: View {
+    let status: CloudSyncStatus
+    let hasActiveCoupleSpace: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            Text(status.diagnostics.isEmpty ? "同步边界" : "恢复建议")
+                .font(AppTypography.body.weight(.semibold))
+                .foregroundStyle(AppColorToken.textPrimary.color)
+
+            if status.diagnostics.isEmpty {
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text(syncBoundaryText)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColorToken.textSecondary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    Text("若多设备不同步，请确认设备已登录 iCloud、网络可用，并返回本页刷新同步状态。")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColorToken.textSecondary.color)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else {
+                ForEach(Array(status.diagnostics.enumerated()), id: \.offset) { _, diagnostic in
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        SharedTag(
+                            text: diagnostic.kind.title,
+                            colorToken: diagnostic.kind.colorToken,
+                            symbolName: diagnostic.kind.symbolName
+                        )
+
+                        Text(diagnostic.message)
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColorToken.textPrimary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text(diagnostic.recoverySuggestion)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColorToken.textSecondary.color)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+        }
+    }
+
+    private var syncBoundaryText: String {
+        if hasActiveCoupleSpace {
+            return "已检测到活跃情侣空间。个人库保存完整 canonical 数据；只有显式共享的任务/记录会生成伴侣端可见投影，summaryShared 会隐藏 note、tags、valueText。"
+        }
+
+        return "尚未加入情侣空间。CloudKit 刷新只同步你的个人库，不会生成共享投影；加入或创建情侣空间后，共享条目才会进入伴侣可见路径。"
+    }
+}
+
+private extension CloudSyncDiagnosticKind {
+    var title: String {
+        switch self {
+        case .notAuthorized:
+            return "iCloud 未授权"
+        case .notSupported:
+            return "环境不支持"
+        case .noActiveSpace:
+            return "无情侣空间"
+        case .networkFailure:
+            return "网络异常"
+        case .serviceFailure:
+            return "服务异常"
+        }
+    }
+
+    var colorToken: AppColorToken {
+        switch self {
+        case .networkFailure, .serviceFailure:
+            return .red
+        case .notAuthorized, .notSupported, .noActiveSpace:
+            return .slate
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .notAuthorized:
+            return "icloud.slash"
+        case .notSupported:
+            return "wrench.and.screwdriver"
+        case .noActiveSpace:
+            return "person.2.slash"
+        case .networkFailure:
+            return "wifi.exclamationmark"
+        case .serviceFailure:
+            return "exclamationmark.icloud"
+        }
     }
 }
 

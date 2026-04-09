@@ -1,7 +1,7 @@
 # 900 设置、隐私与权限状态 v1
 
 - 状态: Done
-- 最后更新: 2026-04-06
+- 最后更新: 2026-04-09
 - Phase: Phase 1 (MVP) + Phase 2 增量
 - 模块: Profile
 - 依赖: 110（服务协议）、700/710/600（若已接入则展示状态）
@@ -35,14 +35,20 @@
 - 已用 `ProfileSettingsViewModel` 替换 Profile 占位页：集中加载 HealthKit / EventKit / 通知 / CloudKit 状态，并提供显式授权与系统设置入口。
 - 已复用 `DefaultCalendarSyncSettingsController` 处理日历同步开关，设置页文案与状态标签与现有 Planning 同步模式保持一致。
 - 已补齐 “共享与隐私” / “同步与诊断” Phase 2 占位说明，明确当前分支未接入通知与 CloudKit。
+- 2026-04-09: 720 合入后，同步诊断区接入真实 `CloudSyncStatus`、刷新动作、同步计数、诊断类型标签、恢复建议和共享边界说明。
+- 2026-04-09: 诊断文案明确区分个人库 canonical 数据、伴侣端共享投影、`summaryShared` 的隐藏字段，以及“未加入情侣空间时只同步个人库”的降级行为。
 
 ## 验证记录
 
 - `cd ios-app/App/CoupleLife && xcodegen generate`
 - `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -only-testing:CoupleLifeTests/ProfileSettingsViewModelTests`
 - `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -only-testing:CoupleLifeTests`
+- `xcodebuild -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -showdestinations`
+- 结果: 未发现实体 iPhone destination；真机 CloudKit 联调无法在当前环境执行。
+- `xcodebuild test -quiet -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-main-final4`
+- 结果: 通过，exit code 0；主 app 与 widget `CFBundleVersion` 均为 `1`，版本号 warning 已消失。
 
 ## 已知风险/遗留
 
-- 通知、伴侣共享与 CloudKit 诊断仍为占位说明，需待后续任务接入真实能力后补足交互。
+- CloudKit 诊断已接入真实状态模型，但真机 iCloud 账号、CloudKit schema、CKShare/邀请/接受共享流程仍未验证；该风险继续归属 720/后续联调任务。
 - 本次验证覆盖了 ViewModel 与现有单测；设置页 UI 本身尚未做单独快照或手动 Simulator 走查记录。

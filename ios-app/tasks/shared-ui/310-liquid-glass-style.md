@@ -39,6 +39,7 @@
 ## 验证记录
 
 - 命令: `xcodebuild test -quiet -project ios-app/App/CoupleLife/CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-final`
-- 结果: 通过，exit code 0；仍有既有 warning：widget extension `CFBundleVersion` 与宿主 app 不一致。
+- 结果: 通过，exit code 0；当时仍有既有 warning：widget extension `CFBundleVersion` 与宿主 app 不一致。
+- 补充: 合入 main 后新增主 app 显式 `Info.plist` 修复版本号 warning，并以 `/tmp/CoupleLifeDerivedData-main-final4` 重跑全量测试通过。
 - 手测: 未做 Simulator 截图/交互检查。
 - 遗留风险: 未覆盖“增加对比度”系统设置的视觉验收；后续如果扩大到更多页面，应先复用当前 modifier，不再新增页面内私有 glass modifier。
