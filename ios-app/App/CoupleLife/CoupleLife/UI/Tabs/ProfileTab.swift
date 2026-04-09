@@ -147,13 +147,13 @@ struct ProfileTab: View {
     private var privacySection: some View {
         SharedCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SharedSectionHeader("共享与隐私", subtitle: "当前只建立空间关系，不会自动扩展为数据共享")
+                SharedSectionHeader("共享与隐私", subtitle: "默认只同步个人 iCloud 数据；共享必须由你显式选择")
 
-                Text("当前版本不会自动把健康数据、日历内容、任务详情或通知偏好共享给伴侣。后续会在这里提供共享开关，并明确展示哪些数据会被共享、哪些数据只保留在你的设备或 iCloud。")
+                Text("只有任务或记录明确选择共享，且存在活跃情侣空间时，系统才会为伴侣准备可见投影。HealthKit 原始数据、系统日历事件内容和通知偏好仍只保留在你自己的设备或 iCloud。")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColorToken.textSecondary.color)
 
-                SharedTag(text: "默认不共享", colorToken: .slate, symbolName: "lock.shield")
+                SharedTag(text: "默认私有，按条目共享", colorToken: .slate, symbolName: "lock.shield")
             }
         }
     }
@@ -161,7 +161,7 @@ struct ProfileTab: View {
     private var diagnosticsSection: some View {
         SharedCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                SharedSectionHeader("同步与诊断", subtitle: "CloudKit 与用户友好诊断将在后续版本补齐")
+                SharedSectionHeader("同步与诊断", subtitle: "同步状态、最近结果与恢复建议都集中放在这里")
 
                 SettingsStatusRow(
                     title: "CloudKit 同步",
@@ -169,17 +169,36 @@ struct ProfileTab: View {
                     tagText: cloudSyncStatusText,
                     tagColorToken: cloudSyncStatusColorToken,
                     tagSymbolName: cloudSyncStatusSymbolName
-                )
+                ) {
+                    Button {
+                        Task { await viewModel.refreshCloudSync() }
+                    } label: {
+                        Label(viewModel.isRefreshingCloudSync ? "刷新中…" : "刷新同步状态", systemImage: "arrow.clockwise")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(viewModel.isRefreshingCloudSync || viewModel.cloudSyncAvailability == .notSupported)
+                }
 
-                Divider()
+                if !viewModel.cloudSyncStatus.diagnostics.isEmpty {
+                    Divider()
 
-                VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                    Text("诊断入口（占位）")
-                        .font(AppTypography.body.weight(.semibold))
-                        .foregroundStyle(AppColorToken.textPrimary.color)
-                    Text("若后续看到同步失败，这里会把错误转成可执行步骤，例如：检查 iCloud 登录、确认系统日历权限、返回本页刷新状态。当前版本先提供说明，不会误导你已启用云同步。")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColorToken.textSecondary.color)
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        Text("恢复建议")
+                            .font(AppTypography.body.weight(.semibold))
+                            .foregroundStyle(AppColorToken.textPrimary.color)
+
+                        ForEach(Array(viewModel.cloudSyncStatus.diagnostics.enumerated()), id: \.offset) { _, diagnostic in
+                            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                                Text(diagnostic.message)
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColorToken.textPrimary.color)
+                                Text(diagnostic.recoverySuggestion)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColorToken.textSecondary.color)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -374,50 +393,54 @@ struct ProfileTab: View {
     }
 
     private var cloudSyncSummary: String {
-        switch viewModel.cloudSyncAvailability {
+        let status = viewModel.cloudSyncStatus
+
+        switch status.availability {
         case .notSupported:
-            return "CloudKit 同步尚未在当前版本接入；本页先保留同步状态与诊断入口位置。"
+            return "当前环境不支持 CloudKit。请在已登录 iCloud 的真机上重试。"
         case .available:
-            return "检测到同步能力可用，但本任务范围内不会启用云同步或诊断流程。"
+            let lastSyncText = status.lastSyncAt.map { "最近同步 \(DateFormatter.cloudSyncStatus.string(from: $0))" } ?? "尚未执行同步"
+            let summary = status.summary
+            return "\(lastSyncText)。本次推送 \(summary.lastPushCount) 条，拉取 \(summary.lastPullCount) 条；个人库 \(summary.privateChangeCount) 条，共享投影 \(summary.sharedChangeCount) 条。"
         case .notAuthorized:
-            return "后续如果需要 iCloud 授权，会在这里说明如何开启与关闭。"
+            return "未检测到可用 iCloud 账号或 CloudKit 权限；共享同步不会启动。"
         case .failed(let message):
             return message
         }
     }
 
     private var cloudSyncStatusText: String {
-        switch viewModel.cloudSyncAvailability {
+        switch viewModel.cloudSyncStatus.availability {
         case .notSupported:
-            return "未接入"
+            return "当前环境不可用"
         case .available:
-            return "后续接入"
+            return viewModel.cloudSyncStatus.lastSyncAt == nil ? "可用，待刷新" : "最近已同步"
         case .notAuthorized:
-            return "待授权"
+            return "未授权"
         case .failed:
             return "状态异常"
         }
     }
 
     private var cloudSyncStatusColorToken: AppColorToken {
-        switch viewModel.cloudSyncAvailability {
-        case .failed:
-            return .slate
+        switch viewModel.cloudSyncStatus.availability {
         case .available:
-            return .indigo
-        case .notAuthorized, .notSupported:
+            return viewModel.cloudSyncStatus.lastSyncAt == nil ? .indigo : .green
+        case .notAuthorized, .notSupported, .failed:
             return .slate
         }
     }
 
     private var cloudSyncStatusSymbolName: String {
-        switch viewModel.cloudSyncAvailability {
+        switch viewModel.cloudSyncStatus.availability {
         case .available:
-            return "icloud"
+            return viewModel.cloudSyncStatus.lastSyncAt == nil ? "icloud" : "icloud.and.arrow.up"
         case .notAuthorized:
             return "icloud.slash"
-        case .notSupported, .failed:
+        case .notSupported:
             return "wrench.and.screwdriver"
+        case .failed:
+            return "exclamationmark.icloud"
         }
     }
 
@@ -426,6 +449,15 @@ struct ProfileTab: View {
         async let coupleLoad: Void = coupleViewModel.load()
         _ = await (settingsLoad, coupleLoad)
     }
+}
+
+private extension DateFormatter {
+    static let cloudSyncStatus: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "zh_CN")
+        formatter.dateFormat = "M月d日 HH:mm"
+        return formatter
+    }()
 }
 
 struct SettingsStatusRow<Trailing: View>: View {

@@ -3,7 +3,6 @@ import SwiftUI
 
 struct FitnessDashboardView: View {
     @StateObject private var viewModel: FitnessDashboardViewModel
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     init(
         healthSnapshotRepository: any HealthSnapshotRepository,
@@ -116,7 +115,7 @@ struct FitnessDashboardView: View {
             }
         }
         .padding(AppSpacing.sm)
-        .fitnessGlassSurface(reduceTransparency: reduceTransparency)
+        .sharedGlassSurface(.panel)
     }
 
     private var trendCard: some View {
@@ -169,7 +168,7 @@ struct FitnessDashboardView: View {
             }
         }
         .padding(AppSpacing.lg)
-        .fitnessGlassSurface(reduceTransparency: reduceTransparency)
+        .sharedGlassSurface(.panel)
     }
 
     private var metricsGrid: some View {
@@ -481,38 +480,6 @@ enum FitnessDashboardSourceMarker {
         }
 
         return text(for: summary)
-    }
-}
-
-private struct FitnessGlassSurface: ViewModifier {
-    let reduceTransparency: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .background(background)
-            .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.lg, style: .continuous)
-                    .stroke(Color.white.opacity(reduceTransparency ? 0.12 : 0.3), lineWidth: 1)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg, style: .continuous))
-            .shadow(color: Color.black.opacity(0.08), radius: 14, x: 0, y: 8)
-    }
-
-    @ViewBuilder
-    private var background: some View {
-        if reduceTransparency {
-            RoundedRectangle(cornerRadius: AppCornerRadius.lg, style: .continuous)
-                .fill(AppColorToken.surface.color)
-        } else {
-            RoundedRectangle(cornerRadius: AppCornerRadius.lg, style: .continuous)
-                .fill(.ultraThinMaterial)
-        }
-    }
-}
-
-private extension View {
-    func fitnessGlassSurface(reduceTransparency: Bool) -> some View {
-        modifier(FitnessGlassSurface(reduceTransparency: reduceTransparency))
     }
 }
 

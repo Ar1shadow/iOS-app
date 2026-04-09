@@ -80,7 +80,7 @@ struct HomeTab: View {
                     }
                 }
             }
-            .homeGlassSurface()
+            .sharedGlassSurface(.cardOverlay)
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -107,7 +107,7 @@ struct HomeTab: View {
                     }
                 }
             }
-            .homeGlassSurface()
+            .sharedGlassSurface(.cardOverlay)
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -131,7 +131,7 @@ struct HomeTab: View {
                     }
                 }
             }
-            .homeGlassSurface()
+            .sharedGlassSurface(.cardOverlay)
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -167,7 +167,7 @@ struct HomeTab: View {
                     healthActionButton(for: healthState)
                 }
             }
-            .homeGlassSurface()
+            .sharedGlassSurface(.cardOverlay)
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -178,7 +178,7 @@ struct HomeTab: View {
                     }
                 }
             }
-            .homeGlassSurface()
+            .sharedGlassSurface(.cardOverlay)
 
             if !summary.hasAnyData {
                 SharedEmptyStateView(
@@ -283,30 +283,4 @@ private extension DateFormatter {
         formatter.dateFormat = "M月d日 HH:mm"
         return formatter
     }()
-}
-
-private struct HomeGlassSurfaceModifier: ViewModifier {
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-
-    func body(content: Content) -> some View {
-        content
-            .overlay {
-                if !reduceTransparency {
-                    RoundedRectangle(cornerRadius: AppCornerRadius.lg, style: .continuous)
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.28)
-                        .allowsHitTesting(false)
-                }
-            }
-            .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.lg, style: .continuous)
-                    .stroke(Color.white.opacity(reduceTransparency ? 0.0 : 0.3), lineWidth: 1)
-            )
-    }
-}
-
-private extension View {
-    func homeGlassSurface() -> some View {
-        modifier(HomeGlassSurfaceModifier())
-    }
 }

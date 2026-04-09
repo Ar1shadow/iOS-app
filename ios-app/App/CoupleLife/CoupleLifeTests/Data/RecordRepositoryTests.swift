@@ -5,7 +5,7 @@ import XCTest
 final class RecordRepositoryTests: XCTestCase {
     func testCreateAndFetchByDateRange() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [config])
         let context = ModelContext(container)
 
@@ -22,7 +22,7 @@ final class RecordRepositoryTests: XCTestCase {
 
     func testUpdatePersistsEditedFieldsAndBumpsVersion() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [config])
         let context = ModelContext(container)
 

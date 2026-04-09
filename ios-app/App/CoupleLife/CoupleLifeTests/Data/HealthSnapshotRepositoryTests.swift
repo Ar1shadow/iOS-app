@@ -5,7 +5,11 @@ import XCTest
 final class HealthSnapshotRepositoryTests: XCTestCase {
     func testUpsertSeparatesDayWeekAndMonthBuckets() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
+        )
         let container = try ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(container)
         let repository = SwiftDataHealthSnapshotRepository(context: context)
@@ -50,7 +54,11 @@ final class HealthSnapshotRepositoryTests: XCTestCase {
 
     func testSnapshotsReturnsSortedRangeFilteredByBucketOwnerAndDate() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
+        )
         let container = try ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(container)
         let repository = SwiftDataHealthSnapshotRepository(context: context)

@@ -11,11 +11,13 @@ final class ProfileSettingsViewModel: ObservableObject {
         availability: .notSupported
     )
     @Published private(set) var notificationAvailability: ServiceAvailability = .notSupported
+    @Published private(set) var cloudSyncStatus: CloudSyncStatus = .unsupported
     @Published private(set) var cloudSyncAvailability: ServiceAvailability = .notSupported
     @Published private(set) var isLoading = false
     @Published private(set) var isRequestingHealthAuthorization = false
     @Published private(set) var isRequestingNotificationAuthorization = false
     @Published private(set) var isUpdatingCalendarSync = false
+    @Published private(set) var isRefreshingCloudSync = false
 
     private let healthDataService: any HealthDataService
     private let calendarSyncController: any CalendarSyncSettingsControlling
@@ -48,7 +50,8 @@ final class ProfileSettingsViewModel: ObservableObject {
         calendarSyncStatus = await calendarSyncController.currentStatus()
         notificationSettingsStatus = await notificationController.currentStatus()
         notificationAvailability = notificationSettingsStatus.availability
-        cloudSyncAvailability = await cloudSyncService.availability()
+        cloudSyncStatus = await cloudSyncService.currentStatus()
+        cloudSyncAvailability = cloudSyncStatus.availability
         hasLoadedOnce = true
     }
 
@@ -70,5 +73,12 @@ final class ProfileSettingsViewModel: ObservableObject {
         isUpdatingCalendarSync = true
         defer { isUpdatingCalendarSync = false }
         calendarSyncStatus = await calendarSyncController.setSyncEnabled(enabled)
+    }
+
+    func refreshCloudSync() async {
+        isRefreshingCloudSync = true
+        defer { isRefreshingCloudSync = false }
+        cloudSyncStatus = await cloudSyncService.refresh()
+        cloudSyncAvailability = cloudSyncStatus.availability
     }
 }

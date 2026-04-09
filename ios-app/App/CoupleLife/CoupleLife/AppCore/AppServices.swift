@@ -109,6 +109,8 @@ protocol NotificationSettingsControlling {
 
 protocol CloudSyncService {
     func availability() async -> ServiceAvailability
+    func currentStatus() async -> CloudSyncStatus
+    func refresh() async -> CloudSyncStatus
 }
 
 struct NoopCalendarSyncService: CalendarSyncService {
@@ -141,4 +143,6 @@ struct NoopNotificationScheduler: NotificationScheduler {
 
 struct NoopCloudSyncService: CloudSyncService {
     func availability() async -> ServiceAvailability { .notSupported }
+    func currentStatus() async -> CloudSyncStatus { .unsupported }
+    func refresh() async -> CloudSyncStatus { .unsupported }
 }

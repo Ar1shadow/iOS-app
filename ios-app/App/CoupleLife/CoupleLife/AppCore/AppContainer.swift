@@ -22,7 +22,10 @@ struct AppContainer {
 
     @MainActor
     static func live(modelContainer: ModelContainer) -> AppContainer {
-        AppContainer(
+        let activeCoupleSpaceStore = UserDefaultsActiveCoupleSpaceStore()
+        let taskStore = SwiftDataCloudSyncTaskStore(context: modelContainer.mainContext)
+        let recordStore = SwiftDataCloudSyncRecordStore(context: modelContainer.mainContext)
+        return AppContainer(
             calendarSync: EventKitCalendarSyncService(),
             calendarSyncSettings: UserDefaultsCalendarSyncSettingsStore(),
             healthData: HealthKitHealthDataService(
@@ -30,8 +33,15 @@ struct AppContainer {
             ),
             notifications: UserNotificationScheduler(),
             notificationSettings: UserDefaultsNotificationSettingsStore(),
-            activeCoupleSpaceStore: UserDefaultsActiveCoupleSpaceStore(),
-            cloudSync: NoopCloudSyncService()
+            activeCoupleSpaceStore: activeCoupleSpaceStore,
+            cloudSync: DefaultCloudSyncService(
+                client: CloudKitCloudSyncClient(),
+                taskSource: taskStore,
+                recordSource: recordStore,
+                taskSink: taskStore,
+                recordSink: recordStore,
+                activeCoupleSpaceStore: activeCoupleSpaceStore
+            )
         )
     }
 }

@@ -10,7 +10,11 @@ enum ModelContainerFactory {
             Membership.self
         ])
 
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .none
+        )
         return try ModelContainer(for: schema, configurations: [configuration])
     }
 }

@@ -180,7 +180,11 @@ final class HealthKitHealthDataServiceTests: XCTestCase {
 
     private func makeRepository() throws -> SwiftDataHealthSnapshotRepository {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let configuration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: true,
+            cloudKitDatabase: .none
+        )
         let container = try ModelContainer(for: schema, configurations: [configuration])
         let context = ModelContext(container)
         return SwiftDataHealthSnapshotRepository(context: context)

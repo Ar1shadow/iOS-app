@@ -5,7 +5,7 @@ import XCTest
 final class TaskRepositoryTests: XCTestCase {
     func testCreateAndFetchByStatus() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [config])
         let context = ModelContext(container)
 
@@ -23,7 +23,7 @@ final class TaskRepositoryTests: XCTestCase {
 
     func testFetchScheduledTasksByDateRangeAndOwner() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [config])
         let context = ModelContext(container)
 
@@ -50,7 +50,7 @@ final class TaskRepositoryTests: XCTestCase {
 
     func testUpdatePersistsEditedFieldsAndBumpsVersion() throws {
         let schema = Schema([Record.self, TaskItem.self, HealthMetricSnapshot.self])
-        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try ModelContainer(for: schema, configurations: [config])
         let context = ModelContext(container)
 

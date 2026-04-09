@@ -16,7 +16,20 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             settingsStore: calendarStore
         )
         let notifications = StubNotificationScheduler(availability: .notSupported)
-        let cloudSync = StubCloudSyncService(availability: .notSupported)
+        let cloudSync = StubCloudSyncService(
+            status: CloudSyncStatus(
+                availability: .available,
+                state: .idle,
+                lastSyncAt: Date(timeIntervalSince1970: 1_234),
+                summary: CloudSyncStatus.Summary(
+                    privateChangeCount: 1,
+                    sharedChangeCount: 2,
+                    lastPushCount: 3,
+                    lastPullCount: 4
+                ),
+                diagnostics: []
+            )
+        )
         let viewModel = ProfileSettingsViewModel(
             healthDataService: healthService,
             calendarSyncController: calendarController,
@@ -35,7 +48,22 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             CalendarSyncStatus(isEnabled: true, availability: .available)
         )
         XCTAssertEqual(viewModel.notificationAvailability, .notSupported)
-        XCTAssertEqual(viewModel.cloudSyncAvailability, .notSupported)
+        XCTAssertEqual(viewModel.cloudSyncAvailability, .available)
+        XCTAssertEqual(
+            viewModel.cloudSyncStatus,
+            CloudSyncStatus(
+                availability: .available,
+                state: .idle,
+                lastSyncAt: Date(timeIntervalSince1970: 1_234),
+                summary: CloudSyncStatus.Summary(
+                    privateChangeCount: 1,
+                    sharedChangeCount: 2,
+                    lastPushCount: 3,
+                    lastPullCount: 4
+                ),
+                diagnostics: []
+            )
+        )
     }
 
     func testRequestHealthAuthorizationTriggersServiceAndUpdatesState() async {
@@ -169,6 +197,54 @@ final class ProfileSettingsViewModelTests: XCTestCase {
         XCTAssertTrue(notificationScheduler.didCancelAllTaskReminders)
         XCTAssertTrue(notificationScheduler.didCancelWaterReminder)
     }
+
+    func testRefreshCloudSyncTriggersServiceAndPublishesReturnedStatus() async {
+        let initialStatus = CloudSyncStatus(
+            availability: .available,
+            state: .idle,
+            lastSyncAt: nil,
+            summary: CloudSyncStatus.Summary(
+                privateChangeCount: 1,
+                sharedChangeCount: 1,
+                lastPushCount: 0,
+                lastPullCount: 0
+            ),
+            diagnostics: []
+        )
+        let refreshedStatus = CloudSyncStatus(
+            availability: .available,
+            state: .idle,
+            lastSyncAt: Date(timeIntervalSince1970: 9_999),
+            summary: CloudSyncStatus.Summary(
+                privateChangeCount: 0,
+                sharedChangeCount: 0,
+                lastPushCount: 2,
+                lastPullCount: 3
+            ),
+            diagnostics: []
+        )
+        let cloudSync = StubCloudSyncService(status: initialStatus, refreshResult: refreshedStatus)
+        let viewModel = ProfileSettingsViewModel(
+            healthDataService: StubHealthDataService(
+                availability: .notSupported,
+                requestAuthorizationResult: .notSupported
+            ),
+            calendarSyncController: DefaultCalendarSyncSettingsController(
+                calendarSyncService: TestCalendarSyncService(),
+                settingsStore: TestCalendarSyncSettingsStore(isEnabled: false)
+            ),
+            notificationScheduler: StubNotificationScheduler(availability: .notSupported),
+            cloudSyncService: cloudSync
+        )
+
+        await viewModel.load()
+        await viewModel.refreshCloudSync()
+
+        XCTAssertEqual(cloudSync.refreshCallCount, 1)
+        XCTAssertEqual(viewModel.cloudSyncStatus, refreshedStatus)
+        XCTAssertEqual(viewModel.cloudSyncAvailability, .available)
+        XCTAssertFalse(viewModel.isRefreshingCloudSync)
+    }
 }
 
 private final class StubHealthDataService: HealthDataService {
@@ -230,14 +306,42 @@ private final class StubNotificationScheduler: NotificationScheduler {
     func cancelWaterReminder() async {}
 }
 
-private struct StubCloudSyncService: CloudSyncService {
-    let availabilityValue: ServiceAvailability
+private final class StubCloudSyncService: CloudSyncService {
+    let statusValue: CloudSyncStatus
+    let refreshResult: CloudSyncStatus
 
-    init(availability: ServiceAvailability) {
-        self.availabilityValue = availability
+    private(set) var refreshCallCount = 0
+
+    init(
+        status: CloudSyncStatus,
+        refreshResult: CloudSyncStatus? = nil
+    ) {
+        self.statusValue = status
+        self.refreshResult = refreshResult ?? status
+    }
+
+    convenience init(availability: ServiceAvailability) {
+        self.init(
+            status: CloudSyncStatus(
+                availability: availability,
+                state: availability == .available ? .idle : .needsAttention,
+                lastSyncAt: nil,
+                summary: .empty,
+                diagnostics: []
+            )
+        )
     }
 
     func availability() async -> ServiceAvailability {
-        availabilityValue
+        statusValue.availability
+    }
+
+    func currentStatus() async -> CloudSyncStatus {
+        statusValue
+    }
+
+    func refresh() async -> CloudSyncStatus {
+        refreshCallCount += 1
+        return refreshResult
     }
 }
