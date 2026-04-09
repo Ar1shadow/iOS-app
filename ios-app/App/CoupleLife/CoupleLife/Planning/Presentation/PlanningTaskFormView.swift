@@ -14,6 +14,7 @@ struct PlanningTaskFormView: View {
     @State private var includesDueAt: Bool
     @State private var dueAt: Date
     @State private var isAllDay: Bool
+    @State private var visibility: Visibility
     @State private var errorMessage: String?
 
     init(
@@ -36,9 +37,12 @@ struct PlanningTaskFormView: View {
         _includesDueAt = State(initialValue: editor.draft.dueAt != nil)
         _dueAt = State(initialValue: dueValue)
         _isAllDay = State(initialValue: editor.draft.isAllDay)
+        _visibility = State(initialValue: editor.draft.visibility)
     }
 
     var body: some View {
+        let visibilityPolicy = VisibilityPolicy.task
+
         NavigationStack {
             Form {
                 if let errorMessage {
@@ -94,6 +98,29 @@ struct PlanningTaskFormView: View {
                         datePicker("截止", selection: $dueAt)
                     }
                 }
+
+                Section("可见性") {
+                    Picker("可见性", selection: $visibility) {
+                        ForEach(visibilityPolicy.options) { option in
+                            Text(option.title).tag(option.visibility)
+                        }
+                    }
+
+                    ForEach(visibilityPolicy.options) { option in
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            Text(option.title)
+                                .font(AppTypography.body.weight(.semibold))
+                            Text(option.description)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColorToken.textSecondary.color)
+                        }
+                        .padding(.vertical, AppSpacing.xs)
+                    }
+
+                    Text(visibilityPolicy.helperText)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColorToken.textSecondary.color)
+                }
             }
             .navigationTitle(editor.title)
             .toolbar {
@@ -131,7 +158,8 @@ struct PlanningTaskFormView: View {
             status: editor.draft.status,
             startAt: includesStartAt ? startAt : nil,
             dueAt: includesDueAt ? dueAt : nil,
-            isAllDay: (includesStartAt || includesDueAt) ? isAllDay : false
+            isAllDay: (includesStartAt || includesDueAt) ? isAllDay : false,
+            visibility: visibility
         )
 
         if let errorMessage = onSave(draft) {

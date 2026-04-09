@@ -243,7 +243,7 @@ private struct CalendarDayRecordRow: View {
 
     private var chips: [String] {
         var values = record.tags
-        values.append(record.visibility.shortLabel)
+        values.append(VisibilityPolicy.record(type: record.type).chipLabel(for: record.visibility))
         return values
     }
 
@@ -297,6 +297,8 @@ private struct CalendarRecordFormView: View {
     }
 
     var body: some View {
+        let visibilityPolicy = VisibilityPolicy.record(type: type)
+
         NavigationStack {
             Form {
                 if let errorMessage {
@@ -339,17 +341,43 @@ private struct CalendarRecordFormView: View {
 
                 Section("可见性") {
                     Picker("可见性", selection: $visibility) {
-                        ForEach(Visibility.allCases, id: \.self) { visibility in
-                            Text(visibility.formTitle).tag(visibility)
+                        ForEach(visibilityPolicy.options) { option in
+                            Text(option.title).tag(option.visibility)
                         }
                     }
 
-                    Text("默认仅自己可见；共享策略仍留在后续任务中实现。")
+                    ForEach(visibilityPolicy.options) { option in
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            Text(option.title)
+                                .font(AppTypography.body.weight(.semibold))
+                            Text(option.description)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColorToken.textSecondary.color)
+                        }
+                        .padding(.vertical, AppSpacing.xs)
+                    }
+
+                    Text(visibilityPolicy.helperText)
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColorToken.textSecondary.color)
+
+                    if visibility == .summaryShared,
+                       let summaryText = visibilityPolicy.sharedRecordContent(
+                           visibility: visibility,
+                           note: note.nilIfBlank,
+                           tagsRaw: tagsRaw,
+                           valueText: valueText.nilIfBlank
+                       ).summaryText {
+                        Text("伴侣端预览：\(summaryText)")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColorToken.textSecondary.color)
+                    }
                 }
             }
             .navigationTitle(editor.title)
+            .onChange(of: type) { _, newType in
+                visibility = VisibilityPolicy.record(type: newType).sanitized(visibility)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("取消") {
@@ -391,22 +419,9 @@ private struct CalendarRecordFormView: View {
     }
 }
 
-private extension Visibility {
-    var shortLabel: String {
-        switch self {
-        case .private:
-            return "私密"
-        case .coupleShared:
-            return "共享"
-        }
-    }
-
-    var formTitle: String {
-        switch self {
-        case .private:
-            return "仅自己可见"
-        case .coupleShared:
-            return "共享给伴侣"
-        }
+private extension String {
+    var nilIfBlank: String? {
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 }

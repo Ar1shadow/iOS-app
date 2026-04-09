@@ -96,7 +96,8 @@ final class DefaultCalendarDayRecordService: CalendarDayRecordManaging {
     func makeDraft(for selectedDay: Date, type: RecordType = .custom) -> CalendarDayRecordDraft {
         CalendarDayRecordDraft(
             type: type,
-            startAt: defaultStartDate(for: selectedDay)
+            startAt: defaultStartDate(for: selectedDay),
+            visibility: VisibilityPolicy.record(type: type).sanitized(.private)
         )
     }
 
@@ -115,6 +116,7 @@ final class DefaultCalendarDayRecordService: CalendarDayRecordManaging {
 
     func createRecord(from draft: CalendarDayRecordDraft) throws -> Record {
         try validate(draft)
+        let sanitizedVisibility = VisibilityPolicy.record(type: draft.type).sanitized(draft.visibility)
 
         let record = Record(
             type: draft.type,
@@ -124,7 +126,7 @@ final class DefaultCalendarDayRecordService: CalendarDayRecordManaging {
             endAt: draft.endAt,
             valueText: draft.normalizedValueText,
             ownerUserId: ownerUserId,
-            visibility: draft.visibility,
+            visibility: sanitizedVisibility,
             source: draft.source
         )
         try recordRepository.create(record)
@@ -133,6 +135,7 @@ final class DefaultCalendarDayRecordService: CalendarDayRecordManaging {
 
     func updateRecord(_ record: Record, from draft: CalendarDayRecordDraft) throws {
         try validate(draft)
+        let sanitizedVisibility = VisibilityPolicy.record(type: draft.type).sanitized(draft.visibility)
 
         record.type = draft.type
         record.note = draft.normalizedNote
@@ -140,7 +143,7 @@ final class DefaultCalendarDayRecordService: CalendarDayRecordManaging {
         record.startAt = draft.startAt
         record.endAt = draft.endAt
         record.valueText = draft.normalizedValueText
-        record.visibility = draft.visibility
+        record.visibility = sanitizedVisibility
         record.source = draft.source
         try recordRepository.update(record)
     }

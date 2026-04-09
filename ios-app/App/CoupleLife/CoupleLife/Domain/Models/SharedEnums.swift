@@ -2,6 +2,7 @@ import Foundation
 
 enum Visibility: String, Codable, CaseIterable {
     case `private`
+    case summaryShared
     case coupleShared
 }
 

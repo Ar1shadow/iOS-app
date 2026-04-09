@@ -8,6 +8,7 @@ struct PlanningTaskDraft: Equatable {
     var startAt: Date?
     var dueAt: Date?
     var isAllDay: Bool
+    var visibility: Visibility = .private
 }
 
 enum PlanningTaskValidationError: LocalizedError, Equatable {
@@ -81,7 +82,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
                 status: .todo,
                 startAt: nil,
                 dueAt: nil,
-                isAllDay: false
+                isAllDay: false,
+                visibility: .private
             )
         }
 
@@ -92,7 +94,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             status: task.status,
             startAt: task.startAt,
             dueAt: task.dueAt,
-            isAllDay: task.isAllDay
+            isAllDay: task.isAllDay,
+            visibility: task.visibility
         )
     }
 
@@ -109,6 +112,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             status: .todo,
             planLevel: normalizedDraft.planLevel,
             ownerUserId: ownerUserId,
+            visibility: normalizedDraft.visibility,
             createdAt: now,
             updatedAt: now
         )
@@ -129,6 +133,7 @@ final class DefaultPlanningTaskService: PlanningTaskService {
         task.startAt = normalizedDraft.startAt
         task.dueAt = normalizedDraft.dueAt
         task.isAllDay = normalizedDraft.isAllDay
+        task.visibility = normalizedDraft.visibility
         try taskRepository.update(task)
         performPostPersistenceCalendarSync(for: task, persistedEventIdentifier: task.systemCalendarEventId)
         performPostPersistenceNotificationSync(for: task)
@@ -211,7 +216,8 @@ final class DefaultPlanningTaskService: PlanningTaskService {
             status: draft.status,
             startAt: draft.startAt,
             dueAt: draft.dueAt,
-            isAllDay: draft.isAllDay
+            isAllDay: draft.isAllDay,
+            visibility: VisibilityPolicy.task.sanitized(draft.visibility)
         )
     }
 

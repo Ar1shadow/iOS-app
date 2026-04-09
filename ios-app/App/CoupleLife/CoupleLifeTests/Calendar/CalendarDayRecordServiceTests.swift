@@ -89,6 +89,60 @@ final class CalendarDayRecordServiceTests: XCTestCase {
         XCTAssertEqual(repository.storedRecords.first?.source, .healthKit)
     }
 
+    func testCreateRecordSanitizesUnsupportedSummaryVisibilityForNonSensitiveType() throws {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2026, month: 3, day: 28, hour: 9, minute: 15, calendar: calendar)
+        let repository = InMemoryRecordRepository()
+        let service = DefaultCalendarDayRecordService(
+            recordRepository: repository,
+            calendar: calendar,
+            ownerUserId: "local",
+            nowProvider: { now }
+        )
+
+        let draft = CalendarDayRecordDraft(
+            type: .water,
+            startAt: now,
+            visibility: .summaryShared
+        )
+
+        let created = try service.createRecord(from: draft)
+
+        XCTAssertEqual(created.visibility, .private)
+        XCTAssertEqual(repository.storedRecords.first?.visibility, .private)
+    }
+
+    func testUpdateRecordSanitizesUnsupportedSummaryVisibilityWhenTypeChangesToNonSensitive() throws {
+        let calendar = fixedCalendar()
+        let now = makeDate(year: 2026, month: 3, day: 28, hour: 9, minute: 15, calendar: calendar)
+        let repository = InMemoryRecordRepository()
+        let service = DefaultCalendarDayRecordService(
+            recordRepository: repository,
+            calendar: calendar,
+            ownerUserId: "local",
+            nowProvider: { now }
+        )
+
+        let record = Record(
+            type: .menstruation,
+            startAt: now,
+            ownerUserId: "local",
+            visibility: .summaryShared
+        )
+        try repository.create(record)
+
+        let draft = CalendarDayRecordDraft(
+            type: .water,
+            startAt: now,
+            visibility: .summaryShared
+        )
+
+        try service.updateRecord(record, from: draft)
+
+        XCTAssertEqual(record.visibility, .private)
+        XCTAssertEqual(repository.storedRecords.first?.visibility, .private)
+    }
+
     private func fixedCalendar() -> Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.locale = Locale(identifier: "en_US_POSIX")

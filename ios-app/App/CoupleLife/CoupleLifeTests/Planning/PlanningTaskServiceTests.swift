@@ -63,6 +63,57 @@ final class PlanningTaskServiceTests: XCTestCase {
         XCTAssertEqual(repository.createdTasks.map(\.status), [.todo])
     }
 
+    func testMakeDraftDefaultsNewTaskVisibilityToPrivate() {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let service = DefaultPlanningTaskService(taskRepository: repository, ownerUserId: "local")
+
+        let draft = service.makeDraft(for: nil)
+
+        XCTAssertEqual(draft.visibility, .private)
+    }
+
+    func testCreateTaskPersistsCoupleSharedVisibility() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let service = DefaultPlanningTaskService(taskRepository: repository, ownerUserId: "local")
+
+        let created = try service.createTask(
+            from: PlanningTaskDraft(
+                title: "一起采购",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: nil,
+                dueAt: nil,
+                isAllDay: false,
+                visibility: .coupleShared
+            )
+        )
+
+        XCTAssertEqual(created.visibility, .coupleShared)
+        XCTAssertEqual(repository.createdTasks.first?.visibility, .coupleShared)
+    }
+
+    func testCreateTaskSanitizesUnsupportedVisibilityToPrivate() throws {
+        let repository = InMemoryPlanningTaskRepository(tasks: [])
+        let service = DefaultPlanningTaskService(taskRepository: repository, ownerUserId: "local")
+
+        let created = try service.createTask(
+            from: PlanningTaskDraft(
+                title: "只给自己看",
+                detail: "",
+                planLevel: .day,
+                status: .todo,
+                startAt: nil,
+                dueAt: nil,
+                isAllDay: false,
+                visibility: .summaryShared
+            )
+        )
+
+        XCTAssertEqual(created.visibility, .private)
+        XCTAssertEqual(repository.createdTasks.first?.visibility, .private)
+    }
+
     func testUpdateTaskDoesNotAllowEditingIntoDoneState() throws {
         let repository = InMemoryPlanningTaskRepository(tasks: [])
         let service = DefaultPlanningTaskService(taskRepository: repository, ownerUserId: "local")
