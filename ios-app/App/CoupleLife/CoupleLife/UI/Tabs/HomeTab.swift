@@ -82,6 +82,8 @@ struct HomeTab: View {
             }
             .sharedGlassSurface(.cardOverlay)
 
+            weeklyInsightCard(summary.weeklyInsight)
+
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
                     SharedSectionHeader("重要事件", subtitle: "未来 7 天（最多 3 条）")
@@ -190,6 +192,50 @@ struct HomeTab: View {
         }
     }
 
+    private func weeklyInsightCard(_ insight: HomeDashboardWeeklyInsight) -> some View {
+        SharedCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                SharedSectionHeader("本周洞察", subtitle: weekSubtitle(from: insight.weekRange))
+
+                if !insight.hasAnyData {
+                    Text("本周还没有足够数据形成洞察。")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColorToken.textSecondary.color)
+                } else {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        HStack(spacing: AppSpacing.lg) {
+                            metricView(
+                                title: "任务完成",
+                                value: insight.totalTaskCount == 0
+                                    ? "暂无"
+                                    : "\(insight.completedTaskCount)/\(insight.totalTaskCount)"
+                            )
+                            metricView(title: "活跃天数", value: "\(insight.activeDayCount) 天")
+                        }
+
+                        if let totalSteps = insight.totalSteps {
+                            metricView(title: "累计步数", value: "\(totalSteps)")
+                        }
+
+                        if let averageSleepHours = insight.averageSleepHours {
+                            metricView(title: "平均睡眠", value: "\(String(format: "%.1f", averageSleepHours))h")
+                        }
+
+                        if let dominantRecordType = insight.dominantRecordType {
+                            let style = dominantRecordType.visualStyle
+                            SharedTag(
+                                text: "高频记录：\(style.title)",
+                                colorToken: style.colorToken,
+                                symbolName: style.symbolName
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        .sharedGlassSurface(.cardOverlay)
+    }
+
     private func dashboardContainer<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.xl) {
@@ -229,6 +275,11 @@ struct HomeTab: View {
 
     private func dueLabel(_ date: Date) -> String {
         "截止 \(DateFormatter.homeDueFormatter.string(from: date))"
+    }
+
+    private func weekSubtitle(from range: DateInterval) -> String {
+        let inclusiveEnd = Calendar.current.date(byAdding: .second, value: -1, to: range.end) ?? range.end
+        return "\(DateFormatter.homeShortDayFormatter.string(from: range.start))-\(DateFormatter.homeShortDayFormatter.string(from: inclusiveEnd))"
     }
 
     private func healthSubtitle(for availability: ServiceAvailability) -> String {
@@ -281,6 +332,12 @@ private extension DateFormatter {
     static let homeDueFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "M月d日 HH:mm"
+        return formatter
+    }()
+
+    static let homeShortDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M月d日"
         return formatter
     }()
 }

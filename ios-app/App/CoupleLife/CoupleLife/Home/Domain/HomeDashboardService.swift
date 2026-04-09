@@ -12,6 +12,7 @@ struct HomeDashboardSummary: Equatable {
     let todayRecordTotal: Int
     let recordTypeCounts: [RecordType: Int]
     let importantEvents: [HomeDashboardTaskEvent]
+    let weeklyInsight: HomeDashboardWeeklyInsight
     let steps: Int?
     let sleepHours: Double?
 
@@ -19,8 +20,28 @@ struct HomeDashboardSummary: Equatable {
         todayTaskTotal > 0 ||
             todayRecordTotal > 0 ||
             !importantEvents.isEmpty ||
+            weeklyInsight.hasAnyData ||
             steps != nil ||
             sleepHours != nil
+    }
+}
+
+struct HomeDashboardWeeklyInsight: Equatable {
+    let weekRange: DateInterval
+    let totalTaskCount: Int
+    let completedTaskCount: Int
+    let recordCount: Int
+    let activeDayCount: Int
+    let dominantRecordType: RecordType?
+    let totalSteps: Int?
+    let averageSleepHours: Double?
+
+    var hasAnyData: Bool {
+        totalTaskCount > 0 ||
+            recordCount > 0 ||
+            activeDayCount > 0 ||
+            totalSteps != nil ||
+            averageSleepHours != nil
     }
 }
 
@@ -50,6 +71,8 @@ final class DefaultHomeDashboardService: HomeDashboardService {
         let dayStart = calendar.startOfDay(for: day)
         let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart
         let eventWindowEnd = calendar.date(byAdding: .day, value: 7, to: dayStart) ?? dayEnd
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)
+            ?? DateInterval(start: dayStart, end: eventWindowEnd)
 
         let todayTasks = try taskRepository.tasks(
             scheduledFrom: dayStart,
@@ -86,6 +109,10 @@ final class DefaultHomeDashboardService: HomeDashboardService {
         let healthSnapshot = try healthSnapshotRepository.snapshot(dayStart: dayStart, ownerUserId: ownerUserId)
         let steps = healthSnapshot?.steps.map { Int($0.rounded()) }
         let sleepHours = healthSnapshot?.sleepSeconds.map { ($0 / 3600).rounded(toPlaces: 1) }
+        let weeklyInsight = try loadWeeklyInsight(
+            weekRange: weekRange,
+            ownerUserId: ownerUserId
+        )
 
         return HomeDashboardSummary(
             dayRange: DateInterval(start: dayStart, end: dayEnd),
@@ -94,8 +121,57 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             todayRecordTotal: ownerRecords.count,
             recordTypeCounts: recordTypeCounts,
             importantEvents: Array(importantEvents),
+            weeklyInsight: weeklyInsight,
             steps: steps,
             sleepHours: sleepHours
+        )
+    }
+
+    private func loadWeeklyInsight(weekRange: DateInterval, ownerUserId: String) throws -> HomeDashboardWeeklyInsight {
+        let weeklyTasks = try taskRepository.tasks(
+            scheduledFrom: weekRange.start,
+            to: weekRange.end,
+            ownerUserId: ownerUserId,
+            status: nil
+        )
+        let weeklyRecords = try recordRepository.records(from: weekRange.start, to: weekRange.end)
+            .filter { $0.ownerUserId == ownerUserId }
+        let weeklySnapshots = try healthSnapshotRepository.snapshots(
+            bucket: .day,
+            from: weekRange.start,
+            to: weekRange.end,
+            ownerUserId: ownerUserId
+        )
+
+        let recordTypeCounts = weeklyRecords.reduce(into: [RecordType: Int]()) { partialResult, record in
+            partialResult[record.type, default: 0] += 1
+        }
+        let dominantRecordType = recordTypeCounts
+            .sorted { lhs, rhs in
+                if lhs.value == rhs.value {
+                    return lhs.key.rawValue < rhs.key.rawValue
+                }
+                return lhs.value > rhs.value
+            }
+            .first?
+            .key
+        let activeDayCount = Set(weeklyRecords.map { calendar.startOfDay(for: $0.startAt) }).count
+        let stepValues = weeklySnapshots.compactMap(\.steps)
+        let totalSteps = stepValues.isEmpty ? nil : Int(stepValues.reduce(0, +).rounded())
+        let sleepValues = weeklySnapshots.compactMap(\.sleepSeconds)
+        let averageSleepHours = sleepValues.isEmpty
+            ? nil
+            : (sleepValues.reduce(0, +) / Double(sleepValues.count) / 3600).rounded(toPlaces: 1)
+
+        return HomeDashboardWeeklyInsight(
+            weekRange: weekRange,
+            totalTaskCount: weeklyTasks.count,
+            completedTaskCount: weeklyTasks.filter { $0.status == .done }.count,
+            recordCount: weeklyRecords.count,
+            activeDayCount: activeDayCount,
+            dominantRecordType: dominantRecordType,
+            totalSteps: totalSteps,
+            averageSleepHours: averageSleepHours
         )
     }
 }

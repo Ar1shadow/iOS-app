@@ -7,6 +7,7 @@ final class HomeDashboardServiceTests: XCTestCase {
         let calendar = Calendar(identifier: .gregorian)
         let dayStart = calendar.startOfDay(for: day)
         let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)!
 
         let due = calendar.date(byAdding: .hour, value: 10, to: dayStart)!
         let tomorrowDue = calendar.date(byAdding: .day, value: 1, to: due)!
@@ -52,6 +53,14 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertEqual(dashboard.sleepHours, 7.5)
         XCTAssertEqual(dashboard.dayRange.start, dayStart)
         XCTAssertEqual(dashboard.dayRange.end, dayEnd)
+        XCTAssertEqual(dashboard.weeklyInsight.weekRange, weekRange)
+        XCTAssertEqual(dashboard.weeklyInsight.totalTaskCount, 4)
+        XCTAssertEqual(dashboard.weeklyInsight.completedTaskCount, 1)
+        XCTAssertEqual(dashboard.weeklyInsight.recordCount, 3)
+        XCTAssertEqual(dashboard.weeklyInsight.activeDayCount, 1)
+        XCTAssertEqual(dashboard.weeklyInsight.dominantRecordType, .water)
+        XCTAssertEqual(dashboard.weeklyInsight.totalSteps, 6200)
+        XCTAssertEqual(dashboard.weeklyInsight.averageSleepHours, 7.5)
     }
 
     func testReturnsEmptySummaryWhenNoData() throws {
@@ -72,6 +81,50 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertNil(dashboard.steps)
         XCTAssertNil(dashboard.sleepHours)
         XCTAssertFalse(dashboard.hasAnyData)
+    }
+
+    func testBuildsWeeklyInsightAcrossTasksRecordsAndHealthSnapshots() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)!
+        let weekDayOne = calendar.date(byAdding: .hour, value: 12, to: weekRange.start)!
+        let weekDayTwo = calendar.date(byAdding: .day, value: 2, to: weekDayOne)!
+        let outsideWeek = calendar.date(byAdding: .day, value: 7, to: weekRange.start)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: [
+                TaskItem(title: "本周完成", dueAt: weekDayOne, status: .done, ownerUserId: "u1"),
+                TaskItem(title: "本周待办", dueAt: weekDayTwo, status: .todo, ownerUserId: "u1"),
+                TaskItem(title: "他人待办", dueAt: weekDayTwo, status: .todo, ownerUserId: "u2"),
+                TaskItem(title: "下周任务", dueAt: outsideWeek, status: .todo, ownerUserId: "u1")
+            ]),
+            recordRepository: InMemoryRecordRepository(records: [
+                Record(type: .sleep, startAt: weekDayOne, ownerUserId: "u1"),
+                Record(type: .water, startAt: weekDayOne, ownerUserId: "u1"),
+                Record(type: .water, startAt: weekDayTwo, ownerUserId: "u1"),
+                Record(type: .activity, startAt: weekDayTwo, ownerUserId: "u2"),
+                Record(type: .custom, startAt: outsideWeek, ownerUserId: "u1")
+            ]),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshots: [
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: weekDayOne), ownerUserId: "u1", steps: 4200, sleepSeconds: 7 * 3600),
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: weekDayTwo), ownerUserId: "u1", steps: 6100, sleepSeconds: 8 * 3600),
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: weekDayTwo), ownerUserId: "u2", steps: 9000, sleepSeconds: 9 * 3600)
+            ]),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertEqual(dashboard.weeklyInsight.weekRange, weekRange)
+        XCTAssertEqual(dashboard.weeklyInsight.totalTaskCount, 2)
+        XCTAssertEqual(dashboard.weeklyInsight.completedTaskCount, 1)
+        XCTAssertEqual(dashboard.weeklyInsight.recordCount, 3)
+        XCTAssertEqual(dashboard.weeklyInsight.activeDayCount, 2)
+        XCTAssertEqual(dashboard.weeklyInsight.dominantRecordType, .water)
+        XCTAssertEqual(dashboard.weeklyInsight.totalSteps, 10300)
+        XCTAssertEqual(dashboard.weeklyInsight.averageSleepHours, 7.5)
+        XCTAssertTrue(dashboard.weeklyInsight.hasAnyData)
+        XCTAssertTrue(dashboard.hasAnyData)
     }
 
     func testHasAnyDataIncludesImportantEvents() throws {
@@ -193,19 +246,21 @@ private final class InMemoryRecordRepository: RecordRepository {
 }
 
 private final class InMemoryHealthSnapshotRepository: HealthSnapshotRepository {
-    private let value: HealthMetricSnapshot?
+    private let values: [HealthMetricSnapshot]
 
     init(snapshot: HealthMetricSnapshot?) {
-        self.value = snapshot
+        self.values = snapshot.map { [$0] } ?? []
+    }
+
+    init(snapshots: [HealthMetricSnapshot]) {
+        self.values = snapshots
     }
 
     func upsert(_ snapshot: HealthMetricSnapshot) throws {}
     func snapshot(bucket: HealthMetricBucket, start: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
-        guard let value else { return nil }
-        if value.bucket == bucket && value.dayStart == start && value.ownerUserId == ownerUserId {
-            return value
+        values.first { value in
+            value.bucket == bucket && value.dayStart == start && value.ownerUserId == ownerUserId
         }
-        return nil
     }
 
     func snapshot(dayStart: Date, ownerUserId: String) throws -> HealthMetricSnapshot? {
@@ -213,11 +268,11 @@ private final class InMemoryHealthSnapshotRepository: HealthSnapshotRepository {
     }
 
     func snapshots(bucket: HealthMetricBucket, from startDate: Date, to endDate: Date, ownerUserId: String) throws -> [HealthMetricSnapshot] {
-        guard let snapshot = try snapshot(bucket: bucket, start: startDate, ownerUserId: ownerUserId),
-              snapshot.dayStart >= startDate,
-              snapshot.dayStart < endDate else {
-            return []
+        values.filter { value in
+            value.bucket == bucket &&
+                value.ownerUserId == ownerUserId &&
+                value.dayStart >= startDate &&
+                value.dayStart < endDate
         }
-        return [snapshot]
     }
 }

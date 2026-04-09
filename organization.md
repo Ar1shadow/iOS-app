@@ -141,6 +141,7 @@ ios-app/
 ### Home
 
 - [350 首页聚合仪表盘 v1](ios-app/tasks/home/350-home-dashboard-v1.md)
+- [1000 本周生活洞察 v1](ios-app/tasks/home/1000-weekly-insights-v1.md)
 
 ### Calendar
 
@@ -211,7 +212,8 @@ ios-app/
 
 ### Phase 3: 数据洞察
 
-- 以 `Home/Calendar/Planning/Fitness` 为基础追加：周报/月报、趋势洞察、关联分析、个性化提醒（后续再拆任务文件）
+- [1000 本周生活洞察 v1](ios-app/tasks/home/1000-weekly-insights-v1.md)
+- 以 `Home/Calendar/Planning/Fitness` 为基础继续追加：月报、趋势洞察、关联分析、个性化提醒（后续再拆任务文件）
 
 ### Phase 4: 生态增强
 

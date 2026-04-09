@@ -74,6 +74,19 @@ final class HomeDashboardViewModelTests: XCTestCase {
             todayRecordTotal: 0,
             recordTypeCounts: [:],
             importantEvents: [],
+            weeklyInsight: HomeDashboardWeeklyInsight(
+                weekRange: DateInterval(
+                    start: Date(timeIntervalSince1970: 1_699_660_800),
+                    end: Date(timeIntervalSince1970: 1_700_265_600)
+                ),
+                totalTaskCount: 0,
+                completedTaskCount: 0,
+                recordCount: 0,
+                activeDayCount: 0,
+                dominantRecordType: nil,
+                totalSteps: nil,
+                averageSleepHours: nil
+            ),
             steps: steps,
             sleepHours: sleepHours
         )
