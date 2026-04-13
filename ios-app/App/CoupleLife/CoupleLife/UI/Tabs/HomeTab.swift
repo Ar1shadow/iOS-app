@@ -83,6 +83,7 @@ struct HomeTab: View {
             .sharedGlassSurface(.cardOverlay)
 
             weeklyInsightCard(summary.weeklyInsight)
+            monthlyInsightCard(summary.monthlyInsight)
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -236,6 +237,57 @@ struct HomeTab: View {
         .sharedGlassSurface(.cardOverlay)
     }
 
+    private func monthlyInsightCard(_ insight: HomeDashboardMonthlyInsight) -> some View {
+        SharedCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                SharedSectionHeader("本月趋势", subtitle: monthSubtitle(from: insight.monthRange))
+
+                if !insight.hasAnyData {
+                    Text("本月还没有足够数据形成趋势。")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColorToken.textSecondary.color)
+                } else {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        HStack(spacing: AppSpacing.lg) {
+                            metricView(
+                                title: "任务完成",
+                                value: insight.totalTaskCount == 0
+                                    ? "暂无"
+                                    : "\(insight.completedTaskCount)/\(insight.totalTaskCount)"
+                            )
+                            metricView(title: "活跃天数", value: "\(insight.activeDayCount) 天")
+                        }
+
+                        if let totalSteps = insight.totalSteps {
+                            metricView(title: "累计步数", value: "\(totalSteps)")
+                            if let delta = insight.stepsDelta {
+                                let deltaText = delta >= 0 ? "+\(delta)" : "\(delta)"
+                                SharedTag(
+                                    text: "较上月 \(deltaText)步",
+                                    colorToken: delta >= 0 ? .green : .red,
+                                    symbolName: delta >= 0 ? "arrow.up" : "arrow.down"
+                                )
+                            }
+                        }
+
+                        if let averageSleepHours = insight.averageSleepHours {
+                            metricView(title: "平均睡眠", value: "\(String(format: "%.1f", averageSleepHours))h")
+                            if let delta = insight.averageSleepDeltaHours {
+                                let deltaText = delta >= 0 ? "+\(String(format: "%.1f", delta))" : "\(String(format: "%.1f", delta))"
+                                SharedTag(
+                                    text: "较上月 \(deltaText)h",
+                                    colorToken: delta >= 0 ? .green : .red,
+                                    symbolName: delta >= 0 ? "arrow.up" : "arrow.down"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .sharedGlassSurface(.cardOverlay)
+    }
+
     private func dashboardContainer<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.xl) {
@@ -280,6 +332,10 @@ struct HomeTab: View {
     private func weekSubtitle(from range: DateInterval) -> String {
         let inclusiveEnd = Calendar.current.date(byAdding: .second, value: -1, to: range.end) ?? range.end
         return "\(DateFormatter.homeShortDayFormatter.string(from: range.start))-\(DateFormatter.homeShortDayFormatter.string(from: inclusiveEnd))"
+    }
+
+    private func monthSubtitle(from range: DateInterval) -> String {
+        DateFormatter.homeMonthFormatter.string(from: range.start)
     }
 
     private func healthSubtitle(for availability: ServiceAvailability) -> String {
@@ -338,6 +394,12 @@ private extension DateFormatter {
     static let homeShortDayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "M月d日"
+        return formatter
+    }()
+
+    static let homeMonthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy年M月"
         return formatter
     }()
 }

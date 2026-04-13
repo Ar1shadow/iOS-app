@@ -13,6 +13,7 @@ struct HomeDashboardSummary: Equatable {
     let recordTypeCounts: [RecordType: Int]
     let importantEvents: [HomeDashboardTaskEvent]
     let weeklyInsight: HomeDashboardWeeklyInsight
+    let monthlyInsight: HomeDashboardMonthlyInsight
     let steps: Int?
     let sleepHours: Double?
 
@@ -21,6 +22,7 @@ struct HomeDashboardSummary: Equatable {
             todayRecordTotal > 0 ||
             !importantEvents.isEmpty ||
             weeklyInsight.hasAnyData ||
+            monthlyInsight.hasAnyData ||
             steps != nil ||
             sleepHours != nil
     }
@@ -35,6 +37,30 @@ struct HomeDashboardWeeklyInsight: Equatable {
     let dominantRecordType: RecordType?
     let totalSteps: Int?
     let averageSleepHours: Double?
+
+    var hasAnyData: Bool {
+        totalTaskCount > 0 ||
+            recordCount > 0 ||
+            activeDayCount > 0 ||
+            totalSteps != nil ||
+            averageSleepHours != nil
+    }
+}
+
+struct HomeDashboardMonthlyInsight: Equatable {
+    let monthRange: DateInterval
+    let previousMonthRange: DateInterval
+
+    let totalTaskCount: Int
+    let completedTaskCount: Int
+    let recordCount: Int
+    let activeDayCount: Int
+    let dominantRecordType: RecordType?
+    let totalSteps: Int?
+    let averageSleepHours: Double?
+
+    let stepsDelta: Int?
+    let averageSleepDeltaHours: Double?
 
     var hasAnyData: Bool {
         totalTaskCount > 0 ||
@@ -73,6 +99,8 @@ final class DefaultHomeDashboardService: HomeDashboardService {
         let eventWindowEnd = calendar.date(byAdding: .day, value: 7, to: dayStart) ?? dayEnd
         let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)
             ?? DateInterval(start: dayStart, end: eventWindowEnd)
+        let monthRange = calendar.dateInterval(of: .month, for: day)
+            ?? DateInterval(start: dayStart, end: dayEnd)
 
         let todayTasks = try taskRepository.tasks(
             scheduledFrom: dayStart,
@@ -113,6 +141,10 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             weekRange: weekRange,
             ownerUserId: ownerUserId
         )
+        let monthlyInsight = try loadMonthlyInsight(
+            monthRange: monthRange,
+            ownerUserId: ownerUserId
+        )
 
         return HomeDashboardSummary(
             dayRange: DateInterval(start: dayStart, end: dayEnd),
@@ -122,6 +154,7 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             recordTypeCounts: recordTypeCounts,
             importantEvents: Array(importantEvents),
             weeklyInsight: weeklyInsight,
+            monthlyInsight: monthlyInsight,
             steps: steps,
             sleepHours: sleepHours
         )
@@ -172,6 +205,92 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             dominantRecordType: dominantRecordType,
             totalSteps: totalSteps,
             averageSleepHours: averageSleepHours
+        )
+    }
+
+    private func loadMonthlyInsight(monthRange: DateInterval, ownerUserId: String) throws -> HomeDashboardMonthlyInsight {
+        let startOfMonth = monthRange.start
+        let previousMonthDay = calendar.date(byAdding: .month, value: -1, to: startOfMonth) ?? startOfMonth
+        let previousMonthRange = calendar.dateInterval(of: .month, for: previousMonthDay)
+            ?? DateInterval(start: previousMonthDay, end: startOfMonth)
+
+        let monthlyTasks = try taskRepository.tasks(
+            scheduledFrom: monthRange.start,
+            to: monthRange.end,
+            ownerUserId: ownerUserId,
+            status: nil
+        )
+        _ = try taskRepository.tasks(
+            scheduledFrom: previousMonthRange.start,
+            to: previousMonthRange.end,
+            ownerUserId: ownerUserId,
+            status: nil
+        )
+
+        let monthlyRecords = try recordRepository.records(from: monthRange.start, to: monthRange.end)
+            .filter { $0.ownerUserId == ownerUserId }
+        _ = try recordRepository.records(from: previousMonthRange.start, to: previousMonthRange.end)
+            .filter { $0.ownerUserId == ownerUserId }
+
+        let monthlySnapshots = try healthSnapshotRepository.snapshots(
+            bucket: .day,
+            from: monthRange.start,
+            to: monthRange.end,
+            ownerUserId: ownerUserId
+        )
+        let previousMonthSnapshots = try healthSnapshotRepository.snapshots(
+            bucket: .day,
+            from: previousMonthRange.start,
+            to: previousMonthRange.end,
+            ownerUserId: ownerUserId
+        )
+
+        let recordTypeCounts = monthlyRecords.reduce(into: [RecordType: Int]()) { partialResult, record in
+            partialResult[record.type, default: 0] += 1
+        }
+        let dominantRecordType = recordTypeCounts
+            .sorted { lhs, rhs in
+                if lhs.value == rhs.value {
+                    return lhs.key.rawValue < rhs.key.rawValue
+                }
+                return lhs.value > rhs.value
+            }
+            .first?
+            .key
+        let activeDayCount = Set(monthlyRecords.map { calendar.startOfDay(for: $0.startAt) }).count
+
+        let stepValues = monthlySnapshots.compactMap(\.steps)
+        let totalSteps = stepValues.isEmpty ? nil : Int(stepValues.reduce(0, +).rounded())
+        let previousStepValues = previousMonthSnapshots.compactMap(\.steps)
+        let previousTotalSteps = previousStepValues.isEmpty ? nil : Int(previousStepValues.reduce(0, +).rounded())
+        let stepsDelta = (totalSteps != nil && previousTotalSteps != nil)
+            ? (totalSteps ?? 0) - (previousTotalSteps ?? 0)
+            : nil
+
+        let sleepValues = monthlySnapshots.compactMap(\.sleepSeconds)
+        let averageSleepHours = sleepValues.isEmpty
+            ? nil
+            : (sleepValues.reduce(0, +) / Double(sleepValues.count) / 3600).rounded(toPlaces: 1)
+        let previousSleepValues = previousMonthSnapshots.compactMap(\.sleepSeconds)
+        let previousAverageSleepHours = previousSleepValues.isEmpty
+            ? nil
+            : (previousSleepValues.reduce(0, +) / Double(previousSleepValues.count) / 3600).rounded(toPlaces: 1)
+        let averageSleepDeltaHours = (averageSleepHours != nil && previousAverageSleepHours != nil)
+            ? ((averageSleepHours ?? 0) - (previousAverageSleepHours ?? 0)).rounded(toPlaces: 1)
+            : nil
+
+        return HomeDashboardMonthlyInsight(
+            monthRange: monthRange,
+            previousMonthRange: previousMonthRange,
+            totalTaskCount: monthlyTasks.count,
+            completedTaskCount: monthlyTasks.filter { $0.status == .done }.count,
+            recordCount: monthlyRecords.count,
+            activeDayCount: activeDayCount,
+            dominantRecordType: dominantRecordType,
+            totalSteps: totalSteps,
+            averageSleepHours: averageSleepHours,
+            stepsDelta: stepsDelta,
+            averageSleepDeltaHours: averageSleepDeltaHours
         )
     }
 }

@@ -127,6 +127,57 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertTrue(dashboard.hasAnyData)
     }
 
+    func testBuildsMonthlyInsightAcrossTasksRecordsAndHealthSnapshotsWithDeltas() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let monthRange = calendar.dateInterval(of: .month, for: day)!
+        let monthDayOne = calendar.date(byAdding: .hour, value: 12, to: monthRange.start)!
+        let monthDayTwo = calendar.date(byAdding: .day, value: 10, to: monthDayOne)!
+
+        let previousMonthDay = calendar.date(byAdding: .month, value: -1, to: monthRange.start)!
+        let previousMonthRange = calendar.dateInterval(of: .month, for: previousMonthDay)!
+        let previousMonthDayOne = calendar.date(byAdding: .hour, value: 12, to: previousMonthRange.start)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: [
+                TaskItem(title: "本月完成", dueAt: monthDayOne, status: .done, ownerUserId: "u1"),
+                TaskItem(title: "本月待办", dueAt: monthDayTwo, status: .todo, ownerUserId: "u1"),
+                TaskItem(title: "他人本月待办", dueAt: monthDayTwo, status: .todo, ownerUserId: "u2"),
+                TaskItem(title: "上月任务", dueAt: previousMonthDayOne, status: .todo, ownerUserId: "u1")
+            ]),
+            recordRepository: InMemoryRecordRepository(records: [
+                Record(type: .water, startAt: monthDayOne, ownerUserId: "u1"),
+                Record(type: .water, startAt: monthDayTwo, ownerUserId: "u1"),
+                Record(type: .sleep, startAt: monthDayTwo, ownerUserId: "u1"),
+                Record(type: .activity, startAt: monthDayTwo, ownerUserId: "u2"),
+                Record(type: .water, startAt: previousMonthDayOne, ownerUserId: "u1")
+            ]),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshots: [
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: monthDayOne), ownerUserId: "u1", steps: 1200, sleepSeconds: 6 * 3600),
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: monthDayTwo), ownerUserId: "u1", steps: 1800, sleepSeconds: 8 * 3600),
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: previousMonthDayOne), ownerUserId: "u1", steps: 500, sleepSeconds: 7.5 * 3600),
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: monthDayOne), ownerUserId: "u2", steps: 999, sleepSeconds: 9 * 3600)
+            ]),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertEqual(dashboard.monthlyInsight.monthRange, monthRange)
+        XCTAssertEqual(dashboard.monthlyInsight.previousMonthRange, previousMonthRange)
+        XCTAssertEqual(dashboard.monthlyInsight.totalTaskCount, 2)
+        XCTAssertEqual(dashboard.monthlyInsight.completedTaskCount, 1)
+        XCTAssertEqual(dashboard.monthlyInsight.recordCount, 3)
+        XCTAssertEqual(dashboard.monthlyInsight.activeDayCount, 2)
+        XCTAssertEqual(dashboard.monthlyInsight.dominantRecordType, .water)
+        XCTAssertEqual(dashboard.monthlyInsight.totalSteps, 3000)
+        XCTAssertEqual(dashboard.monthlyInsight.averageSleepHours, 7.0)
+        XCTAssertEqual(dashboard.monthlyInsight.stepsDelta, 2500)
+        XCTAssertEqual(dashboard.monthlyInsight.averageSleepDeltaHours, -0.5)
+        XCTAssertTrue(dashboard.monthlyInsight.hasAnyData)
+        XCTAssertTrue(dashboard.hasAnyData)
+    }
+
     func testHasAnyDataIncludesImportantEvents() throws {
         let day = Date(timeIntervalSince1970: 1_700_000_000)
         let calendar = Calendar(identifier: .gregorian)
