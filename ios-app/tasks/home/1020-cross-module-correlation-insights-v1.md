@@ -2,7 +2,7 @@
 
 - Phase: Phase 3 (数据洞察)
 - 模块: Home
-- 状态: Todo
+- 状态: Done
 - 最后更新: 2026-04-13
 - 依赖: 350、400、410、500、510、600、610、1000、1010
 - 目标: 在首页提供轻量的跨模块关联提示，帮助用户理解任务、记录与健康指标之间的可能关联（不做因果结论）。
@@ -28,6 +28,13 @@
 - 首版优先使用周/月聚合结果（复用 1000/1010 的聚合），避免重复扫库。
 - 每条提示必须能追溯到一个明确的阈值或规则。
 - 文案避免因果表述：用“可能/倾向/在本周（本月）观察到”。
+- 首版规则（v1，最多输出 3 条，按顺序挑选，满足才输出）：
+  - 任务完成率高但记录少：`weekly.totalTaskCount >= 5` 且 `weekly.completed/total >= 0.8` 且 `weekly.activeDayCount <= 1`
+  - 记录很勤但任务完成率低：`weekly.totalTaskCount >= 5` 且 `weekly.completed/total <= 0.4` 且 `weekly.activeDayCount >= 4`
+  - 活动量与睡眠组合提示：当 `weekly.totalSteps != nil` 且 `weekly.averageSleepHours != nil` 时，满足任一：
+    - `weekly.totalSteps >= 45000` 且 `weekly.averageSleepHours < 7.0`
+    - `weekly.totalSteps <= 20000` 且 `weekly.averageSleepHours >= 8.0`
+  - 高频记录偏好变化：`weekly.dominantRecordType` 与 `monthly.dominantRecordType` 均非空且不同。
 
 ## Skills 使用
 
@@ -35,9 +42,9 @@
 
 ## 实施记录
 
-- 开工: （待定）
-- 进展: （待补）
-- 下一步: （待补）
+- 开工: 2026-04-13
+- 进展: 已在 `HomeDashboardSummary` 增加 `correlationHints`，并按 v1 阈值生成最多 3 条提示；Home 新增“关联提示”卡片；补齐 XCTest 覆盖 Rule 1/Rule 4/多规则顺序。
+- 下一步: 无。
 
 ## Definition of Done
 
@@ -46,11 +53,11 @@
 
 ## 验证记录
 
-- 命令: （待补）
-- 手测: （待补）
-- 遗留风险: （待补）
+- 命令: `cd ios-app/App/CoupleLife && xcodebuild test -quiet -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-task1020 -only-testing:CoupleLifeTests/HomeDashboardServiceTests -only-testing:CoupleLifeTests/HomeDashboardViewModelTests`
+- 结果: 2026-04-13 通过（退出码 0）
+- 手测: 未做（本任务为规则与展示卡片，优先用 XCTest 覆盖）
+- 遗留风险: 规则为启发式阈值，提示文本已注明“不代表因果”；后续如规则增多需回补更全面的边界测试。
 
 ## 执行规范
 
 - 见 `workflow.md`。
-

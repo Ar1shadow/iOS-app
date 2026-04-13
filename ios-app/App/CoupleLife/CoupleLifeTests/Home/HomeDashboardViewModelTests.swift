@@ -108,6 +108,7 @@ final class HomeDashboardViewModelTests: XCTestCase {
                 stepsDelta: nil,
                 averageSleepDeltaHours: nil
             ),
+            correlationHints: [],
             steps: steps,
             sleepHours: sleepHours
         )

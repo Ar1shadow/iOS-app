@@ -5,6 +5,10 @@ struct HomeDashboardTaskEvent: Equatable, Hashable {
     let dueAt: Date?
 }
 
+struct HomeDashboardCorrelationHint: Equatable, Hashable {
+    let text: String
+}
+
 struct HomeDashboardSummary: Equatable {
     let dayRange: DateInterval
     let todayTaskTotal: Int
@@ -14,6 +18,7 @@ struct HomeDashboardSummary: Equatable {
     let importantEvents: [HomeDashboardTaskEvent]
     let weeklyInsight: HomeDashboardWeeklyInsight
     let monthlyInsight: HomeDashboardMonthlyInsight
+    let correlationHints: [HomeDashboardCorrelationHint]
     let steps: Int?
     let sleepHours: Double?
 
@@ -23,6 +28,7 @@ struct HomeDashboardSummary: Equatable {
             !importantEvents.isEmpty ||
             weeklyInsight.hasAnyData ||
             monthlyInsight.hasAnyData ||
+            !correlationHints.isEmpty ||
             steps != nil ||
             sleepHours != nil
     }
@@ -145,6 +151,7 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             monthRange: monthRange,
             ownerUserId: ownerUserId
         )
+        let correlationHints = buildCorrelationHints(weekly: weeklyInsight, monthly: monthlyInsight)
 
         return HomeDashboardSummary(
             dayRange: DateInterval(start: dayStart, end: dayEnd),
@@ -155,9 +162,61 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             importantEvents: Array(importantEvents),
             weeklyInsight: weeklyInsight,
             monthlyInsight: monthlyInsight,
+            correlationHints: correlationHints,
             steps: steps,
             sleepHours: sleepHours
         )
+    }
+
+    private func buildCorrelationHints(
+        weekly: HomeDashboardWeeklyInsight,
+        monthly: HomeDashboardMonthlyInsight
+    ) -> [HomeDashboardCorrelationHint] {
+        var hints: [HomeDashboardCorrelationHint] = []
+
+        func appendHint(_ text: String) {
+            guard hints.count < 3 else { return }
+            hints.append(HomeDashboardCorrelationHint(text: text))
+        }
+
+        let completionRate: Double? = weekly.totalTaskCount == 0
+            ? nil
+            : Double(weekly.completedTaskCount) / Double(weekly.totalTaskCount)
+
+        if weekly.totalTaskCount >= 5,
+           let completionRate,
+           completionRate >= 0.8,
+           weekly.activeDayCount <= 1
+        {
+            appendHint("本周任务完成 \(weekly.completedTaskCount)/\(weekly.totalTaskCount)，记录活跃天数 \(weekly.activeDayCount) 天；可能任务推进更集中但记录偏少，不代表因果")
+        }
+
+        if weekly.totalTaskCount >= 5,
+           let completionRate,
+           completionRate <= 0.4,
+           weekly.activeDayCount >= 4
+        {
+            appendHint("本周记录活跃 \(weekly.activeDayCount) 天，但任务完成 \(weekly.completedTaskCount)/\(weekly.totalTaskCount)；可能被记录分散精力或任务更难推进，不代表因果")
+        }
+
+        if let totalSteps = weekly.totalSteps,
+           let averageSleepHours = weekly.averageSleepHours
+        {
+            if totalSteps >= 45000, averageSleepHours < 7.0 {
+                appendHint("本周累计步数 \(totalSteps)，平均睡眠 \(String(format: "%.1f", averageSleepHours))h；活动量偏高且睡眠偏少，不代表因果")
+            } else if totalSteps <= 20000, averageSleepHours >= 8.0 {
+                appendHint("本周累计步数 \(totalSteps)，平均睡眠 \(String(format: "%.1f", averageSleepHours))h；活动量偏低且睡眠偏多，不代表因果")
+            }
+        }
+
+        if let weeklyType = weekly.dominantRecordType,
+           let monthlyType = monthly.dominantRecordType,
+           weeklyType != monthlyType
+        {
+            appendHint("高频记录偏好变化：本周 \(weeklyType.visualStyle.title)，本月 \(monthlyType.visualStyle.title)；可能近期关注点变化，不代表因果")
+        }
+
+        return hints
     }
 
     private func loadWeeklyInsight(weekRange: DateInterval, ownerUserId: String) throws -> HomeDashboardWeeklyInsight {

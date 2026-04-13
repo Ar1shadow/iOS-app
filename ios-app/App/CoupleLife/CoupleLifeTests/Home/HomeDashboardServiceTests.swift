@@ -318,6 +318,133 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertEqual(dashboard.importantEvents.map(\.title), ["已延期复诊"])
         XCTAssertTrue(dashboard.hasAnyData)
     }
+
+    func testBuildsCorrelationHintsRule1HighCompletionLowRecordActivity() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)!
+
+        let taskBase = calendar.date(byAdding: .hour, value: 10, to: weekRange.start)!
+        let tasks: [TaskItem] = [
+            TaskItem(title: "t1", dueAt: taskBase, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "t2", dueAt: taskBase, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "t3", dueAt: taskBase, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "t4", dueAt: taskBase, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "t5", dueAt: taskBase, status: .todo, ownerUserId: "u1")
+        ]
+
+        let recordAt = calendar.date(byAdding: .hour, value: 8, to: weekRange.start)!
+        let records: [Record] = [
+            Record(type: .water, startAt: recordAt, ownerUserId: "u1")
+        ]
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: tasks),
+            recordRepository: InMemoryRecordRepository(records: records),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: nil),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        let hints = dashboard.correlationHints
+        XCTAssertEqual(hints.count, 1)
+        guard hints.count >= 1 else { return }
+        XCTAssertTrue(hints[0].text.contains("4/5"))
+        XCTAssertTrue(hints[0].text.hasSuffix("不代表因果"))
+    }
+
+    func testBuildsCorrelationHintsRule4DominantRecordTypeChanged() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)!
+        let monthRange = calendar.dateInterval(of: .month, for: day)!
+
+        let weekRecordDay = calendar.date(byAdding: .hour, value: 8, to: weekRange.start)!
+        let monthRecordDay = calendar.date(byAdding: .day, value: 10, to: monthRange.start)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: []),
+            recordRepository: InMemoryRecordRepository(records: [
+                Record(type: .water, startAt: weekRecordDay, ownerUserId: "u1"),
+                Record(type: .water, startAt: calendar.date(byAdding: .hour, value: 1, to: weekRecordDay)!, ownerUserId: "u1"),
+                Record(type: .sleep, startAt: monthRecordDay, ownerUserId: "u1"),
+                Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 1, to: monthRecordDay)!, ownerUserId: "u1"),
+                Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 2, to: monthRecordDay)!, ownerUserId: "u1")
+            ]),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: nil),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        let hints = dashboard.correlationHints
+        XCTAssertEqual(hints.count, 1)
+        guard hints.count >= 1 else { return }
+        XCTAssertTrue(hints[0].text.contains("喝水"))
+        XCTAssertTrue(hints[0].text.contains("睡眠"))
+        XCTAssertTrue(hints[0].text.hasSuffix("不代表因果"))
+    }
+
+    func testBuildsCorrelationHintsOrderingStableWhenMultipleRulesMatch() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)!
+        let monthRange = calendar.dateInterval(of: .month, for: day)!
+
+        let taskBase = calendar.date(byAdding: .hour, value: 10, to: weekRange.start)!
+        let tasks: [TaskItem] = [
+            TaskItem(title: "t1", dueAt: taskBase, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "t2", dueAt: taskBase, status: .done, ownerUserId: "u1"),
+            TaskItem(title: "t3", dueAt: taskBase, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "t4", dueAt: taskBase, status: .todo, ownerUserId: "u1"),
+            TaskItem(title: "t5", dueAt: taskBase, status: .todo, ownerUserId: "u1")
+        ]
+
+        let day1 = calendar.date(byAdding: .hour, value: 8, to: weekRange.start)!
+        let day2 = calendar.date(byAdding: .day, value: 1, to: day1)!
+        let day3 = calendar.date(byAdding: .day, value: 2, to: day1)!
+        let day4 = calendar.date(byAdding: .day, value: 3, to: day1)!
+
+        let monthExtraDay = calendar.date(byAdding: .day, value: 10, to: monthRange.start)!
+
+        let records: [Record] = [
+            Record(type: .water, startAt: day1, ownerUserId: "u1"),
+            Record(type: .water, startAt: day2, ownerUserId: "u1"),
+            Record(type: .water, startAt: day3, ownerUserId: "u1"),
+            Record(type: .sleep, startAt: day4, ownerUserId: "u1"),
+            Record(type: .sleep, startAt: monthExtraDay, ownerUserId: "u1"),
+            Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 1, to: monthExtraDay)!, ownerUserId: "u1"),
+            Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 2, to: monthExtraDay)!, ownerUserId: "u1"),
+            Record(type: .sleep, startAt: calendar.date(byAdding: .hour, value: 3, to: monthExtraDay)!, ownerUserId: "u1")
+        ]
+
+        let snapshots: [HealthMetricSnapshot] = [
+            HealthMetricSnapshot(dayStart: calendar.startOfDay(for: day1), ownerUserId: "u1", steps: 46000, sleepSeconds: 6.5 * 3600)
+        ]
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: tasks),
+            recordRepository: InMemoryRecordRepository(records: records),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshots: snapshots),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        let hints = dashboard.correlationHints
+        XCTAssertEqual(hints.count, 3)
+        guard hints.count >= 3 else { return }
+        XCTAssertTrue(hints[0].text.contains("2/5"))
+        XCTAssertTrue(hints[0].text.hasSuffix("不代表因果"))
+        XCTAssertTrue(hints[1].text.contains("46000"))
+        XCTAssertTrue(hints[1].text.contains("6.5"))
+        XCTAssertTrue(hints[1].text.hasSuffix("不代表因果"))
+        XCTAssertTrue(hints[2].text.contains("喝水"))
+        XCTAssertTrue(hints[2].text.contains("睡眠"))
+        XCTAssertTrue(hints[2].text.hasSuffix("不代表因果"))
+    }
 }
 
 private final class InMemoryTaskRepository: TaskRepository {

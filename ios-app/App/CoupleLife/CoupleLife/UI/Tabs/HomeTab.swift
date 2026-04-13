@@ -84,6 +84,7 @@ struct HomeTab: View {
 
             weeklyInsightCard(summary.weeklyInsight)
             monthlyInsightCard(summary.monthlyInsight)
+            correlationHintsCard(summary.correlationHints)
 
             SharedCard {
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -228,6 +229,35 @@ struct HomeTab: View {
                                 text: "高频记录：\(style.title)",
                                 colorToken: style.colorToken,
                                 symbolName: style.symbolName
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        .sharedGlassSurface(.cardOverlay)
+    }
+
+    private func correlationHintsCard(_ hints: [HomeDashboardCorrelationHint]) -> some View {
+        SharedCard {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                SharedSectionHeader("关联提示", subtitle: "基于本周/本月摘要（不代表因果）")
+
+                if hints.isEmpty {
+                    SharedEmptyStateView(
+                        title: "暂无关联提示",
+                        message: "当前周/月摘要暂不足以生成关联提示。",
+                        symbolName: "link"
+                    )
+                } else {
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        ForEach(hints, id: \.self) { hint in
+                            SharedListRow(
+                                title: hint.text,
+                                subtitle: nil,
+                                symbolName: "link",
+                                colorToken: .slate,
+                                badgeText: nil
                             )
                         }
                     }
