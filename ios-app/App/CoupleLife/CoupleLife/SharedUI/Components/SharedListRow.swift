@@ -48,6 +48,7 @@ struct SharedListRow: View {
                 .frame(width: 28, height: 28)
                 .background(colorToken.color.opacity(0.12))
                 .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous))
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(title)

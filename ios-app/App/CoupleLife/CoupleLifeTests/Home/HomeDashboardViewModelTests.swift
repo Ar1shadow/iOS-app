@@ -64,9 +64,17 @@ final class HomeDashboardViewModelTests: XCTestCase {
     }
 
     private func makeSummary(steps: Int?, sleepHours: Double?) -> HomeDashboardSummary {
-        HomeDashboardSummary(
+        let calendar = Calendar(identifier: .gregorian)
+        let dayStart = Date(timeIntervalSince1970: 1_700_000_000)
+        let monthRange = calendar.dateInterval(of: .month, for: dayStart)
+            ?? DateInterval(start: dayStart, end: dayStart)
+        let previousMonthDay = calendar.date(byAdding: .month, value: -1, to: monthRange.start) ?? monthRange.start
+        let previousMonthRange = calendar.dateInterval(of: .month, for: previousMonthDay)
+            ?? DateInterval(start: previousMonthDay, end: monthRange.start)
+
+        return HomeDashboardSummary(
             dayRange: DateInterval(
-                start: Date(timeIntervalSince1970: 1_700_000_000),
+                start: dayStart,
                 end: Date(timeIntervalSince1970: 1_700_003_600)
             ),
             todayTaskTotal: 0,
@@ -87,6 +95,20 @@ final class HomeDashboardViewModelTests: XCTestCase {
                 totalSteps: nil,
                 averageSleepHours: nil
             ),
+            monthlyInsight: HomeDashboardMonthlyInsight(
+                monthRange: monthRange,
+                previousMonthRange: previousMonthRange,
+                totalTaskCount: 0,
+                completedTaskCount: 0,
+                recordCount: 0,
+                activeDayCount: 0,
+                dominantRecordType: nil,
+                totalSteps: nil,
+                averageSleepHours: nil,
+                stepsDelta: nil,
+                averageSleepDeltaHours: nil
+            ),
+            correlationHints: [],
             steps: steps,
             sleepHours: sleepHours
         )
