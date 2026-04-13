@@ -13,7 +13,8 @@ struct ProfileTab: View {
         calendarSyncSettings: any CalendarSyncSettingsStore,
         notificationScheduler: any NotificationScheduler,
         coupleSpaceService: any CoupleSpaceService,
-        cloudSyncService: any CloudSyncService
+        cloudSyncService: any CloudSyncService,
+        cloudShareAcceptanceService: any CloudShareAcceptanceService
     ) {
         _viewModel = StateObject(
             wrappedValue: ProfileSettingsViewModel(
@@ -27,7 +28,8 @@ struct ProfileTab: View {
                     settingsStore: UserDefaultsNotificationSettingsStore()
                 ),
                 notificationScheduler: notificationScheduler,
-                cloudSyncService: cloudSyncService
+                cloudSyncService: cloudSyncService,
+                cloudShareAcceptanceService: cloudShareAcceptanceService
             )
         )
         _coupleViewModel = StateObject(
@@ -186,6 +188,41 @@ struct ProfileTab: View {
                     status: viewModel.cloudSyncStatus,
                     hasActiveCoupleSpace: coupleViewModel.status.hasActiveSpace
                 )
+
+                Divider()
+
+                SettingsStatusRow(
+                    title: "共享邀请（CKShare）",
+                    subtitle: cloudShareAcceptanceSummary,
+                    tagText: cloudShareAcceptanceStatusText,
+                    tagColorToken: cloudShareAcceptanceStatusColorToken,
+                    tagSymbolName: cloudShareAcceptanceStatusSymbolName
+                ) {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        TextField("粘贴共享邀请链接（https://…）", text: $viewModel.cloudShareAcceptanceURLInput)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .keyboardType(.URL)
+                            .textFieldStyle(.roundedBorder)
+
+                        HStack(spacing: AppSpacing.sm) {
+                            Button("接受链接") {
+                                Task { await viewModel.acceptCloudShareFromInput() }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(
+                                viewModel.isAcceptingCloudShare ||
+                                URL(string: viewModel.cloudShareAcceptanceURLInput.trimmingCharacters(in: .whitespacesAndNewlines)) == nil
+                            )
+
+                            Button("重试上次") {
+                                Task { await viewModel.retryLastCloudShareAcceptance() }
+                            }
+                            .buttonStyle(.bordered)
+                            .disabled(viewModel.isAcceptingCloudShare || viewModel.cloudShareAcceptanceStatus.lastURL == nil)
+                        }
+                    }
+                }
             }
         }
     }
@@ -421,6 +458,96 @@ struct ProfileTab: View {
         switch viewModel.cloudSyncStatus.availability {
         case .available:
             return viewModel.cloudSyncStatus.lastSyncAt == nil ? "icloud" : "icloud.and.arrow.up"
+        case .notAuthorized:
+            return "icloud.slash"
+        case .notSupported:
+            return "wrench.and.screwdriver"
+        case .failed:
+            return "exclamationmark.icloud"
+        }
+    }
+
+    private var cloudShareAcceptanceSummary: String {
+        let status = viewModel.cloudShareAcceptanceStatus
+        switch status.availability {
+        case .notSupported:
+            return "当前环境不支持 CloudKit 共享邀请。请在已登录 iCloud 的真机上重试。"
+        case .notAuthorized:
+            return "未检测到可用 iCloud 账号或 CloudKit 权限；共享邀请无法接受。"
+        case .failed(let message):
+            return message
+        case .available:
+            switch status.state {
+            case .idle:
+                return "尚未处理共享链接。你可以通过通用链接打开，或在下方手动粘贴邀请链接诊断。"
+            case .processing:
+                return "正在接受共享邀请…"
+            case .accepted:
+                let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+                let host = status.lastURL?.host ?? "未知来源"
+                return "已接受共享邀请（\(time)）。来源：\(host)。"
+            case .failed:
+                let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+                let code = status.lastErrorCode ?? "unknown"
+                return "接受失败（\(time)）。错误码：\(code)。"
+            }
+        }
+    }
+
+    private var cloudShareAcceptanceStatusText: String {
+        let status = viewModel.cloudShareAcceptanceStatus
+        switch status.availability {
+        case .available:
+            switch status.state {
+            case .idle:
+                return "待处理"
+            case .processing:
+                return "处理中"
+            case .accepted:
+                return "已接受"
+            case .failed:
+                return "失败"
+            }
+        case .notAuthorized:
+            return "未授权"
+        case .notSupported:
+            return "当前环境不可用"
+        case .failed:
+            return "状态异常"
+        }
+    }
+
+    private var cloudShareAcceptanceStatusColorToken: AppColorToken {
+        let status = viewModel.cloudShareAcceptanceStatus
+        switch status.availability {
+        case .available:
+            switch status.state {
+            case .accepted:
+                return .green
+            case .idle, .processing:
+                return .indigo
+            case .failed:
+                return .slate
+            }
+        case .notAuthorized, .notSupported, .failed:
+            return .slate
+        }
+    }
+
+    private var cloudShareAcceptanceStatusSymbolName: String {
+        let status = viewModel.cloudShareAcceptanceStatus
+        switch status.availability {
+        case .available:
+            switch status.state {
+            case .idle:
+                return "link"
+            case .processing:
+                return "arrow.triangle.2.circlepath"
+            case .accepted:
+                return "checkmark.seal"
+            case .failed:
+                return "xmark.octagon"
+            }
         case .notAuthorized:
             return "icloud.slash"
         case .notSupported:

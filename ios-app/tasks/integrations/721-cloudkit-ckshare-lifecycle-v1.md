@@ -2,7 +2,7 @@
 
 - Phase: Phase 2 (情侣共享)
 - 模块: Integrations
-- 状态: In Progress
+- 状态: Done
 - 最后更新: 2026-04-13
 - 依赖: 720、900（以及 800/810 的共享边界约定）
 - 目标: 落地 CKShare 邀请/接受的最小生命周期“可跑通管道 + 可观测诊断”，重点覆盖“通过 URL 接受共享”并在设置页展示状态，确保后续真机双端联调有抓手。
@@ -50,8 +50,7 @@
 ## 实施记录
 
 - 开工: 2026-04-13
-- 进展: 已定义 CKShare 接受链路的最小交付物/验收标准与真机验证清单（本任务文档落地）。
-- 下一步: 先补齐 URL 路由与状态模型骨架并加上单测（CI 可跑），再接入设置页诊断展示与最小重试入口；真机可用时按“设备验证清单”走一遍，补齐实际 share 链接格式白名单与错误映射。
+- 完成: 补齐 `onOpenURL` 路由 + CKShare 接受管道骨架（可测），并在 Profile「同步与诊断」加入手动 URL 输入与状态展示（不触达测试环境的真实 CloudKit 网络）。
 
 ## Definition of Done
 
@@ -63,7 +62,9 @@
 
 - CI/Simulator（必须可复现）：
 - `cd ios-app/App/CoupleLife && xcodegen generate`
-- `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
+- 结果: ✅ 2026-04-13 通过
+- `cd ios-app/App/CoupleLife && xcodebuild test -quiet -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-task721`
+- 结果: ✅ 2026-04-13 通过（exit 0）
 - 真机/iCloud（需要设备与 Apple ID，具备后再补）：
 - 前置条件: 真机登录 iCloud；App 启用 CloudKit capability；CloudKit container/schema 已部署；两端设备使用不同 Apple ID（邀请/接受更贴近真实）
 - 验证步骤:

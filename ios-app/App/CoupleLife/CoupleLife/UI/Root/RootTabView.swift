@@ -52,7 +52,8 @@ struct RootTabView: View {
                 calendarSyncSettings: appContainer.calendarSyncSettings,
                 notificationScheduler: appContainer.notifications,
                 coupleSpaceService: coupleSpaceService,
-                cloudSyncService: appContainer.cloudSync
+                cloudSyncService: appContainer.cloudSync,
+                cloudShareAcceptanceService: appContainer.cloudShareAcceptance
             )
                 .tabItem { Label(AppTab.profile.title, systemImage: AppTab.profile.systemImage) }
         }

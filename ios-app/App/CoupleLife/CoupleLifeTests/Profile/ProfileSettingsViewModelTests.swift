@@ -34,7 +34,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             healthDataService: healthService,
             calendarSyncController: calendarController,
             notificationScheduler: notifications,
-            cloudSyncService: cloudSync
+            cloudSyncService: cloudSync,
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
         )
 
         XCTAssertFalse(viewModel.hasLoadedOnce)
@@ -78,7 +79,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
                 settingsStore: TestCalendarSyncSettingsStore(isEnabled: false)
             ),
             notificationScheduler: StubNotificationScheduler(availability: .notSupported),
-            cloudSyncService: StubCloudSyncService(availability: .notSupported)
+            cloudSyncService: StubCloudSyncService(availability: .notSupported),
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
         )
 
         await viewModel.load()
@@ -103,7 +105,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
                 settingsStore: calendarStore
             ),
             notificationScheduler: StubNotificationScheduler(availability: .notSupported),
-            cloudSyncService: StubCloudSyncService(availability: .notSupported)
+            cloudSyncService: StubCloudSyncService(availability: .notSupported),
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
         )
 
         await viewModel.load()
@@ -137,7 +140,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
                 settingsStore: notificationStore
             ),
             notificationScheduler: notificationScheduler,
-            cloudSyncService: StubCloudSyncService(availability: .notSupported)
+            cloudSyncService: StubCloudSyncService(availability: .notSupported),
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
         )
 
         await viewModel.load()
@@ -178,7 +182,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             ),
             notificationController: notificationController,
             notificationScheduler: notificationScheduler,
-            cloudSyncService: StubCloudSyncService(availability: .notSupported)
+            cloudSyncService: StubCloudSyncService(availability: .notSupported),
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
         )
 
         await viewModel.load()
@@ -234,7 +239,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
                 settingsStore: TestCalendarSyncSettingsStore(isEnabled: false)
             ),
             notificationScheduler: StubNotificationScheduler(availability: .notSupported),
-            cloudSyncService: cloudSync
+            cloudSyncService: cloudSync,
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
         )
 
         await viewModel.load()

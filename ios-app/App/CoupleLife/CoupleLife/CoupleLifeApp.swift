@@ -20,6 +20,11 @@ struct CoupleLifeApp: App {
         WindowGroup {
             RootTabView()
                 .environment(\.appContainer, container)
+                .onOpenURL { url in
+                    Task {
+                        _ = await container.cloudShareAcceptance.acceptShare(from: url)
+                    }
+                }
         }
         .modelContainer(modelContainer)
     }

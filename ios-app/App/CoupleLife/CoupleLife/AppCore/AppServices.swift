@@ -113,6 +113,34 @@ protocol CloudSyncService {
     func refresh() async -> CloudSyncStatus
 }
 
+enum CloudShareAcceptanceState: Equatable {
+    case idle
+    case processing
+    case accepted
+    case failed
+}
+
+struct CloudShareAcceptanceStatus: Equatable {
+    var availability: ServiceAvailability
+    var state: CloudShareAcceptanceState
+    var lastURL: URL?
+    var lastErrorCode: String?
+    var lastUpdatedAt: Date?
+
+    static let unsupported = CloudShareAcceptanceStatus(
+        availability: .notSupported,
+        state: .idle,
+        lastURL: nil,
+        lastErrorCode: nil,
+        lastUpdatedAt: nil
+    )
+}
+
+protocol CloudShareAcceptanceService {
+    func currentStatus() async -> CloudShareAcceptanceStatus
+    func acceptShare(from url: URL) async -> CloudShareAcceptanceStatus
+}
+
 struct NoopCalendarSyncService: CalendarSyncService {
     func availability() async -> ServiceAvailability { .notSupported }
     func currentAvailability() -> ServiceAvailability { .notSupported }
@@ -145,4 +173,17 @@ struct NoopCloudSyncService: CloudSyncService {
     func availability() async -> ServiceAvailability { .notSupported }
     func currentStatus() async -> CloudSyncStatus { .unsupported }
     func refresh() async -> CloudSyncStatus { .unsupported }
+}
+
+struct NoopCloudShareAcceptanceService: CloudShareAcceptanceService {
+    func currentStatus() async -> CloudShareAcceptanceStatus { .unsupported }
+    func acceptShare(from url: URL) async -> CloudShareAcceptanceStatus {
+        CloudShareAcceptanceStatus(
+            availability: .notSupported,
+            state: .failed,
+            lastURL: url,
+            lastErrorCode: "not_supported",
+            lastUpdatedAt: Date()
+        )
+    }
 }

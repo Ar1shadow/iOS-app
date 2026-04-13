@@ -9,6 +9,7 @@ struct AppContainer {
     let notificationSettings: NotificationSettingsStore
     let activeCoupleSpaceStore: ActiveCoupleSpaceStore
     let cloudSync: CloudSyncService
+    let cloudShareAcceptance: CloudShareAcceptanceService
 
     static let `default` = AppContainer(
         calendarSync: EventKitCalendarSyncService(),
@@ -17,7 +18,8 @@ struct AppContainer {
         notifications: UserNotificationScheduler(),
         notificationSettings: UserDefaultsNotificationSettingsStore(),
         activeCoupleSpaceStore: UserDefaultsActiveCoupleSpaceStore(),
-        cloudSync: NoopCloudSyncService()
+        cloudSync: NoopCloudSyncService(),
+        cloudShareAcceptance: NoopCloudShareAcceptanceService()
     )
 
     @MainActor
@@ -41,6 +43,10 @@ struct AppContainer {
                 taskSink: taskStore,
                 recordSink: recordStore,
                 activeCoupleSpaceStore: activeCoupleSpaceStore
+            ),
+            cloudShareAcceptance: DefaultCloudShareAcceptanceService(
+                client: CloudKitShareClientLive(),
+                allowedHosts: ["icloud.com", "www.icloud.com"]
             )
         )
     }
