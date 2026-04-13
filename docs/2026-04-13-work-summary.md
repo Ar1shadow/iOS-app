@@ -3,6 +3,7 @@
 ## 本次完成
 
 - 清理仓库状态：`main` worktree 已恢复干净（无未提交改动）。
+- Phase 3（1010/1020）已合入 `main`，并完成本地 worktree/branch 清理（见下方 merge/cleanup 记录）。
 - Phase 3 完成 `1010 月报/趋势洞察 v1`：
   - Home 新增“本月趋势”卡片（任务完成、活跃天数、累计步数、平均睡眠、与上月对比 delta）。
   - 聚合逻辑扩展到月维度，并补齐月末区间与 delta 边界测试。
@@ -14,14 +15,18 @@
 
 ## 代码变更摘要（分支/commit）
 
-> 说明：本次实现主要在 worktree 分支完成，尚未合入 `main`。
+> 说明：本次实现主要在 worktree 分支完成，已于 2026-04-13 合入 `main`，并清理本地 worktrees/branches。
 
-- `task/1010-monthly-insights-v1`（worktree: `.worktrees/task-1010-monthly-insights-v1`）
+- `main`
+  - `9acecd4` merge: integrate phase 3 monthly insights and correlation hints
+  - cleanup: 移除 worktrees `.worktrees/task-1010-monthly-insights-v1` / `.worktrees/task-1020-cross-module-correlation-insights-v1`；删除本地分支 `task/1010-monthly-insights-v1` / `task/1020-cross-module-correlation-insights-v1`
+
+- `task/1010-monthly-insights-v1`（已合入；本地 worktree/branch 已删除）
   - `da07243` feat: add monthly trend insights card
   - `7276dd3` chore: trim unused monthly prefetch
   - `65f1cd1` docs: add phase 3 insight tasks
   - `edf7502` fix: correct monthly delta rendering
-- `task/1020-cross-module-correlation-insights-v1`（worktree: `.worktrees/task-1020-cross-module-correlation-insights-v1`）
+- `task/1020-cross-module-correlation-insights-v1`（已合入；本地 worktree/branch 已删除）
   - `eaf6615` feat: add home correlation hints
   - `ae762cf` test: cover correlation hint rule 3 and snapshot owner filter
   - `583a4df` test: add rule 3 high-steps threshold coverage
@@ -29,6 +34,9 @@
 
 ## 验证
 
+- `main`（merge 后全量测试）：
+  - `cd ios-app/App/CoupleLife && xcodebuild test -quiet -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-main-after-merge`
+  - 结果: 通过（exit code 0）；仅有既有重复 simulator destination warning。
 - `task/1010-monthly-insights-v1`：
   - `cd ios-app/App/CoupleLife && xcodebuild test -quiet -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-controller-task1010-postfix -only-testing:CoupleLifeTests/HomeDashboardServiceTests -only-testing:CoupleLifeTests/HomeDashboardViewModelTests`
   - 结果: 通过（exit code 0）；仅有既有重复 simulator destination warning。
@@ -44,7 +52,5 @@
 
 ## 下一步计划
 
-- 把 `task/1010-monthly-insights-v1` 与 `task/1020-cross-module-correlation-insights-v1` 合入 `main`（按 repo 流程：merge/PR）。
 - Phase 2/Integrations：继续推进 `720/900`，优先验证 CKShare 生命周期与共享库可见性边界。
 - Phase 3：在 `1010/1020` 基础上再拆更细的趋势对比与提示解释（如需要，补 UI 文案与可访问性回归）。
-
