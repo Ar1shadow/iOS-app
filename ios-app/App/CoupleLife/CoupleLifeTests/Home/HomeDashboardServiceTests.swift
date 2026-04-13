@@ -473,6 +473,33 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertTrue(hints[0].text.contains("8.0"))
         XCTAssertTrue(hints[0].text.hasSuffix("不代表因果"))
     }
+
+    func testBuildsCorrelationHintsRule3HighStepsLowSleepBranchHonorsThresholds() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let weekRange = calendar.dateInterval(of: .weekOfYear, for: day)!
+        let dayInWeek = calendar.date(byAdding: .hour, value: 12, to: weekRange.start)!
+        let ownerDayStart = calendar.startOfDay(for: dayInWeek)
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: []),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshots: [
+                HealthMetricSnapshot(dayStart: ownerDayStart, ownerUserId: "u1", steps: 45000, sleepSeconds: 6.9 * 3600)
+            ]),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        let hints = dashboard.correlationHints
+        XCTAssertEqual(hints.count, 1)
+        guard hints.count >= 1 else { return }
+        XCTAssertTrue(hints[0].text.contains("45000"))
+        XCTAssertTrue(hints[0].text.contains("6.9"))
+        XCTAssertTrue(hints[0].text.hasSuffix("不代表因果"))
+    }
 }
 
 private final class InMemoryTaskRepository: TaskRepository {
