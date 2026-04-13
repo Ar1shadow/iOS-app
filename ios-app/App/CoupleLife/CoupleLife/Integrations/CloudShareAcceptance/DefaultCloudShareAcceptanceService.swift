@@ -13,7 +13,7 @@ actor DefaultCloudShareAcceptanceService: CloudShareAcceptanceService {
         self.client = client
         self.allowedHosts = allowedHosts
         self.status = CloudShareAcceptanceStatus(
-            availability: .available,
+            availability: .notSupported,
             state: .idle,
             lastURL: nil,
             lastErrorCode: nil,
@@ -22,7 +22,10 @@ actor DefaultCloudShareAcceptanceService: CloudShareAcceptanceService {
     }
 
     func currentStatus() async -> CloudShareAcceptanceStatus {
-        status
+        let availability = await client.availability()
+        // Preserve last operation state, but refresh availability so Profile UI is not misleading.
+        status.availability = availability
+        return status
     }
 
     func acceptShare(from url: URL) async -> CloudShareAcceptanceStatus {

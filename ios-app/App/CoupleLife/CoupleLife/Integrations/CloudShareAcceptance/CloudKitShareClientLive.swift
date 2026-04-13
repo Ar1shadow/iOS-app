@@ -61,30 +61,31 @@ private extension CloudKitShareClientLive {
             var fetchedMetadata: CKShare.Metadata?
             var perShareError: Error?
 
-            operation.perShareMetadataBlock = { _, metadata, error in
-                if let error {
-                    perShareError = error
-                    return
-                }
-                if let metadata {
+            operation.perShareMetadataResultBlock = { _, result in
+                switch result {
+                case .success(let metadata):
                     fetchedMetadata = metadata
+                case .failure(let error):
+                    perShareError = error
                 }
             }
 
-            operation.fetchShareMetadataCompletionBlock = { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
+            operation.fetchShareMetadataResultBlock = { result in
                 if let perShareError {
                     continuation.resume(throwing: perShareError)
                     return
                 }
-                guard let fetchedMetadata else {
-                    continuation.resume(throwing: CloudShareAcceptanceError(code: "missing_share_metadata"))
-                    return
+
+                switch result {
+                case .success:
+                    guard let fetchedMetadata else {
+                        continuation.resume(throwing: CloudShareAcceptanceError(code: "missing_share_metadata"))
+                        return
+                    }
+                    continuation.resume(returning: fetchedMetadata)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
                 }
-                continuation.resume(returning: fetchedMetadata)
             }
 
             container.add(operation)
@@ -96,22 +97,27 @@ private extension CloudKitShareClientLive {
             let operation = CKAcceptSharesOperation(shareMetadatas: [metadata])
             var perShareError: Error?
 
-            operation.perShareCompletionBlock = { _, _, error in
-                if let error {
+            operation.perShareResultBlock = { _, result in
+                switch result {
+                case .success:
+                    break
+                case .failure(let error):
                     perShareError = error
                 }
             }
 
-            operation.acceptSharesCompletionBlock = { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                    return
-                }
+            operation.acceptSharesResultBlock = { result in
                 if let perShareError {
                     continuation.resume(throwing: perShareError)
                     return
                 }
-                continuation.resume()
+
+                switch result {
+                case .success:
+                    continuation.resume()
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
 
             container.add(operation)
