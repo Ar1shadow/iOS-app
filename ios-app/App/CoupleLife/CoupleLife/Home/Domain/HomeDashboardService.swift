@@ -255,9 +255,13 @@ final class DefaultHomeDashboardService: HomeDashboardService {
         let totalSteps = stepValues.isEmpty ? nil : Int(stepValues.reduce(0, +).rounded())
         let previousStepValues = previousMonthSnapshots.compactMap(\.steps)
         let previousTotalSteps = previousStepValues.isEmpty ? nil : Int(previousStepValues.reduce(0, +).rounded())
-        let stepsDelta = (totalSteps != nil && previousTotalSteps != nil)
-            ? (totalSteps ?? 0) - (previousTotalSteps ?? 0)
-            : nil
+        let stepsDelta: Int?
+        if let totalSteps, let previousTotalSteps {
+            let delta = totalSteps - previousTotalSteps
+            stepsDelta = delta == 0 ? nil : delta
+        } else {
+            stepsDelta = nil
+        }
 
         let sleepValues = monthlySnapshots.compactMap(\.sleepSeconds)
         let averageSleepHours = sleepValues.isEmpty
@@ -267,9 +271,13 @@ final class DefaultHomeDashboardService: HomeDashboardService {
         let previousAverageSleepHours = previousSleepValues.isEmpty
             ? nil
             : (previousSleepValues.reduce(0, +) / Double(previousSleepValues.count) / 3600).rounded(toPlaces: 1)
-        let averageSleepDeltaHours = (averageSleepHours != nil && previousAverageSleepHours != nil)
-            ? ((averageSleepHours ?? 0) - (previousAverageSleepHours ?? 0)).rounded(toPlaces: 1)
-            : nil
+        let averageSleepDeltaHours: Double?
+        if let averageSleepHours, let previousAverageSleepHours {
+            let delta = (averageSleepHours - previousAverageSleepHours).rounded(toPlaces: 1)
+            averageSleepDeltaHours = delta == 0 ? nil : delta
+        } else {
+            averageSleepDeltaHours = nil
+        }
 
         return HomeDashboardMonthlyInsight(
             monthRange: monthRange,

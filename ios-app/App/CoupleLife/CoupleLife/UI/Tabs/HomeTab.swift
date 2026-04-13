@@ -281,6 +281,15 @@ struct HomeTab: View {
                                 )
                             }
                         }
+
+                        if let dominantRecordType = insight.dominantRecordType {
+                            let style = dominantRecordType.visualStyle
+                            SharedTag(
+                                text: "高频记录：\(style.title)",
+                                colorToken: style.colorToken,
+                                symbolName: style.symbolName
+                            )
+                        }
                     }
                 }
             }

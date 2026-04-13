@@ -178,6 +178,75 @@ final class HomeDashboardServiceTests: XCTestCase {
         XCTAssertTrue(dashboard.hasAnyData)
     }
 
+    func testBuildsMonthlyInsightOmitsZeroDeltas() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let monthRange = calendar.dateInterval(of: .month, for: day)!
+        let monthDay = calendar.date(byAdding: .hour, value: 12, to: monthRange.start)!
+
+        let previousMonthDay = calendar.date(byAdding: .month, value: -1, to: monthRange.start)!
+        let previousMonthRange = calendar.dateInterval(of: .month, for: previousMonthDay)!
+        let previousMonthDayInRange = calendar.date(byAdding: .hour, value: 12, to: previousMonthRange.start)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: []),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshots: [
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: monthDay), ownerUserId: "u1", steps: 1000, sleepSeconds: 7.5 * 3600),
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: previousMonthDayInRange), ownerUserId: "u1", steps: 1000, sleepSeconds: 7.5 * 3600)
+            ]),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertNil(dashboard.monthlyInsight.stepsDelta)
+        XCTAssertNil(dashboard.monthlyInsight.averageSleepDeltaHours)
+    }
+
+    func testBuildsMonthlyInsightOmitsDeltasWhenPreviousBaselineMissing() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let monthRange = calendar.dateInterval(of: .month, for: day)!
+        let monthDay = calendar.date(byAdding: .hour, value: 12, to: monthRange.start)!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: []),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshots: [
+                HealthMetricSnapshot(dayStart: calendar.startOfDay(for: monthDay), ownerUserId: "u1", steps: 3000, sleepSeconds: 8 * 3600)
+            ]),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        XCTAssertNil(dashboard.monthlyInsight.stepsDelta)
+        XCTAssertNil(dashboard.monthlyInsight.averageSleepDeltaHours)
+    }
+
+    func testMonthlyInsightPreviousMonthRangeIsRobustAroundMonthEndInGMT() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let day = calendar.date(from: DateComponents(year: 2026, month: 3, day: 31, hour: 12, minute: 0, second: 0))!
+
+        let service = DefaultHomeDashboardService(
+            taskRepository: InMemoryTaskRepository(tasks: []),
+            recordRepository: InMemoryRecordRepository(records: []),
+            healthSnapshotRepository: InMemoryHealthSnapshotRepository(snapshot: nil),
+            calendar: calendar
+        )
+
+        let dashboard = try service.load(for: day, ownerUserId: "u1")
+
+        let expectedPreviousMonthStart = calendar.date(from: DateComponents(year: 2026, month: 2, day: 1, hour: 0, minute: 0, second: 0))!
+        let expectedPreviousMonthEnd = calendar.date(from: DateComponents(year: 2026, month: 3, day: 1, hour: 0, minute: 0, second: 0))!
+        XCTAssertEqual(dashboard.monthlyInsight.previousMonthRange.start, expectedPreviousMonthStart)
+        XCTAssertEqual(dashboard.monthlyInsight.previousMonthRange.end, expectedPreviousMonthEnd)
+    }
+
     func testHasAnyDataIncludesImportantEvents() throws {
         let day = Date(timeIntervalSince1970: 1_700_000_000)
         let calendar = Calendar(identifier: .gregorian)
