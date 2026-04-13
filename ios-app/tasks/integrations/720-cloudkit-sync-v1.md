@@ -56,4 +56,4 @@
 - 结果: 未发现实体 iPhone destination；只有 `Any iOS Device` placeholder 与 simulator placeholder，真机 CloudKit 联调被环境阻塞。
 - 手测: 未做真机/iCloud 双端联调。
 - 遗留风险: 真机 iCloud 账号、CloudKit schema 部署、共享库 zone/邀请关系仍需设备联调；当前验证覆盖代码路径、权限降级、路由、冲突与本地投影规则。
-- 重大风险: 当前 CloudKit client 已接入 private/shared database 读写路径，但未完成 CKShare 创建、邀请、接受共享和 custom zone 生命周期；真双端共享必须用实体设备验证后才能标记为产品级通过。
+- 重大风险: 当前 CloudKit client 已接入 private/shared database 读写路径，但未完成 CKShare 创建、邀请、接受共享和 custom zone 生命周期；真双端共享必须用实体设备验证后才能标记为产品级通过。后续跟进见 [721 CloudKit CKShare 生命周期 v1](ios-app/tasks/integrations/721-cloudkit-ckshare-lifecycle-v1.md)。
