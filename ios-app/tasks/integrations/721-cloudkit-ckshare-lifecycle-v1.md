@@ -73,6 +73,11 @@
 - App 显示“processing -> accepted/failed”，并在设置页记录 lastUpdatedAt/lastErrorCode
 - 若失败: 记录系统错误码与建议动作（例如重新登录 iCloud、检查网络、检查 container、检查 schema 部署）
 
+## 已知问题/遗留
+
+- Scene-based CKShare 入口未完整覆盖：当前主要依赖 `onOpenURL` 与 `UIApplicationDelegate.application(_:userDidAcceptCloudKitShareWith:)`（deprecated）；真机/冷启动时可能需要补 `UIWindowSceneDelegate.windowScene(_:userDidAcceptCloudKitShareWith:)` 与 `UIScene.ConnectionOptions.cloudKitShareMetadata` 才能稳定接入。
+- Share URL 校验目前仅做 scheme/host（以及可选 host 白名单），未做 path 级别严格匹配；可能导致非 share 链接进入 CloudKit 路径并以 CKError 形式失败（诊断可用但不够“本地可判定”）。
+
 ## 执行规范
 
 - 见 `workflow.md`（任务状态流转、回填规则、最小增量原则）
