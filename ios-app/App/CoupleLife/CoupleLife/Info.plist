@@ -24,6 +24,8 @@
     <string>CoupleLife 仅会在你主动连接后读取步数与睡眠摘要，用于首页和运动页展示。</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>CoupleLife 当前不会写入你的健康数据。</string>
+    <key>CKSharingSupported</key>
+    <true/>
     <key>UIApplicationSceneManifest</key>
     <dict>
         <key>UIApplicationSupportsMultipleScenes</key>

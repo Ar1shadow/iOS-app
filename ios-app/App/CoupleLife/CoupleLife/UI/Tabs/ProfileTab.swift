@@ -63,6 +63,9 @@ struct ProfileTab: View {
             guard newValue == .active else { return }
             Task { await refresh() }
         }
+        .onReceive(NotificationCenter.default.publisher(for: CloudShareNotifications.acceptanceDidUpdate)) { _ in
+            Task { await viewModel.refreshCloudShareAcceptanceStatus() }
+        }
     }
 
     private var coupleSection: some View {
@@ -469,6 +472,22 @@ struct ProfileTab: View {
 
     private var cloudShareAcceptanceSummary: String {
         let status = viewModel.cloudShareAcceptanceStatus
+        // Prioritize operation state so validation failures show actionable error codes.
+        switch status.state {
+        case .failed:
+            let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+            let code = status.lastErrorCode ?? "unknown"
+            return "接受失败（\(time)）。错误码：\(code)。"
+        case .processing:
+            return "正在接受共享邀请…"
+        case .accepted:
+            let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+            let host = status.lastURL?.host ?? "未知来源"
+            return "已接受共享邀请（\(time)）。来源：\(host)。"
+        case .idle:
+            break
+        }
+
         switch status.availability {
         case .notSupported:
             return "当前环境不支持 CloudKit 共享邀请。请在已登录 iCloud 的真机上重试。"
@@ -477,20 +496,7 @@ struct ProfileTab: View {
         case .failed(let message):
             return message
         case .available:
-            switch status.state {
-            case .idle:
-                return "尚未处理共享链接。你可以通过通用链接打开，或在下方手动粘贴邀请链接诊断。"
-            case .processing:
-                return "正在接受共享邀请…"
-            case .accepted:
-                let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
-                let host = status.lastURL?.host ?? "未知来源"
-                return "已接受共享邀请（\(time)）。来源：\(host)。"
-            case .failed:
-                let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
-                let code = status.lastErrorCode ?? "unknown"
-                return "接受失败（\(time)）。错误码：\(code)。"
-            }
+            return "尚未处理共享链接。你可以通过通用链接打开，或在下方手动粘贴邀请链接诊断。"
         }
     }
 

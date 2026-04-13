@@ -64,6 +64,7 @@
 		84373F0D9E51751D949A769D /* FitnessDashboardViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8696CE051DBEA98FEB0BDACC /* FitnessDashboardViewModelTests.swift */; };
 		863854731A812977C7BE7296 /* CoupleSpaceServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297FF59E6CFAB9E3720490E9 /* CoupleSpaceServiceTests.swift */; };
 		86DE4DB686C0423DEC5B83B7 /* AppTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79192C8E0C81DA28DDF58033 /* AppTabTests.swift */; };
+		8939A67BA47501B14F6E5EEA /* CloudShareNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619BE738176B3ACD16C93360 /* CloudShareNotifications.swift */; };
 		8ADFCC19786F293D0A54A487 /* VisibilityPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F78ECA984F0A60B477F25C /* VisibilityPolicyTests.swift */; };
 		8B7A247B44513194F9E608D2 /* UserNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE31CF2D30B6FBD26CF21719 /* UserNotificationScheduler.swift */; };
 		8B89B624E7BD3FD60756734C /* CalendarTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A32979D371B72D50224A6C /* CalendarTab.swift */; };
@@ -112,6 +113,7 @@
 		EBCAD398BA2EC11BE9BEFE46 /* CalendarSyncTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 798B9210469AE366A516B172 /* CalendarSyncTestDoubles.swift */; };
 		F13F973A87736EA35D08303F /* VisibilityPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C206501AE91687DDE52605 /* VisibilityPolicy.swift */; };
 		F25DB629DC2507C4876AC352 /* CalendarSyncSettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E8CD01EAE792FC45BA88B15 /* CalendarSyncSettingsController.swift */; };
+		F4ADCE1CC114F275A22194E4 /* CloudShareAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10867CDCC0A0D1DEC0C0B31 /* CloudShareAppDelegate.swift */; };
 		F807011ABFE013FAA2B77C5D /* TaskItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BC211CCD89BA7B038F38054 /* TaskItem.swift */; };
 		F93D645E5DDB1E9DC89BA9D9 /* ActiveCoupleSpaceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A8705254CBFC23DCA08F3D /* ActiveCoupleSpaceStore.swift */; };
 		F982B8A0F9901F1284895E56 /* SharedTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB9CEA57EE0725FB5F59AA8 /* SharedTag.swift */; };
@@ -198,6 +200,7 @@
 		57C8FEBC10B2C998BBAFA58C /* DefaultCloudSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCloudSyncServiceTests.swift; sourceTree = "<group>"; };
 		596F2991195C558DC5D39455 /* SharedGlassSurface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedGlassSurface.swift; sourceTree = "<group>"; };
 		5B8D76EEBEEC1E91512AB3F0 /* RecordRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordRepositoryTests.swift; sourceTree = "<group>"; };
+		619BE738176B3ACD16C93360 /* CloudShareNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShareNotifications.swift; sourceTree = "<group>"; };
 		65B447BAD4C5C6F6AF8A893C /* CloudShareAcceptanceServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShareAcceptanceServiceTests.swift; sourceTree = "<group>"; };
 		67DCABD39BF8028167B122BD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		68F2EB5E00FAEF415AD0F2D5 /* CloudSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudSyncModels.swift; sourceTree = "<group>"; };
@@ -242,6 +245,7 @@
 		ABD445B40A1302A532DD7E61 /* CoupleSpaceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleSpaceService.swift; sourceTree = "<group>"; };
 		AC993DA32C57A2066AA1EFBE /* SharedListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedListRow.swift; sourceTree = "<group>"; };
 		ACFE3E29AAA12FAFA0C32C19 /* SharedUIRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedUIRegressionTests.swift; sourceTree = "<group>"; };
+		B10867CDCC0A0D1DEC0C0B31 /* CloudShareAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShareAppDelegate.swift; sourceTree = "<group>"; };
 		B5ED14498A05B160C876E43A /* PlanningTaskFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTaskFormView.swift; sourceTree = "<group>"; };
 		BC47581F914C073A6D9A88CD /* CoupleSpaceSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoupleSpaceSection.swift; sourceTree = "<group>"; };
 		BE784557B32E0060966EBFF1 /* FitnessDashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessDashboardViewModel.swift; sourceTree = "<group>"; };
@@ -386,6 +390,8 @@
 				D3A8705254CBFC23DCA08F3D /* ActiveCoupleSpaceStore.swift */,
 				270E0C8D8154D41ED1CE1456 /* AppContainer.swift */,
 				70B8D581D173E3557291D570 /* AppServices.swift */,
+				B10867CDCC0A0D1DEC0C0B31 /* CloudShareAppDelegate.swift */,
+				619BE738176B3ACD16C93360 /* CloudShareNotifications.swift */,
 				29E0953AA6938FE93B936195 /* CurrentUser.swift */,
 				8795D7E7CFA5E1DBEBA1EE12 /* Routing.swift */,
 			);
@@ -962,6 +968,8 @@
 				60A7167EC5AF63C3988410E0 /* CloudKitCloudSyncClient.swift in Sources */,
 				FD3005824BD61D0B6024EA5B /* CloudKitShareClient.swift in Sources */,
 				E4CB4D16E1E64DC7C96867CC /* CloudKitShareClientLive.swift in Sources */,
+				F4ADCE1CC114F275A22194E4 /* CloudShareAppDelegate.swift in Sources */,
+				8939A67BA47501B14F6E5EEA /* CloudShareNotifications.swift in Sources */,
 				E14C0A4E804CF081599B1BEE /* CloudSyncConflictResolver.swift in Sources */,
 				1F982F115557E879766DD2A9 /* CloudSyncModels.swift in Sources */,
 				265F21D38F2D44BED6FA4200 /* CloudSyncRoutePlanner.swift in Sources */,

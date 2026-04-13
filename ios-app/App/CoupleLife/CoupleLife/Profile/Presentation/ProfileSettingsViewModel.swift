@@ -89,6 +89,10 @@ final class ProfileSettingsViewModel: ObservableObject {
         cloudSyncAvailability = cloudSyncStatus.availability
     }
 
+    func refreshCloudShareAcceptanceStatus() async {
+        cloudShareAcceptanceStatus = await cloudShareAcceptanceService.currentStatus()
+    }
+
     func acceptCloudShareFromInput() async {
         guard let url = URL(string: cloudShareAcceptanceURLInput.trimmingCharacters(in: .whitespacesAndNewlines)) else {
             return

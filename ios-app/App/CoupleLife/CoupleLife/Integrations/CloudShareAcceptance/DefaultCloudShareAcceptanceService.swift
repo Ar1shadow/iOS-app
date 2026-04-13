@@ -29,16 +29,18 @@ actor DefaultCloudShareAcceptanceService: CloudShareAcceptanceService {
     }
 
     func acceptShare(from url: URL) async -> CloudShareAcceptanceStatus {
+        let availability = await client.availability()
+        status.availability = availability
+
         if let validationErrorCode = validate(url) {
             status = statusForFailure(
-                availability: status.availability,
+                availability: availability,
                 url: url,
                 errorCode: validationErrorCode
             )
             return status
         }
 
-        let availability = await client.availability()
         guard availability == .available else {
             status = statusForFailure(
                 availability: availability,
