@@ -220,16 +220,8 @@ final class DefaultHomeDashboardService: HomeDashboardService {
             ownerUserId: ownerUserId,
             status: nil
         )
-        _ = try taskRepository.tasks(
-            scheduledFrom: previousMonthRange.start,
-            to: previousMonthRange.end,
-            ownerUserId: ownerUserId,
-            status: nil
-        )
 
         let monthlyRecords = try recordRepository.records(from: monthRange.start, to: monthRange.end)
-            .filter { $0.ownerUserId == ownerUserId }
-        _ = try recordRepository.records(from: previousMonthRange.start, to: previousMonthRange.end)
             .filter { $0.ownerUserId == ownerUserId }
 
         let monthlySnapshots = try healthSnapshotRepository.snapshots(
