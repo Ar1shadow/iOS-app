@@ -1,5 +1,9 @@
 import Foundation
 
+#if canImport(CloudKit)
+import CloudKit
+#endif
+
 enum ServiceAvailability: Equatable {
     case available
     case notAuthorized
@@ -139,6 +143,10 @@ struct CloudShareAcceptanceStatus: Equatable {
 protocol CloudShareAcceptanceService {
     func currentStatus() async -> CloudShareAcceptanceStatus
     func acceptShare(from url: URL) async -> CloudShareAcceptanceStatus
+
+    #if canImport(CloudKit)
+    func acceptShare(from metadata: CKShare.Metadata) async -> CloudShareAcceptanceStatus
+    #endif
 }
 
 struct NoopCalendarSyncService: CalendarSyncService {
@@ -186,4 +194,16 @@ struct NoopCloudShareAcceptanceService: CloudShareAcceptanceService {
             lastUpdatedAt: Date()
         )
     }
+
+    #if canImport(CloudKit)
+    func acceptShare(from metadata: CKShare.Metadata) async -> CloudShareAcceptanceStatus {
+        CloudShareAcceptanceStatus(
+            availability: .notSupported,
+            state: .failed,
+            lastURL: metadata.share.url,
+            lastErrorCode: "not_supported",
+            lastUpdatedAt: Date()
+        )
+    }
+    #endif
 }

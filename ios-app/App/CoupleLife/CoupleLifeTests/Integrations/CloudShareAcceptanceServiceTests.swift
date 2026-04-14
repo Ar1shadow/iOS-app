@@ -1,6 +1,10 @@
 import XCTest
 @testable import CoupleLife
 
+#if canImport(CloudKit)
+import CloudKit
+#endif
+
 final class CloudShareAcceptanceServiceTests: XCTestCase {
     func testAcceptShareFailsForNonHTTPSURL() async {
         let client = BlockingCloudKitShareClient(accountAvailability: .available)
@@ -23,6 +27,32 @@ final class CloudShareAcceptanceServiceTests: XCTestCase {
 
         XCTAssertEqual(status.state, .failed)
         XCTAssertEqual(status.lastErrorCode, "unsupported_host")
+    }
+
+    func testAcceptShareFailsForUnsupportedPath() async {
+        let client = BlockingCloudKitShareClient(accountAvailability: .available)
+        let service = DefaultCloudShareAcceptanceService(
+            client: client,
+            allowedHosts: ["icloud.com"]
+        )
+
+        let status = await service.acceptShare(from: URL(string: "https://icloud.com/notes/abc")!)
+
+        XCTAssertEqual(status.state, .failed)
+        XCTAssertEqual(status.lastErrorCode, "unsupported_path")
+    }
+
+    func testAcceptShareFailsForMissingToken() async {
+        let client = BlockingCloudKitShareClient(accountAvailability: .available)
+        let service = DefaultCloudShareAcceptanceService(
+            client: client,
+            allowedHosts: ["icloud.com"]
+        )
+
+        let status = await service.acceptShare(from: URL(string: "https://icloud.com/share/")!)
+
+        XCTAssertEqual(status.state, .failed)
+        XCTAssertEqual(status.lastErrorCode, "missing_token")
     }
 
     func testAcceptShareTransitionsToProcessingWhileClientIsInFlight() async {
@@ -82,6 +112,16 @@ private actor BlockingCloudKitShareClient: CloudKitShareClient {
     }
 
     func acceptShare(from url: URL) async throws {
+        await blockUntilFinished()
+    }
+
+    #if canImport(CloudKit)
+    func acceptShare(from metadata: CKShare.Metadata) async throws {
+        await blockUntilFinished()
+    }
+    #endif
+
+    private func blockUntilFinished() async {
         didStartAccept = true
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
             self.continuation = continuation
@@ -116,5 +156,10 @@ private actor FailingCloudKitShareClient: CloudKitShareClient {
     func acceptShare(from url: URL) async throws {
         throw error
     }
-}
 
+    #if canImport(CloudKit)
+    func acceptShare(from metadata: CKShare.Metadata) async throws {
+        throw error
+    }
+    #endif
+}

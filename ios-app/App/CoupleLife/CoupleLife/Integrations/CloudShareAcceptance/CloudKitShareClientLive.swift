@@ -22,8 +22,12 @@ final class CloudKitShareClientLive: CloudKitShareClient {
             switch status {
             case .available:
                 return .available
-            case .noAccount, .couldNotDetermine, .temporarilyUnavailable, .restricted:
+            case .noAccount, .restricted:
                 return .notAuthorized
+            case .couldNotDetermine:
+                return .failed("CloudKit account status could not be determined. Try again later.")
+            case .temporarilyUnavailable:
+                return .failed("CloudKit account status is temporarily unavailable. Try again later.")
             @unknown default:
                 return .failed("CloudKit account status is unknown.")
             }
@@ -43,7 +47,7 @@ final class CloudKitShareClientLive: CloudKitShareClient {
 
         do {
             let metadata = try await fetchShareMetadata(from: url)
-            try await acceptShare(with: metadata)
+            try await acceptShare(from: metadata)
         } catch {
             throw CloudShareAcceptanceError(code: errorCode(for: error))
         }
@@ -51,6 +55,16 @@ final class CloudKitShareClientLive: CloudKitShareClient {
         throw CloudShareAcceptanceError(code: "not_supported")
         #endif
     }
+
+    #if canImport(CloudKit)
+    func acceptShare(from metadata: CKShare.Metadata) async throws {
+        do {
+            try await acceptShare(with: metadata)
+        } catch {
+            throw CloudShareAcceptanceError(code: errorCode(for: error))
+        }
+    }
+    #endif
 }
 
 #if canImport(CloudKit)

@@ -166,6 +166,7 @@ ios-app/
 - [710 本地通知调度 v1](ios-app/tasks/integrations/710-local-notifications-v1.md)
 - [720 CloudKit 同步与共享 v1](ios-app/tasks/integrations/720-cloudkit-sync-v1.md)
 - [721 CloudKit CKShare 生命周期 v1](ios-app/tasks/integrations/721-cloudkit-ckshare-lifecycle-v1.md)
+- [722 CKShare Scene 入口与接受链路加固 v1](ios-app/tasks/integrations/722-ckshare-scene-entry-and-hardening-v1.md)
 - [730 WidgetKit 小组件 v1](ios-app/tasks/integrations/730-widgetkit-v1.md)
 
 ### Couple
@@ -213,6 +214,7 @@ ios-app/
 - [810 共享可见性与敏感数据边界 v1](ios-app/tasks/couple/810-sharing-visibility-and-permissions-v1.md)
 - [720 CloudKit 同步与共享 v1](ios-app/tasks/integrations/720-cloudkit-sync-v1.md)
 - [721 CloudKit CKShare 生命周期 v1](ios-app/tasks/integrations/721-cloudkit-ckshare-lifecycle-v1.md)
+- [722 CKShare Scene 入口与接受链路加固 v1](ios-app/tasks/integrations/722-ckshare-scene-entry-and-hardening-v1.md)
 
 ### Phase 3: 数据洞察
 
