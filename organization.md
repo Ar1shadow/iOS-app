@@ -167,6 +167,8 @@ ios-app/
 - [720 CloudKit 同步与共享 v1](ios-app/tasks/integrations/720-cloudkit-sync-v1.md)
 - [721 CloudKit CKShare 生命周期 v1](ios-app/tasks/integrations/721-cloudkit-ckshare-lifecycle-v1.md)
 - [722 CKShare Scene 入口与接受链路加固 v1](ios-app/tasks/integrations/722-ckshare-scene-entry-and-hardening-v1.md)
+- [723 CKShare 创建/邀请/撤销/重邀最小闭环 v1](ios-app/tasks/integrations/723-ckshare-create-invite-revoke-v1.md)
+- [724 真机 iCloud 双端联调与 CloudKit Schema 部署/排障流程 v1](ios-app/tasks/integrations/724-cloudkit-real-device-bringup-v1.md)
 - [730 WidgetKit 小组件 v1](ios-app/tasks/integrations/730-widgetkit-v1.md)
 
 ### Couple
@@ -215,6 +217,8 @@ ios-app/
 - [720 CloudKit 同步与共享 v1](ios-app/tasks/integrations/720-cloudkit-sync-v1.md)
 - [721 CloudKit CKShare 生命周期 v1](ios-app/tasks/integrations/721-cloudkit-ckshare-lifecycle-v1.md)
 - [722 CKShare Scene 入口与接受链路加固 v1](ios-app/tasks/integrations/722-ckshare-scene-entry-and-hardening-v1.md)
+- [723 CKShare 创建/邀请/撤销/重邀最小闭环 v1](ios-app/tasks/integrations/723-ckshare-create-invite-revoke-v1.md)
+- [724 真机 iCloud 双端联调与 CloudKit Schema 部署/排障流程 v1](ios-app/tasks/integrations/724-cloudkit-real-device-bringup-v1.md)
 
 ### Phase 3: 数据洞察
 
