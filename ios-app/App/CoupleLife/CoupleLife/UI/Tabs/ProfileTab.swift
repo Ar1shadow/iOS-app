@@ -14,7 +14,8 @@ struct ProfileTab: View {
         notificationScheduler: any NotificationScheduler,
         coupleSpaceService: any CoupleSpaceService,
         cloudSyncService: any CloudSyncService,
-        cloudShareAcceptanceService: any CloudShareAcceptanceService
+        cloudShareAcceptanceService: any CloudShareAcceptanceService,
+        cloudShareInvitationService: any CloudShareInvitationService
     ) {
         _viewModel = StateObject(
             wrappedValue: ProfileSettingsViewModel(
@@ -29,7 +30,8 @@ struct ProfileTab: View {
                 ),
                 notificationScheduler: notificationScheduler,
                 cloudSyncService: cloudSyncService,
-                cloudShareAcceptanceService: cloudShareAcceptanceService
+                cloudShareAcceptanceService: cloudShareAcceptanceService,
+                cloudShareInvitationService: cloudShareInvitationService
             )
         )
         _coupleViewModel = StateObject(
@@ -65,6 +67,9 @@ struct ProfileTab: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: CloudShareNotifications.acceptanceDidUpdate)) { _ in
             Task { await viewModel.refreshCloudShareAcceptanceStatus() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: CloudShareNotifications.invitationDidUpdate)) { _ in
+            Task { await viewModel.refreshCloudShareInvitationStatus() }
         }
     }
 
@@ -223,6 +228,62 @@ struct ProfileTab: View {
                             }
                             .buttonStyle(.bordered)
                             .disabled(viewModel.isAcceptingCloudShare || viewModel.cloudShareAcceptanceStatus.lastURL == nil)
+                        }
+                    }
+                }
+
+                Divider()
+
+                SettingsStatusRow(
+                    title: "情侣共享（发起方）",
+                    subtitle: cloudShareInvitationSummary,
+                    tagText: cloudShareInvitationStatusText,
+                    tagColorToken: cloudShareInvitationStatusColorToken,
+                    tagSymbolName: cloudShareInvitationStatusSymbolName
+                ) {
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        if let url = viewModel.cloudShareInvitationStatus.lastShareURL {
+                            HStack(spacing: AppSpacing.sm) {
+                                Text(url.absoluteString)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColorToken.textSecondary.color)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                Spacer(minLength: AppSpacing.sm)
+                                Button("复制") {
+                                    UIPasteboard.general.string = url.absoluteString
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+
+                        HStack(spacing: AppSpacing.sm) {
+                            Button(viewModel.cloudShareInvitationStatus.lastShareURL == nil ? "创建共享" : "重新生成") {
+                                Task { await viewModel.createCoupleShare() }
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(
+                                viewModel.isMutatingCloudShareInvitation ||
+                                viewModel.cloudShareInvitationStatus.availability != .available
+                            )
+
+                            Button("撤销") {
+                                Task { await viewModel.revokeCoupleShare() }
+                            }
+                            .buttonStyle(.bordered)
+                            .disabled(
+                                viewModel.isMutatingCloudShareInvitation ||
+                                viewModel.cloudShareInvitationStatus.lastShareURL == nil
+                            )
+
+                            Button("重邀") {
+                                Task { await viewModel.reinviteCoupleShare() }
+                            }
+                            .buttonStyle(.bordered)
+                            .disabled(
+                                viewModel.isMutatingCloudShareInvitation ||
+                                viewModel.cloudShareInvitationStatus.lastShareURL == nil
+                            )
                         }
                     }
                 }
@@ -560,6 +621,89 @@ struct ProfileTab: View {
             return "wrench.and.screwdriver"
         case .failed:
             return "exclamationmark.icloud"
+        }
+    }
+
+    private var cloudShareInvitationSummary: String {
+        let status = viewModel.cloudShareInvitationStatus
+        switch status.state {
+        case .creating:
+            return "正在创建共享…"
+        case .revoking:
+            return "正在撤销共享…"
+        case .active:
+            let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+            let participants = max(0, status.participantCount)
+            return "已生成共享链接（\(time)）。当前受邀者 \(participants) 人。"
+        case .revoked:
+            let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+            return "共享已撤销（\(time)）。点击「创建共享」重新生成链接。"
+        case .failed:
+            let time = status.lastUpdatedAt.map { DateFormatter.cloudSyncStatus.string(from: $0) } ?? "刚刚"
+            let code = status.lastErrorCode ?? "unknown"
+            return "操作失败（\(time)）。错误码：\(code)。"
+        case .idle:
+            break
+        }
+
+        switch status.availability {
+        case .notSupported:
+            return "当前环境不支持发起 CKShare。请在已登录 iCloud 的真机上重试。"
+        case .notAuthorized:
+            return "未检测到可用 iCloud 账号或 CloudKit 权限；无法创建共享邀请。"
+        case .failed(let message):
+            return message
+        case .available:
+            return "尚未创建共享。点击「创建共享」可生成邀请链接，复制后通过任意渠道发给伴侣。"
+        }
+    }
+
+    private var cloudShareInvitationStatusText: String {
+        let status = viewModel.cloudShareInvitationStatus
+        switch status.availability {
+        case .available:
+            switch status.state {
+            case .idle: return "待创建"
+            case .creating: return "创建中"
+            case .active: return "已生成"
+            case .revoking: return "撤销中"
+            case .revoked: return "已撤销"
+            case .failed: return "失败"
+            }
+        case .notAuthorized: return "未授权"
+        case .notSupported: return "当前环境不可用"
+        case .failed: return "状态异常"
+        }
+    }
+
+    private var cloudShareInvitationStatusColorToken: AppColorToken {
+        let status = viewModel.cloudShareInvitationStatus
+        switch status.availability {
+        case .available:
+            switch status.state {
+            case .active: return .green
+            case .idle, .creating, .revoking: return .indigo
+            case .revoked, .failed: return .slate
+            }
+        case .notAuthorized, .notSupported, .failed: return .slate
+        }
+    }
+
+    private var cloudShareInvitationStatusSymbolName: String {
+        let status = viewModel.cloudShareInvitationStatus
+        switch status.availability {
+        case .available:
+            switch status.state {
+            case .idle: return "link.badge.plus"
+            case .creating: return "arrow.triangle.2.circlepath"
+            case .active: return "person.crop.circle.badge.checkmark"
+            case .revoking: return "arrow.triangle.2.circlepath"
+            case .revoked: return "person.crop.circle.badge.minus"
+            case .failed: return "xmark.octagon"
+            }
+        case .notAuthorized: return "icloud.slash"
+        case .notSupported: return "wrench.and.screwdriver"
+        case .failed: return "exclamationmark.icloud"
         }
     }
 

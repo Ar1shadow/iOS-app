@@ -15,12 +15,14 @@ final class ProfileSettingsViewModel: ObservableObject {
     @Published private(set) var cloudSyncAvailability: ServiceAvailability = .notSupported
     @Published private(set) var cloudShareAcceptanceStatus: CloudShareAcceptanceStatus = .unsupported
     @Published var cloudShareAcceptanceURLInput: String = ""
+    @Published private(set) var cloudShareInvitationStatus: CloudShareInvitationStatus = .unsupported
     @Published private(set) var isLoading = false
     @Published private(set) var isRequestingHealthAuthorization = false
     @Published private(set) var isRequestingNotificationAuthorization = false
     @Published private(set) var isUpdatingCalendarSync = false
     @Published private(set) var isRefreshingCloudSync = false
     @Published private(set) var isAcceptingCloudShare = false
+    @Published private(set) var isMutatingCloudShareInvitation = false
 
     private let healthDataService: any HealthDataService
     private let calendarSyncController: any CalendarSyncSettingsControlling
@@ -28,6 +30,7 @@ final class ProfileSettingsViewModel: ObservableObject {
     private let notificationScheduler: any NotificationScheduler
     private let cloudSyncService: any CloudSyncService
     private let cloudShareAcceptanceService: any CloudShareAcceptanceService
+    private let cloudShareInvitationService: any CloudShareInvitationService
 
     init(
         healthDataService: any HealthDataService,
@@ -38,7 +41,8 @@ final class ProfileSettingsViewModel: ObservableObject {
         ),
         notificationScheduler: any NotificationScheduler,
         cloudSyncService: any CloudSyncService,
-        cloudShareAcceptanceService: any CloudShareAcceptanceService
+        cloudShareAcceptanceService: any CloudShareAcceptanceService,
+        cloudShareInvitationService: any CloudShareInvitationService
     ) {
         self.healthDataService = healthDataService
         self.calendarSyncController = calendarSyncController
@@ -46,6 +50,7 @@ final class ProfileSettingsViewModel: ObservableObject {
         self.notificationScheduler = notificationScheduler
         self.cloudSyncService = cloudSyncService
         self.cloudShareAcceptanceService = cloudShareAcceptanceService
+        self.cloudShareInvitationService = cloudShareInvitationService
     }
 
     func load() async {
@@ -59,6 +64,7 @@ final class ProfileSettingsViewModel: ObservableObject {
         cloudSyncStatus = await cloudSyncService.currentStatus()
         cloudSyncAvailability = cloudSyncStatus.availability
         cloudShareAcceptanceStatus = await cloudShareAcceptanceService.currentStatus()
+        cloudShareInvitationStatus = await cloudShareInvitationService.currentStatus()
         hasLoadedOnce = true
     }
 
@@ -109,5 +115,30 @@ final class ProfileSettingsViewModel: ObservableObject {
         isAcceptingCloudShare = true
         defer { isAcceptingCloudShare = false }
         cloudShareAcceptanceStatus = await cloudShareAcceptanceService.acceptShare(from: url)
+    }
+
+    func refreshCloudShareInvitationStatus() async {
+        cloudShareInvitationStatus = await cloudShareInvitationService.currentStatus()
+    }
+
+    func createCoupleShare() async {
+        isMutatingCloudShareInvitation = true
+        defer { isMutatingCloudShareInvitation = false }
+        cloudShareInvitationStatus = await cloudShareInvitationService.createShare()
+        NotificationCenter.default.post(name: CloudShareNotifications.invitationDidUpdate, object: nil)
+    }
+
+    func revokeCoupleShare() async {
+        isMutatingCloudShareInvitation = true
+        defer { isMutatingCloudShareInvitation = false }
+        cloudShareInvitationStatus = await cloudShareInvitationService.revokeShare()
+        NotificationCenter.default.post(name: CloudShareNotifications.invitationDidUpdate, object: nil)
+    }
+
+    func reinviteCoupleShare() async {
+        isMutatingCloudShareInvitation = true
+        defer { isMutatingCloudShareInvitation = false }
+        cloudShareInvitationStatus = await cloudShareInvitationService.reinvite()
+        NotificationCenter.default.post(name: CloudShareNotifications.invitationDidUpdate, object: nil)
     }
 }

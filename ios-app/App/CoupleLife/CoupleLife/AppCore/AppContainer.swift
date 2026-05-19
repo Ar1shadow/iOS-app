@@ -10,6 +10,7 @@ struct AppContainer {
     let activeCoupleSpaceStore: ActiveCoupleSpaceStore
     let cloudSync: CloudSyncService
     let cloudShareAcceptance: CloudShareAcceptanceService
+    let cloudShareInvitation: CloudShareInvitationService
 
     static let `default` = AppContainer(
         calendarSync: EventKitCalendarSyncService(),
@@ -19,7 +20,8 @@ struct AppContainer {
         notificationSettings: UserDefaultsNotificationSettingsStore(),
         activeCoupleSpaceStore: UserDefaultsActiveCoupleSpaceStore(),
         cloudSync: NoopCloudSyncService(),
-        cloudShareAcceptance: NoopCloudShareAcceptanceService()
+        cloudShareAcceptance: NoopCloudShareAcceptanceService(),
+        cloudShareInvitation: NoopCloudShareInvitationService()
     )
 
     @MainActor
@@ -47,6 +49,9 @@ struct AppContainer {
             cloudShareAcceptance: DefaultCloudShareAcceptanceService(
                 client: CloudKitShareClientLive(),
                 allowedHosts: ["icloud.com", "www.icloud.com"]
+            ),
+            cloudShareInvitation: DefaultCloudShareInvitationService(
+                client: CloudKitShareInvitationClientLive()
             )
         )
     }

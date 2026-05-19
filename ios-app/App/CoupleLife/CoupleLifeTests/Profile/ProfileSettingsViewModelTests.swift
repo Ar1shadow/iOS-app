@@ -35,7 +35,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             calendarSyncController: calendarController,
             notificationScheduler: notifications,
             cloudSyncService: cloudSync,
-            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService(),
+            cloudShareInvitationService: NoopCloudShareInvitationService()
         )
 
         XCTAssertFalse(viewModel.hasLoadedOnce)
@@ -80,7 +81,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             ),
             notificationScheduler: StubNotificationScheduler(availability: .notSupported),
             cloudSyncService: StubCloudSyncService(availability: .notSupported),
-            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService(),
+            cloudShareInvitationService: NoopCloudShareInvitationService()
         )
 
         await viewModel.load()
@@ -106,7 +108,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             ),
             notificationScheduler: StubNotificationScheduler(availability: .notSupported),
             cloudSyncService: StubCloudSyncService(availability: .notSupported),
-            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService(),
+            cloudShareInvitationService: NoopCloudShareInvitationService()
         )
 
         await viewModel.load()
@@ -141,7 +144,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             ),
             notificationScheduler: notificationScheduler,
             cloudSyncService: StubCloudSyncService(availability: .notSupported),
-            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService(),
+            cloudShareInvitationService: NoopCloudShareInvitationService()
         )
 
         await viewModel.load()
@@ -183,7 +187,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             notificationController: notificationController,
             notificationScheduler: notificationScheduler,
             cloudSyncService: StubCloudSyncService(availability: .notSupported),
-            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService(),
+            cloudShareInvitationService: NoopCloudShareInvitationService()
         )
 
         await viewModel.load()
@@ -240,7 +245,8 @@ final class ProfileSettingsViewModelTests: XCTestCase {
             ),
             notificationScheduler: StubNotificationScheduler(availability: .notSupported),
             cloudSyncService: cloudSync,
-            cloudShareAcceptanceService: NoopCloudShareAcceptanceService()
+            cloudShareAcceptanceService: NoopCloudShareAcceptanceService(),
+            cloudShareInvitationService: NoopCloudShareInvitationService()
         )
 
         await viewModel.load()

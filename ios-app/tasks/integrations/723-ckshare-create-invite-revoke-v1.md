@@ -2,8 +2,8 @@
 
 - Phase: Phase 2 (情侣共享)
 - 模块: Integrations
-- 状态: Todo
-- 最后更新: 2026-05-08
+- 状态: Done
+- 最后更新: 2026-05-19
 - 依赖: 720、721、722、800、810
 - 目标: 落地“当前用户作为 share owner，从 App 内创建 CKShare、生成邀请链接、撤销 share、对单个 participant 重邀”的最小闭环；与 722 的接受链路打通，形成 owner ↔ participant 双端可观测的 share 生命周期。
 - 非目标: 不做产品级共享 UX（头像、邀请人选择器美化等）；不做多 share 合并/转移所有权；不做共享数据的字段级权限再细分（沿用 810 的可见性规则）。
@@ -57,9 +57,21 @@
 
 ## 实施记录
 
-- 开工: <YYYY-MM-DD>
-- 进展: <1-3 行>
-- 下一步: <1 行>
+- 开工 / 完成: 2026-05-19
+- 落地内容（镜像 722 接受侧架构）:
+  - 新增 `CloudShareInvitationService` 协议 + `CloudShareInvitationState/Status` + Noop（`AppCore/AppServices.swift`）
+  - 新增 `CloudKitShareInvitationClient` 协议 + `CloudKitShareInvitationClientLive`（私有库 + 自定义 zone `CoupleLifeSharedZone` + `CoupleSpaceRoot` 记录 + `CKShare(rootRecord:)` + `CKModifyRecordsOperation`）
+  - 新增 `DefaultCloudShareInvitationService` 即 actor + 状态机；`InvitationCacheStore` / `UserDefaultsInvitationCacheStore` 持久化 share URL 指针
+  - `AppContainer` 注入 invitation service（live + default）；`CloudShareNotifications.invitationDidUpdate` 新增
+  - `ProfileSettingsViewModel` + `ProfileTab` 加 “情侣共享（发起方）” 子区：状态行 / share URL 复制 / 创建 / 撤销 / 重邀 按钮 + 订阅 invitationDidUpdate
+  - `RootTabView` 透传 `cloudShareInvitation`
+  - 新增 `CloudShareInvitationServiceTests`：7 个测试覆盖 create / revoke / reinvite 三条路径成功 + 失败 + in-flight 状态机
+  - `ProfileSettingsViewModelTests` 既有 6 处 init 补 `cloudShareInvitationService:`
+- 关键决策:
+  - Reinvite v1 = 整 share revoke + recreate（spec fallback；状态机干净；可断言）
+  - UI v1 走 share URL 复制 + 系统分享面板路径；`UICloudSharingController` 包装放到 v2 等真机能验证 delegate 行为时再做
+  - Share root recordType `CoupleSpaceRoot` / recordName `couple-space-root` 在自定义 zone（部署到 CloudKit Production 由 724 联调验证）
+- 下一步: 接 724 在真机做 owner ↔ participant 双端联调闭环
 
 ## Definition of Done
 
@@ -72,15 +84,19 @@
 ## 验证记录
 
 - 命令: `cd ios-app/App/CoupleLife && xcodegen generate`
-- 命令: `cd ios-app/App/CoupleLife && xcodebuild test -quiet -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6'`
+  - 结果: ✅ 2026-05-19 通过
+- 命令: `cd ios-app/App/CoupleLife && xcodebuild test -project CoupleLife.xcodeproj -scheme CoupleLife -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.6' -derivedDataPath /tmp/CoupleLifeDerivedData-task723`
+  - 结果: ✅ 2026-05-19 通过 — Executed 166 tests, 0 failures（其中 CloudShareInvitationServiceTests 7 个）
 - 手测: 待补（接 724 真机联调记录）
-- 遗留风险: 待补
+- 遗留风险: 见下方「已知风险/遗留」
 
 ## 已知风险/遗留
 
-- `UICloudSharingController` 在 iOS 17+ 行为细节（`itemProvider` 与 share completion）需要在真机验证；首期允许仅落 share URL 复制路径作为 fallback。
-- 重邀语义：CK 不区分“重新邀请同一 participant”，可能需要 revoke + recreate；对外语义需在文档中对齐。
-- Schema 部署：share root record type 必须在 CloudKit Console 部署到 Production 才能在真机看到；联调前确认（见 724）。
+- `UICloudSharingController` 集成本次跳过：v1 落 share URL 复制 + 系统分享面板路径；待 724 真机验证 delegate 行为后再补 `UIViewControllerRepresentable` 包装。
+- 重邀语义对齐：v1 = 整 share revoke + recreate（spec fallback）；CK 不支持原地重邀同 participant，文档已注明。
+- Schema 部署：`CoupleSpaceRoot` record-type 与自定义 zone `CoupleLifeSharedZone` 尚未在 CloudKit Console 部署到 Production；真机闭环验证由 724 触达后部署。
+- `currentStatus()` 不会主动重拉 CK 校正 participantCount / shareURL；UserDefaults 缓存仅作 UI 恢复。若设备切换 iCloud 账号或 share 在另一端被改动，状态可能 stale，下一次 create/revoke/reinvite 会自我修正。
+- `UserDefaultsInvitationCacheStore` 写读未加锁；UserDefaults 本身线程安全，但 init 时读 cache 与外部并发写存在理论 race。低风险，可在 v2 收敛。
 
 ## 执行规范
 

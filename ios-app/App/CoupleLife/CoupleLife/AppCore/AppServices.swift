@@ -149,6 +149,40 @@ protocol CloudShareAcceptanceService {
     #endif
 }
 
+enum CloudShareInvitationState: Equatable {
+    case idle
+    case creating
+    case active
+    case revoking
+    case revoked
+    case failed
+}
+
+struct CloudShareInvitationStatus: Equatable {
+    var availability: ServiceAvailability
+    var state: CloudShareInvitationState
+    var lastShareURL: URL?
+    var participantCount: Int
+    var lastErrorCode: String?
+    var lastUpdatedAt: Date?
+
+    static let unsupported = CloudShareInvitationStatus(
+        availability: .notSupported,
+        state: .idle,
+        lastShareURL: nil,
+        participantCount: 0,
+        lastErrorCode: nil,
+        lastUpdatedAt: nil
+    )
+}
+
+protocol CloudShareInvitationService {
+    func currentStatus() async -> CloudShareInvitationStatus
+    func createShare() async -> CloudShareInvitationStatus
+    func revokeShare() async -> CloudShareInvitationStatus
+    func reinvite() async -> CloudShareInvitationStatus
+}
+
 struct NoopCalendarSyncService: CalendarSyncService {
     func availability() async -> ServiceAvailability { .notSupported }
     func currentAvailability() -> ServiceAvailability { .notSupported }
@@ -206,4 +240,38 @@ struct NoopCloudShareAcceptanceService: CloudShareAcceptanceService {
         )
     }
     #endif
+}
+
+struct NoopCloudShareInvitationService: CloudShareInvitationService {
+    func currentStatus() async -> CloudShareInvitationStatus { .unsupported }
+    func createShare() async -> CloudShareInvitationStatus {
+        CloudShareInvitationStatus(
+            availability: .notSupported,
+            state: .failed,
+            lastShareURL: nil,
+            participantCount: 0,
+            lastErrorCode: "not_supported",
+            lastUpdatedAt: Date()
+        )
+    }
+    func revokeShare() async -> CloudShareInvitationStatus {
+        CloudShareInvitationStatus(
+            availability: .notSupported,
+            state: .failed,
+            lastShareURL: nil,
+            participantCount: 0,
+            lastErrorCode: "not_supported",
+            lastUpdatedAt: Date()
+        )
+    }
+    func reinvite() async -> CloudShareInvitationStatus {
+        CloudShareInvitationStatus(
+            availability: .notSupported,
+            state: .failed,
+            lastShareURL: nil,
+            participantCount: 0,
+            lastErrorCode: "not_supported",
+            lastUpdatedAt: Date()
+        )
+    }
 }
